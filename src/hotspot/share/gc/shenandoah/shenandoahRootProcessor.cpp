@@ -278,8 +278,8 @@ public:
 };
 
 void ShenandoahHeapIterationRootScanner::roots_do(OopClosure* oops) {
-  // Must use _claim_other to avoid interfering with concurrent CLDG iteration
-  CLDToOopClosure clds(oops, ClassLoaderData::_claim_other);
+  // Must use _claim_none to avoid interfering with concurrent CLDG iteration
+  CLDToOopClosure clds(oops, ClassLoaderData::_claim_none);
   ShenandoahMarkCodeBlobClosure code(oops);
   ShenandoahParallelOopsDoThreadClosure tc_cl(oops, &code, NULL);
 
