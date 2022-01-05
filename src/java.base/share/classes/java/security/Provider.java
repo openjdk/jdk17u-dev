@@ -1153,7 +1153,7 @@ public abstract class Provider extends Properties {
             switch (opType) {
                 case ADD:
                     // clean up old alias if present
-                    Service prevAliasService = legacyMap.get(aliasAlg);
+                    Service prevAliasService = legacyMap.get(aliasKey);
                     if (prevAliasService != null) {
                         prevAliasService.removeAlias(aliasAlg);
                     }
