@@ -1056,7 +1056,7 @@ JNIEXPORT jintArray JNICALL Java_sun_awt_shell_Win32ShellFolder2_getIconBits
             bmi.bmiHeader.biCompression = BI_RGB;
             // Extract the color bitmap
             int nBits = iconSize * iconSize;
-            
+
             long *colorBits = NULL;
             long *maskBits = NULL;
 
