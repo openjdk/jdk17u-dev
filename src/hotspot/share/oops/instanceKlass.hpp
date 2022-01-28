@@ -1108,7 +1108,7 @@ public:
   // callbacks for actions during class unloading
   static void unload_class(InstanceKlass* ik);
 
-  virtual void release_C_heap_structures();
+  virtual void release_C_heap_structures(bool release_constant_pool = true);
 
   // Naming
   const char* signature_name() const;
@@ -1204,8 +1204,6 @@ private:
   void initialize_impl                           (TRAPS);
   void initialize_super_interfaces               (TRAPS);
   void eager_initialize_impl                     ();
-  /* jni_id_for_impl for jfieldID only */
-  JNIid* jni_id_for_impl                         (int offset);
 
   // find a local method (returns NULL if not found)
   Method* find_method_impl(const Symbol* name,
@@ -1220,9 +1218,6 @@ private:
                                   OverpassLookupMode overpass_mode,
                                   StaticLookupMode static_mode,
                                   PrivateLookupMode private_mode);
-
-  // Free CHeap allocated fields.
-  void release_C_heap_structures_internal();
 
 #if INCLUDE_JVMTI
   // RedefineClasses support
