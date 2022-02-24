@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -55,8 +55,6 @@ import sun.security.x509.GeneralNameInterface;
 import sun.security.x509.PKIXExtensions;
 import sun.security.x509.URIName;
 import sun.security.x509.X509CertImpl;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This is a class that checks the revocation status of a certificate(s) using
@@ -244,7 +242,7 @@ public final class OCSP {
                 encodedGetReq.append("/");
             }
             encodedGetReq.append(URLEncoder.encode(
-                    Base64.getEncoder().encodeToString(bytes), UTF_8));
+                    Base64.getEncoder().encodeToString(bytes), "UTF-8"));
 
             if (encodedGetReq.length() <= 255) {
                 url = new URL(encodedGetReq.toString());
