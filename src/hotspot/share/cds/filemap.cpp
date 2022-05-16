@@ -193,6 +193,7 @@ FileMapInfo::~FileMapInfo() {
     assert(_dynamic_archive_info == this, "must be singleton"); // not thread safe
     _dynamic_archive_info = NULL;
   }
+
   if (_header != nullptr) {
     os::free(_header);
   }
