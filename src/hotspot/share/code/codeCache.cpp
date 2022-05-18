@@ -632,7 +632,7 @@ bool CodeCache::contains(nmethod *nm) {
 
 static bool is_in_asgct() {
   Thread* current_thread = Thread::current_or_null_safe();
-  return current_thread != NULL && current_thread->is_Java_thread() && JavaThread::cast(current_thread)->in_asgct();
+  return current_thread != NULL && current_thread->is_Java_thread() && current_thread->as_Java_thread()->in_asgct();
 }
 
 // This method is safe to call without holding the CodeCache_lock, as long as a dead CodeBlob is not

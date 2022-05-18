@@ -1591,21 +1591,6 @@ public:
 
   static void verify_cross_modify_fence_failure(JavaThread *thread) PRODUCT_RETURN;
 
-  // Helper function to create the java.lang.Thread object for a
-  // VM-internal thread. The thread will have the given name, be
-  // part of the System ThreadGroup and if is_visible is true will be
-  // discoverable via the system ThreadGroup.
-  static Handle create_system_thread_object(const char* name, bool is_visible, TRAPS);
-
-  // Helper function to start a VM-internal daemon thread.
-  // E.g. ServiceThread, NotificationThread, CompilerThread etc.
-  static void start_internal_daemon(JavaThread* current, JavaThread* target,
-                                    Handle thread_oop, ThreadPriority prio);
-
-  // Helper function to do vm_exit_on_initialization for osthread
-  // resource allocation failure.
-  static void vm_exit_on_osthread_failure(JavaThread* thread);
-
   // AsyncGetCallTrace support
   inline bool in_asgct(void) {return _in_asgct;}
   inline void set_in_asgct(bool value) {_in_asgct = value;}
