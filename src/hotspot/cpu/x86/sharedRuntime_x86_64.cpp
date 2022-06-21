@@ -168,19 +168,19 @@ class RegisterSaver {
   static void restore_result_registers(MacroAssembler* masm);
 };
 
-OopMap* RegisterSaver::save_live_registers(MacroAssembler* masm, int additional_frame_words, int* total_frame_words, bool save_vectors) {
+OopMap* RegisterSaver::save_live_registers(MacroAssembler* masm, int additional_frame_words, int* total_frame_words, bool save_wide_vectors) {
   int off = 0;
   int num_xmm_regs = XMMRegisterImpl::number_of_registers;
   if (UseAVX < 3) {
     num_xmm_regs = num_xmm_regs/2;
   }
 #if COMPILER2_OR_JVMCI
-  if (save_vectors && UseAVX == 0) {
-    save_vectors = false; // vectors larger than 16 byte long are supported only with AVX
+  if (save_wide_vectors && UseAVX == 0) {
+    save_wide_vectors = false; // vectors larger than 16 byte long are supported only with AVX
   }
-  assert(!save_vectors || MaxVectorSize <= 64, "Only up to 64 byte long vectors are supported");
+  assert(!save_wide_vectors || MaxVectorSize <= 64, "Only up to 64 byte long vectors are supported");
 #else
-  save_vectors = false; // vectors are generated only by C2 and JVMCI
+  save_wide_vectors = false; // vectors are generated only by C2 and JVMCI
 #endif
 
   // Always make the frame size 16-byte aligned, both vector and non vector stacks are always allocated
@@ -361,7 +361,7 @@ OopMap* RegisterSaver::save_live_registers(MacroAssembler* masm, int additional_
   return map;
 }
 
-void RegisterSaver::restore_live_registers(MacroAssembler* masm, bool restore_vectors) {
+void RegisterSaver::restore_live_registers(MacroAssembler* masm, bool restore_wide_vectors) {
   int num_xmm_regs = XMMRegisterImpl::number_of_registers;
   if (UseAVX < 3) {
     num_xmm_regs = num_xmm_regs/2;
