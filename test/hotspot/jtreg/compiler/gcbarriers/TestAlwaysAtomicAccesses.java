@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,13 +22,19 @@
  */
 
 /*
- * @test
- * @summary Run of ShortResponseBody with -Djdk.httpclient.enableAllMethodRetry
- * @library /test/lib
- * @build jdk.test.lib.net.SimpleSSLContext
- * @build ShortResponseBody
- * @run testng/othervm
- *       -Djdk.httpclient.HttpClient.log=headers,errors,channel
- *       -Djdk.httpclient.enableAllMethodRetry
- *       ShortResponseBody
+ * @test TestAlwaysAtomicAccesses
+ * @bug 8285301
+ * @summary Test memory accesses from compiled code with AlwaysAtomicAccesses.
+ * @run main/othervm -Xcomp -XX:+UnlockExperimentalVMOptions -XX:+AlwaysAtomicAccesses
+ *                   compiler.membars.TestAlwaysAtomicAccesses
  */
+
+package compiler.membars;
+
+public class TestAlwaysAtomicAccesses {
+
+    public static void main(String[] args) {
+        // Nothing to do here. Compilations are triggered by -Xcomp.
+        System.out.println("Test passed");
+    }
+}

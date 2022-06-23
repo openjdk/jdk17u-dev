@@ -814,19 +814,24 @@ bool os::create_thread(Thread* thread, ThreadType thr_type,
     ret = pthread_attr_setguardsize(&attr, 0);
   }
 
+  ResourceMark rm;
   pthread_t tid = 0;
+
   if (ret == 0) {
-    ret = pthread_create(&tid, &attr, (void* (*)(void*)) thread_native_entry, thread);
+    int limit = 3;
+    do {
+      ret = pthread_create(&tid, &attr, (void* (*)(void*)) thread_native_entry, thread);
+    } while (ret == EAGAIN && limit-- > 0);
   }
 
   if (ret == 0) {
     char buf[64];
-    log_info(os, thread)("Thread started (pthread id: " UINTX_FORMAT ", attributes: %s). ",
-      (uintx) tid, os::Posix::describe_pthread_attr(buf, sizeof(buf), &attr));
+    log_info(os, thread)("Thread \"%s\" started (pthread id: " UINTX_FORMAT ", attributes: %s). ",
+                         thread->name(), (uintx) tid, os::Posix::describe_pthread_attr(buf, sizeof(buf), &attr));
   } else {
     char buf[64];
-    log_warning(os, thread)("Failed to start thread - pthread_create failed (%d=%s) for attributes: %s.",
-      ret, os::errno_name(ret), os::Posix::describe_pthread_attr(buf, sizeof(buf), &attr));
+    log_warning(os, thread)("Failed to start thread \"%s\" - pthread_create failed (%d=%s) for attributes: %s.",
+                            thread->name(), ret, os::errno_name(ret), os::Posix::describe_pthread_attr(buf, sizeof(buf), &attr));
     // Log some OS information which might explain why creating the thread failed.
     log_info(os, thread)("Number of threads approx. running in the VM: %d", Threads::number_of_threads());
     LogStream st(Log(os, thread)::info());
@@ -2566,25 +2571,6 @@ bool os::message_box(const char* title, const char* message) {
   while (::read(0, buf, sizeof(buf)) <= 0) { ::sleep(100); }
 
   return buf[0] == 'y' || buf[0] == 'Y';
-}
-
-// Is a (classpath) directory empty?
-bool os::dir_is_empty(const char* path) {
-  DIR *dir = NULL;
-  struct dirent *ptr;
-
-  dir = opendir(path);
-  if (dir == NULL) return true;
-
-  /* Scan the directory */
-  bool result = true;
-  while (result && (ptr = readdir(dir)) != NULL) {
-    if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
-      result = false;
-    }
-  }
-  closedir(dir);
-  return result;
 }
 
 // This code originates from JDK's sysOpen and open64_w
