@@ -33,6 +33,19 @@
  *      compiler.uncommontrap.TestDeoptOOM
  */
 
+/*
+ * @test
+ * @bug 8273456
+ * @summary Test that ttyLock is ranked above StackWatermark_lock
+ * @requires !vm.graal.enabled & vm.gc.Z
+ * @run main/othervm -XX:-BackgroundCompilation -Xmx128M -XX:+IgnoreUnrecognizedVMOptions -XX:+VerifyStack
+ *      -XX:CompileCommand=exclude,compiler.uncommontrap.TestDeoptOOM::main
+ *      -XX:CompileCommand=exclude,compiler.uncommontrap.TestDeoptOOM::m9_1
+ *      -XX:+UnlockDiagnosticVMOptions
+ *      -XX:+UseZGC -XX:+LogCompilation -XX:+PrintDeoptimizationDetails -XX:+TraceDeoptimization -XX:+Verbose
+ *      compiler.uncommontrap.TestDeoptOOM
+ */
+
 package compiler.uncommontrap;
 
 public class TestDeoptOOM {
