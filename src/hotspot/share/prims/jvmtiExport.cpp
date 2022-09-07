@@ -2338,7 +2338,7 @@ void JvmtiExport::record_sampled_internal_object_allocation(oop obj) {
     NoSafepointVerifier no_sfpt;
     // Cannot take safepoint here so do not use state_for to get
     // jvmti thread state.
-    JvmtiThreadState *state = thread->as_Java_Thread()->jvmti_thread_state();
+    JvmtiThreadState *state = thread->as_Java_thread()->jvmti_thread_state();
     if (state != NULL) {
       // state is non NULL when SampledObjectAllocEventCollector is enabled.
       JvmtiSampledObjectAllocEventCollector *collector;
