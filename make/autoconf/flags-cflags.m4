@@ -95,17 +95,50 @@ AC_DEFUN([FLAGS_SETUP_DEBUG_SYMBOLS],
   # info flags for toolchains unless we know they work.
   # See JDK-8207057.
   ASFLAGS_DEBUG_SYMBOLS=""
+
+  # Debug prefix mapping if supported by compiler
+  DEBUG_PREFIX_CFLAGS=
+
   # Debug symbols
   if test "x$TOOLCHAIN_TYPE" = xgcc; then
+    if test "x$ALLOW_ABSOLUTE_PATHS_IN_OUTPUT" = "xfalse"; then
+      # Check if compiler supports -fdebug-prefix-map. If so, use that to make
+      # the debug symbol paths resolve to paths relative to the workspace root.
+      workspace_root_trailing_slash="${WORKSPACE_ROOT%/}/"
+      DEBUG_PREFIX_CFLAGS="-fdebug-prefix-map=${workspace_root_trailing_slash}="
+      FLAGS_COMPILER_CHECK_ARGUMENTS(ARGUMENT: [${DEBUG_PREFIX_CFLAGS}],
+        IF_FALSE: [
+            DEBUG_PREFIX_CFLAGS=
+        ]
+      )
+    fi
+
     CFLAGS_DEBUG_SYMBOLS="-g"
     ASFLAGS_DEBUG_SYMBOLS="-g"
   elif test "x$TOOLCHAIN_TYPE" = xclang; then
+    if test "x$ALLOW_ABSOLUTE_PATHS_IN_OUTPUT" = "xfalse"; then
+      # Check if compiler supports -fdebug-prefix-map. If so, use that to make
+      # the debug symbol paths resolve to paths relative to the workspace root.
+      workspace_root_trailing_slash="${WORKSPACE_ROOT%/}/"
+      DEBUG_PREFIX_CFLAGS="-fdebug-prefix-map=${workspace_root_trailing_slash}="
+      FLAGS_COMPILER_CHECK_ARGUMENTS(ARGUMENT: [${DEBUG_PREFIX_CFLAGS}],
+        IF_FALSE: [
+            DEBUG_PREFIX_CFLAGS=
+        ]
+      )
+    fi
+
     CFLAGS_DEBUG_SYMBOLS="-g"
     ASFLAGS_DEBUG_SYMBOLS="-g"
   elif test "x$TOOLCHAIN_TYPE" = xxlc; then
     CFLAGS_DEBUG_SYMBOLS="-g1"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
     CFLAGS_DEBUG_SYMBOLS="-Z7"
+  fi
+
+  if test "x$DEBUG_PREFIX_CFLAGS" != x; then
+    CFLAGS_DEBUG_SYMBOLS="$CFLAGS_DEBUG_SYMBOLS $DEBUG_PREFIX_CFLAGS"
+    ASFLAGS_DEBUG_SYMBOLS="$ASFLAGS_DEBUG_SYMBOLS $DEBUG_PREFIX_CFLAGS"
   fi
 
   AC_SUBST(CFLAGS_DEBUG_SYMBOLS)
@@ -159,6 +192,7 @@ AC_DEFUN([FLAGS_SETUP_WARNINGS],
 
     clang)
       DISABLE_WARNING_PREFIX="-Wno-"
+      BUILD_CC_DISABLE_WARNING_PREFIX="-Wno-"
       CFLAGS_WARNINGS_ARE_ERRORS="-Werror"
 
       # Additional warnings that are not activated by -Wall and -Wextra
@@ -436,9 +470,11 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     ALWAYS_DEFINES_JVM="-D_REENTRANT"
     ALWAYS_DEFINES_JDK="-D_GNU_SOURCE -D_REENTRANT -D_LARGEFILE64_SOURCE -DSTDC"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    ALWAYS_DEFINES_JDK="-DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_NO_DEPRECATE \
+    # Access APIs for Windows 8 and above
+    # see https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-170
+    ALWAYS_DEFINES_JDK="-DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0602 -D_CRT_SECURE_NO_DEPRECATE \
         -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32 -DIAL"
-    ALWAYS_DEFINES_JVM="-DNOMINMAX -DWIN32_LEAN_AND_MEAN"
+    ALWAYS_DEFINES_JVM="-DNOMINMAX -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0602"
   fi
 
   ###############################################################################

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -260,7 +260,13 @@ bool CgroupSubsystemFactory::determine_type(CgroupInfo* cg_infos,
       }
     }
     if (is_cgroupsV2) {
+      // On some systems we have mixed cgroups v1 and cgroups v2 controllers (e.g. freezer on cg1 and
+      // all relevant controllers on cg2). Only set the cgroup path when we see a hierarchy id of 0.
+      if (hierarchy_id != 0) {
+        continue;
+      }
       for (int i = 0; i < CG_INFO_LENGTH; i++) {
+        assert(cg_infos[i]._cgroup_path == NULL, "cgroup path must only be set once");
         cg_infos[i]._cgroup_path = os::strdup(cgroup_path);
       }
     }
@@ -495,7 +501,10 @@ int CgroupSubsystem::active_processor_count() {
   cpu_count = limit_count = os::Linux::active_processor_count();
   int quota  = cpu_quota();
   int period = cpu_period();
-  int share  = cpu_shares();
+
+  // It's not a good idea to use cpu_shares() to limit the number
+  // of CPUs used by the JVM. See JDK-8281181.
+  int share  = UseContainerCpuShares ? cpu_shares() : -1;
 
   if (quota > -1 && period > 0) {
     quota_count = ceilf((float)quota / (float)period);
@@ -546,7 +555,30 @@ jlong CgroupSubsystem::memory_limit_in_bytes() {
   if (!memory_limit->should_check_metric()) {
     return memory_limit->value();
   }
+  jlong phys_mem = os::Linux::physical_memory();
+  log_trace(os, container)("total physical memory: " JLONG_FORMAT, phys_mem);
   jlong mem_limit = read_memory_limit_in_bytes();
+
+  if (mem_limit <= 0 || mem_limit >= phys_mem) {
+    jlong read_mem_limit = mem_limit;
+    const char *reason;
+    if (mem_limit >= phys_mem) {
+      // Exceeding physical memory is treated as unlimited. Cg v1's implementation
+      // of read_memory_limit_in_bytes() caps this at phys_mem since Cg v1 has no
+      // value to represent 'max'. Cg v2 may return a value >= phys_mem if e.g. the
+      // container engine was started with a memory flag exceeding it.
+      reason = "ignored";
+      mem_limit = -1;
+    } else if (OSCONTAINER_ERROR == mem_limit) {
+      reason = "failed";
+    } else {
+      assert(mem_limit == -1, "Expected unlimited");
+      reason = "unlimited";
+    }
+    log_debug(os, container)("container memory limit %s: " JLONG_FORMAT ", using host value " JLONG_FORMAT,
+                             reason, read_mem_limit, phys_mem);
+  }
+
   // Update cached metric to avoid re-reading container settings too often
   memory_limit->set_value(mem_limit, OSCONTAINER_CACHE_TIMEOUT);
   return mem_limit;
