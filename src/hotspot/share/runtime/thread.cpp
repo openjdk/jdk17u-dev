@@ -374,9 +374,9 @@ void Thread::call_run() {
 
   // Perform common initialization actions
 
-  register_thread_stack_with_NMT();
-
   MACOS_AARCH64_ONLY(this->init_wx());
+
+  register_thread_stack_with_NMT();
 
   JFR_ONLY(Jfr::on_thread_start(this);)
 
@@ -476,6 +476,13 @@ bool Thread::is_JavaThread_protected(const JavaThread* p) {
   if (SafepointSynchronize::is_at_safepoint()) {
     // The target is protected since JavaThreads cannot exit
     // while we're at a safepoint.
+    return true;
+  }
+
+  // If the target hasn't been started yet then it is trivially
+  // "protected". We assume the caller is the thread that will do
+  // the starting.
+  if (p->osthread() == NULL || p->osthread()->get_state() <= INITIALIZED) {
     return true;
   }
 
@@ -1007,6 +1014,7 @@ void JavaThread::check_for_valid_safepoint_state() {
 JavaThread::JavaThread() :
   // Initialize fields
 
+  _in_asgct(false),
   _on_thread_list(false),
   DEBUG_ONLY(_java_call_counter(0) COMMA)
   _entry_point(nullptr),
@@ -1050,8 +1058,8 @@ JavaThread::JavaThread() :
   _pending_failed_speculation(0),
   _jvmci{nullptr},
   _jvmci_counters(nullptr),
-  _jvmci_reserved0(nullptr),
-  _jvmci_reserved1(nullptr),
+  _jvmci_reserved0(0),
+  _jvmci_reserved1(0),
   _jvmci_reserved_oop0(nullptr),
 #endif // INCLUDE_JVMCI
 
@@ -1694,7 +1702,7 @@ void JavaThread::check_and_handle_async_exceptions() {
 void JavaThread::handle_special_runtime_exit_condition(bool check_asyncs) {
 
   if (is_obj_deopt_suspend()) {
-    frame_anchor()->make_walkable(this);
+    frame_anchor()->make_walkable();
     wait_for_object_deoptimization();
   }
 
@@ -2190,7 +2198,7 @@ const char* JavaThread::get_thread_name() const {
 }
 
 // Returns a non-NULL representation of this thread's name, or a suitable
-// descriptive string if there is no set name
+// descriptive string if there is no set name.
 const char* JavaThread::get_thread_name_string(char* buf, int buflen) const {
   const char* name_str;
   oop thread_obj = threadObj();
@@ -2211,6 +2219,19 @@ const char* JavaThread::get_thread_name_string(char* buf, int buflen) const {
     name_str = Thread::name();
   }
   assert(name_str != NULL, "unexpected NULL thread name");
+  return name_str;
+}
+
+// Helper to extract the name from the thread oop for logging.
+const char* JavaThread::name_for(oop thread_obj) {
+  assert(thread_obj != NULL, "precondition");
+  oop name = java_lang_Thread::name(thread_obj);
+  const char* name_str;
+  if (name != NULL) {
+    name_str = java_lang_String::as_utf8_string(name);
+  } else {
+    name_str = "<un-named>";
+  }
   return name_str;
 }
 
@@ -2747,6 +2768,11 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   // Note: this internally calls os::init_container_support()
   jint parse_result = Arguments::parse(args);
   if (parse_result != JNI_OK) return parse_result;
+
+#if INCLUDE_NMT
+  // Initialize NMT right after argument parsing to keep the pre-NMT-init window small.
+  MemTracker::initialize();
+#endif // INCLUDE_NMT
 
   os::init_before_ergo();
 
