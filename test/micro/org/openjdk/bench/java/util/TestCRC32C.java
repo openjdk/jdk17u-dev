@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,35 +20,41 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package org.openjdk.bench.java.util;
 
-/*
- * @test
- * @bug 8184271
- * @summary Test correct scheduling of System.nanoTime C1 intrinsic.
- * @run main/othervm -XX:TieredStopAtLevel=1 -Xbatch
- *                   -XX:CompileCommand=dontinline,compiler.c1.TestPinnedIntrinsics::checkNanoTime
- *                   compiler.c1.TestPinnedIntrinsics
- */
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.CRC32C;
+import org.openjdk.jmh.annotations.*;
 
-package compiler.c1;
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@State(Scope.Benchmark)
+@Fork(value = 2)
 
-public class TestPinnedIntrinsics {
+public class TestCRC32C {
 
-    private static void testNanoTime() {
-        long start = System.nanoTime();
-        long end = System.nanoTime();
-        checkNanoTime(end - start);
+    private CRC32C crc32c;
+    private Random random;
+    private byte[] bytes;
+
+    @Param({"64", "128", "256", "512", "1024", "2048", "4096", "8192", "16384", "32768", "65536"})
+    private int count;
+
+    public TestCRC32C() {
+        crc32c = new CRC32C();
+        random = new Random(2147483648L);
+        bytes = new byte[1000000];
+        random.nextBytes(bytes);
     }
 
-    private static void checkNanoTime(long diff) {
-        if (diff < 0) {
-            throw new RuntimeException("testNanoTime failed with " + diff);
-        }
+    @Setup(Level.Iteration)
+    public void setupBytes() {
+        crc32c.reset();
     }
 
-    public static void main(String[] args) {
-        for (int i = 0; i < 100_000; ++i) {
-            testNanoTime();
-        }
+    @Benchmark
+    public void testCRC32CUpdate() {
+        crc32c.update(bytes, 0, count);
     }
 }
