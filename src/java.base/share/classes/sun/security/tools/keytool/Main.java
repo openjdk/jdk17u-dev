@@ -1500,7 +1500,7 @@ public final class Main {
         PKCS10 req = new PKCS10(rawReq);
 
         CertPathConstraintsParameters cpcp = new CertPathConstraintsParameters(
-                req.getSubjectPublicKeyInfo(), null, null, null);
+                req.getSubjectPublicKeyInfo(), null, null);
         checkWeakConstraint(rb.getString("the.certificate.request"), req, cpcp);
 
         info.set(X509CertInfo.KEY, new CertificateX509Key(req.getSubjectPublicKeyInfo()));
@@ -1614,7 +1614,7 @@ public final class Main {
             out.write(crl.getEncodedInternal());
         }
         CertPathConstraintsParameters cpcp = new CertPathConstraintsParameters(
-                privateKey, null, null, null);
+                privateKey, null, null);
         checkWeakConstraint(rb.getString("the.generated.crl"), crl, privateKey,
                 cpcp);
     }
@@ -1663,7 +1663,7 @@ public final class Main {
         request.print(out);
 
         CertPathConstraintsParameters cpcp = new CertPathConstraintsParameters(
-                request.getSubjectPublicKeyInfo(), null, null, null);
+                request.getSubjectPublicKeyInfo(), null, null);
         checkWeakConstraint(rb.getString("the.generated.certificate.request"),
                 request, cpcp);
     }
@@ -2786,7 +2786,7 @@ public final class Main {
 
         PublicKey pkey = req.getSubjectPublicKeyInfo();
         CertPathConstraintsParameters cpcp =
-                new CertPathConstraintsParameters(pkey, null, null, null);
+                new CertPathConstraintsParameters(pkey, null, null);
         out.printf(rb.getString("PKCS.10.with.weak"),
                 req.getSubjectName(),
                 pkey.getFormat(),
@@ -2817,7 +2817,7 @@ public final class Main {
 
         CertPathConstraintsParameters cpcp1 =
                 new CertPathConstraintsParameters(
-                req.getSubjectPublicKeyInfo(), null, null, null);
+                req.getSubjectPublicKeyInfo(), null, null);
         checkWeakConstraint(rb.getString("the.certificate.request"), req,
                 cpcp1);
     }
