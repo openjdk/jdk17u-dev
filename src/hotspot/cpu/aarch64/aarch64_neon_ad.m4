@@ -1884,9 +1884,9 @@ dnl
 define(`VSLCNT', `
 instruct vslcnt$1$2`'(vec$3 dst, iRegIorL2I cnt) %{
   predicate(ifelse($1, 8,
-                   (n->as_Vector()->length_in_bytes() == 4 ||`
-              'n->as_Vector()->length_in_bytes() == $1),
-                   n->as_Vector()->length_in_bytes() == $1));
+                                  n->as_Vector()->length_in_bytes() == 4 ||`
+                            'n->as_Vector()->length_in_bytes() == $1,
+                                  n->as_Vector()->length_in_bytes() == $1));
   match(Set dst (LShiftCntV cnt));
   ins_cost(INSN_COST);
   format %{ "dup  $dst, $cnt\t# shift count vector ($1$2)" %}
@@ -1899,9 +1899,9 @@ dnl
 define(`VSRCNT', `
 instruct vsrcnt$1$2`'(vec$3 dst, iRegIorL2I cnt) %{
   predicate(ifelse($1, 8,
-                   (n->as_Vector()->length_in_bytes() == 4 ||`
-             'n->as_Vector()->length_in_bytes() == $1),
-                   n->as_Vector()->length_in_bytes() == $1));
+                                  n->as_Vector()->length_in_bytes() == 4 ||`
+                            'n->as_Vector()->length_in_bytes() == $1,
+                                  n->as_Vector()->length_in_bytes() == $1));
   match(Set dst (RShiftCntV cnt));
   ins_cost(INSN_COST * 2);
   format %{ "negw  rscratch1, $cnt\t"

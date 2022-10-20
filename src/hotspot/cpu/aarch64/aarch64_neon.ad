@@ -4274,7 +4274,7 @@ instruct vslcnt16B(vecX dst, iRegIorL2I cnt) %{
 
 instruct vsrcnt8B(vecD dst, iRegIorL2I cnt) %{
   predicate(n->as_Vector()->length_in_bytes() == 4 ||
-            n->as_Vector()->length_in_bytes() == 8);
+                            n->as_Vector()->length_in_bytes() == 8);
   match(Set dst (RShiftCntV cnt));
   ins_cost(INSN_COST * 2);
   format %{ "negw  rscratch1, $cnt\t"
