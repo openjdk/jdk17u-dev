@@ -888,9 +888,7 @@ void ClassLoaderData::free_deallocate_list_C_heap_structures() {
       // this class (scratch or error class) in do_unloading().
       remove_class(ik);
       // But still have to remove it from the dumptime_table.
-      if (Arguments::is_dumping_archive()) {
-        SystemDictionaryShared::remove_dumptime_info(ik);
-      }
+      SystemDictionaryShared::handle_class_unloading(ik);
     }
   }
 }
