@@ -1239,7 +1239,7 @@ void set_signal_handler(int sig) {
   }
 #endif
 
-  // Save handler setup for later checking
+  // Save handler setup for possible later checking
   vm_handlers.set(sig, &sigAct);
 
   do_check_signal_periodically[sig] = true;
