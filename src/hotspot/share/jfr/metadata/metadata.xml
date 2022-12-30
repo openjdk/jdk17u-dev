@@ -494,6 +494,11 @@
     <Field type="ulong" contentType="bytes" name="used" label="Used" />
   </Event>
 
+  <Event name="JITRestart" category="Java Virtual Machine, Compiler" label="JIT Restart" stackTrace="false" startTime="false" thread="true">
+    <Field type="int" contentType="bytes" name="freedMemory" label="Freed Memory" />
+    <Field type="ulong" contentType="bytes" name="codeCacheMaxCapacity" label="Code Cache Maximum Capacity" />
+  </Event>
+
   <Event name="Compilation" category="Java Virtual Machine, Compiler" label="Compilation" thread="true" commitState="_thread_in_native">
     <Field type="uint" name="compileId" label="Compilation Identifier" relation="CompileId" />
     <Field type="CompilerType" name="compiler" label="Compiler" />
@@ -548,6 +553,7 @@
     <Field type="int" name="adaptorCount" label="Adaptors" />
     <Field type="ulong" contentType="bytes" name="unallocatedCapacity" label="Unallocated" />
     <Field type="int" name="fullCount" label="Full Count" />
+    <Field type="ulong" contentType="bytes" name="codeCacheMaxCapacity" label="Code Cache Maximum Capacity" />
   </Event>
 
   <Event name="Deoptimization" category="Java Virtual Machine, Compiler" label="Deoptimization" thread="true" stackTrace="true" startTime="false">
@@ -660,11 +666,15 @@
     <Field type="long" name="pid" label="Process Identifier" />
      </Event>
 
-  <Event name="OSInformation" category="Operating System" label="OS Information" period="endChunk">
+  <Event name="OSInformation" category="Operating System" label="OS Information"
+         description="Description of the OS the JVM runs on, for example, a uname-like output"
+         period="endChunk">
     <Field type="string" name="osVersion" label="OS Version" />
   </Event>
 
-  <Event name="VirtualizationInformation" category="Operating System" label="Virtualization Information" period="endChunk">
+  <Event name="VirtualizationInformation" category="Operating System" label="Virtualization Information"
+         description="Description of the virtualization technology the JVM runs on"
+         period="endChunk">
     <Field type="string" name="name" label="Name" />
   </Event>
 
@@ -673,7 +683,9 @@
     <Field type="string" name="value" label="Value" />
   </Event>
 
-  <Event name="InitialEnvironmentVariable" category="Operating System" label="Initial Environment Variable" period="endChunk">
+  <Event name="InitialEnvironmentVariable" category="Operating System" label="Initial Environment Variable"
+         description="Key-value pairs for environment variables at JVM startup"
+         period="endChunk">
     <Field type="string" name="key" label="Key" />
     <Field type="string" name="value" label="Value" />
   </Event>
