@@ -453,7 +453,6 @@ public class GetObjectSizeIntrinsicsTest extends ASimpleInstrumentationTestCase 
 
     private void testSize_localLargeObjArray() {
         Object[] arr = new Object[LARGE_OBJ_ARRAY_SIZE];
-        long expected = roundUp(REF_SIZE*LARGE_OBJ_ARRAY_SIZE + 16, OBJ_ALIGN);
         for (int c = 0; c < ITERS; c++) {
             assertEquals(expected, fInst.getObjectSize(arr));
         }
