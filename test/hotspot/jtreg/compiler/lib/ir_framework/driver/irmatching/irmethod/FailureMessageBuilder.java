@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,26 +21,23 @@
  * questions.
  */
 
-package gc.g1;
+package compiler.lib.ir_framework.driver.irmatching.irmethod;
+
+import compiler.lib.ir_framework.driver.irmatching.irrule.IRRuleMatchResult;
+
+import java.util.List;
 
 /**
- * @test TestShrinkAuxiliaryData30
- * @key randomness
- * @bug 8038423 8061715 8078405
- * @summary Checks that decommitment occurs for JVM with different
- * G1ConcRSLogCacheSize and ObjectAlignmentInBytes options values
- * @requires vm.gc.G1
- * @library /test/lib
- * @library /
- * @modules java.base/jdk.internal.misc
- *          java.management
- * @build sun.hotspot.WhiteBox
- * @run driver jdk.test.lib.helpers.ClassFileInstaller sun.hotspot.WhiteBox
- * @run main/timeout=720 gc.g1.TestShrinkAuxiliaryData30
+ * Base class to build the failure message output for an IR method.
+ *
+ * @see IRMethodMatchResult
  */
-public class TestShrinkAuxiliaryData30 {
+abstract class FailureMessageBuilder {
+    protected final IRMethod irMethod;
 
-    public static void main(String[] args) throws Exception {
-        new TestShrinkAuxiliaryData(30).test();
+    public FailureMessageBuilder(IRMethod irMethod) {
+        this.irMethod = irMethod;
     }
+
+    abstract public String build();
 }
