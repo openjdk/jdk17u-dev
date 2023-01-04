@@ -1859,7 +1859,7 @@ void ConnectionGraph::adjust_scalar_replaceable_state(JavaObjectNode* jobj) {
       for (BaseIterator i(field); i.has_next(); i.next()) {
         PointsToNode* base = i.get();
         // 2. An object is not scalar replaceable if the field into which it is
-       // stored has multiple bases one of which is null.
+        // stored has multiple bases one of which is null.
         if ((base == null_obj) && (field->base_count() > 1)) {
           set_not_scalar_replaceable(jobj NOT_PRODUCT(COMMA "is stored into field with potentially null base"));
           return;
