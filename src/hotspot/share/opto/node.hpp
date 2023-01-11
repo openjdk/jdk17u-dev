@@ -1071,6 +1071,8 @@ public:
   Node* find_similar(int opc);
 
   // Return the unique control out if only one. Null if none or more than one.
+  // Placeholder until 8281732 is backported.
+  Node* unique_ctrl_out_or_null() const { return unique_ctrl_out(); }
   Node* unique_ctrl_out() const;
 
   // Set control or add control as precedence edge
