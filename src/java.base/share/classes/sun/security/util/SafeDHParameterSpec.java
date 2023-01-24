@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Red Hat, Inc.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,24 +22,24 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-#include <unistd.h>
 
-#include "jni.h"
-#include "jvm.h"
+package sun.security.util;
 
-#include "jdk_internal_platform_CgroupMetrics.h"
+import java.math.BigInteger;
+import javax.crypto.spec.DHParameterSpec;
 
-JNIEXPORT jboolean JNICALL
-Java_jdk_internal_platform_CgroupMetrics_isUseContainerSupport(JNIEnv *env, jclass ignored)
-{
-    return JVM_IsUseContainerSupport();
-}
+/**
+ * Internal marker class for well-known safe DH parameters. It should
+ * only be used with trusted callers since it does not have all the needed
+ * values for validation.
+ */
 
-JNIEXPORT jlong JNICALL
-Java_jdk_internal_platform_CgroupMetrics_getTotalMemorySize0
-  (JNIEnv *env, jclass ignored)
-{
-    jlong pages = sysconf(_SC_PHYS_PAGES);
-    jlong page_size = sysconf(_SC_PAGESIZE);
-    return pages * page_size;
+public final class SafeDHParameterSpec extends DHParameterSpec {
+    public SafeDHParameterSpec(BigInteger p, BigInteger g) {
+        super(p, g);
+    }
+
+    public SafeDHParameterSpec(BigInteger p, BigInteger g, int l) {
+        super(p, g, l);
+    }
 }
