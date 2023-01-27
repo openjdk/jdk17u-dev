@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,30 +23,23 @@
  * questions.
  */
 
-package jdk.internal.event;
+package sun.security.util;
 
+import java.math.BigInteger;
+import javax.crypto.spec.DHParameterSpec;
 
 /**
- * Event recording details of X.509 Certificate.
+ * Internal marker class for well-known safe DH parameters. It should
+ * only be used with trusted callers since it does not have all the needed
+ * values for validation.
  */
 
-public final class X509CertificateEvent extends Event {
-    private static final X509CertificateEvent EVENT = new X509CertificateEvent();
-
-    /**
-     * Returns {@code true} if event is enabled, {@code false} otherwise.
-     */
-    public static boolean isTurnedOn() {
-        return EVENT.isEnabled();
+public final class SafeDHParameterSpec extends DHParameterSpec {
+    public SafeDHParameterSpec(BigInteger p, BigInteger g) {
+        super(p, g);
     }
 
-    public String algorithm;
-    public String serialNumber;
-    public String subject;
-    public String issuer;
-    public String keyType;
-    public int keyLength;
-    public long certificateId;
-    public long validFrom;
-    public long validUntil;
+    public SafeDHParameterSpec(BigInteger p, BigInteger g, int l) {
+        super(p, g, l);
+    }
 }
