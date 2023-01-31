@@ -105,14 +105,14 @@ public class VersionValidatorTest extends MRTestBase {
     @DataProvider
     Object[][] differentMajorVersions() {
         return new Object[][] {
-                { "19", "20", false, true, true },
-                { "19", "20", false, false, true },
-                { "19", "20", true, true, true },
-                { "19", "20", true, false, true },
-                { "20", "19", false, true, false },
-                { "20", "19", false, false, false },
-                { "20", "19", true, true, false },
-                { "20", "19", true, false, false },
+                { "16", "17", false, true, true },
+                { "16", "17", false, false, true },
+                { "16", "17", true, true, true },
+                { "16", "17", true, false, true },
+                { "17", "16", false, true, false },
+                { "17", "16", false, false, false },
+                { "17", "16", true, true, false },
+                { "17", "16", true, false, false },
         };
     }
 }
