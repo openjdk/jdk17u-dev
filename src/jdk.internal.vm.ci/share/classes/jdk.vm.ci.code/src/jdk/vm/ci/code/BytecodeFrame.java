@@ -23,6 +23,7 @@
 package jdk.vm.ci.code;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import jdk.vm.ci.meta.JavaKind;
 import jdk.vm.ci.meta.JavaValue;
