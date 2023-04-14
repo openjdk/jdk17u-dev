@@ -180,10 +180,8 @@ void LambdaFormInvokers::reload_class(char* name, ClassFileStream& st, TRAPS) {
                                                    cl_info,
                                                    CHECK);
 
-  {
-    MutexLocker mu_r(THREAD, Compile_lock); // add_to_hierarchy asserts this.
-    SystemDictionary::add_to_hierarchy(result);
-  }
+  SystemDictionary::add_to_hierarchy(THREAD, result);
+
   // new class not linked yet.
   MetaspaceShared::try_link_class(THREAD, result);
   assert(!HAS_PENDING_EXCEPTION, "Invariant");

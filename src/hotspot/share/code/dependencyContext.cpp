@@ -28,6 +28,7 @@
 #include "code/dependencyContext.hpp"
 #include "memory/resourceArea.hpp"
 #include "runtime/atomic.hpp"
+#include "runtime/deoptimization.hpp"
 #include "runtime/orderAccess.hpp"
 #include "runtime/perfData.hpp"
 #include "utilities/exceptions.hpp"
@@ -63,25 +64,27 @@ void DependencyContext::init() {
 // are dependent on the changes that were passed in and mark them for
 // deoptimization.  Returns the number of nmethods found.
 //
-int DependencyContext::mark_dependent_nmethods(DepChange& changes) {
-  int found = 0;
+void DependencyContext::mark_dependent_nmethods(DeoptimizationScope* deopt_scope, DepChange& changes) {
   for (nmethodBucket* b = dependencies_not_unloading(); b != NULL; b = b->next_not_unloading()) {
     nmethod* nm = b->get_nmethod();
     // since dependencies aren't removed until an nmethod becomes a zombie,
     // the dependency list may contain nmethods which aren't alive.
-    if (b->count() > 0 && nm->is_alive() && !nm->is_marked_for_deoptimization() && nm->check_dependency_on(changes)) {
-      if (TraceDependencies) {
-        ResourceMark rm;
-        tty->print_cr("Marked for deoptimization");
-        changes.print();
-        nm->print();
-        nm->print_dependencies();
+    if (b->count() > 0 && nm->is_alive()) { // TODO: check if is_alive needed
+      if (nm->is_marked_for_deoptimization()){
+        deopt_scope->dependent(nm);
       }
-      changes.mark_for_deoptimization(nm);
-      found++;
+      else if (nm->check_dependency_on(changes)) {
+        if (TraceDependencies) {
+          ResourceMark rm;
+          tty->print_cr("Marked for deoptimization");
+          changes.print();
+          nm->print();
+          nm->print_dependencies();
+        }
+        deopt_scope->mark(nm, !changes.is_call_site_change());
+      }
     }
   }
-  return found;
 }
 
 //
@@ -226,6 +229,23 @@ int DependencyContext::remove_all_dependents() {
     _perf_total_buckets_deallocated_count->inc(removed);
   }
   return marked;
+}
+
+void DependencyContext::remove_and_mark_for_deoptimization_all_dependents(DeoptimizationScope* deopt_scope) {
+  nmethodBucket* b = dependencies_not_unloading();
+  set_dependencies(nullptr);
+  while (b != nullptr) {
+    nmethod* nm = b->get_nmethod();
+    if (b->count() > 0) {
+      // Also count already (concurrently) marked nmethods to make sure
+      // deoptimization is triggered before execution in this thread continues.
+      nm->mark_for_deoptimization();
+      deopt_scope->mark(nm);
+    }
+    nmethodBucket* next = b->next_not_unloading();
+    release(b);
+    b = next;
+  }
 }
 
 #ifndef PRODUCT

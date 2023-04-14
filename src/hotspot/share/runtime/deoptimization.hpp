@@ -40,6 +40,32 @@ class compiledVFrame;
 
 template<class E> class GrowableArray;
 
+class DeoptimizationScope {
+ private:
+  // What gen we have done the deopt handshake for.
+  static uint64_t _committed_deopt_gen;
+  // What gen to mark a method with, hence larger than _committed_deopt_gen.
+  static uint64_t _active_deopt_gen;
+  // Indicate an in-progress deopt handshake.
+  static bool     _committing_in_progress;
+
+  // The required gen we need to execute/wait for
+  uint64_t _required_gen;
+  DEBUG_ONLY(bool _deopted;)
+
+ public:
+  DeoptimizationScope();
+  ~DeoptimizationScope();
+  // Mark a method, if already marked as dependent.
+  void mark(CompiledMethod* cm, bool inc_recompile_counts = true);
+  // Record this as a dependent method.
+  void dependent(CompiledMethod* cm);
+
+  // Execute the deoptimization.
+  // Make the nmethods not entrant, stackwalks and patch return pcs and sets post call nops.
+  void deoptimize_marked();
+};
+
 class Deoptimization : AllStatic {
   friend class VMStructs;
   friend class EscapeBarrier;

@@ -74,6 +74,7 @@
 #include "prims/jvmtiThreadState.hpp"
 #include "prims/methodComparator.hpp"
 #include "runtime/arguments.hpp"
+#include "runtime/deoptimization.hpp"
 #include "runtime/atomic.hpp"
 #include "runtime/biasedLocking.hpp"
 #include "runtime/fieldDescriptor.inline.hpp"
@@ -956,17 +957,20 @@ bool InstanceKlass::link_class_impl(TRAPS) {
       // In case itable verification is ever added.
       // itable().verify(tty, true);
 #endif
-      if (UseVtableBasedCHA) {
-        MutexLocker ml(THREAD, Compile_lock);
-        set_init_state(linked);
-
-        // Now flush all code that assume the class is not linked.
-        if (Universe::is_fully_initialized()) {
-          CodeCache::flush_dependents_on(this);
+      if (UseVtableBasedCHA && Universe::is_fully_initialized()) {
+        DeoptimizationScope deopt_scope;
+        {
+          MutexLocker ml(THREAD, Compile_lock);
+          set_init_state(linked);
+          CodeCache::mark_dependents_on(&deopt_scope, this);
         }
-      } else {
+        // Perform the deopt handshake outside Compile_lock.
+        deopt_scope.deoptimize_marked();
+      }
+      else {
         set_init_state(linked);
       }
+
       if (JvmtiExport::should_post_class_prepare()) {
         JvmtiExport::post_class_prepare(THREAD, this);
       }
@@ -2325,8 +2329,8 @@ inline DependencyContext InstanceKlass::dependencies() {
   return dep_context;
 }
 
-int InstanceKlass::mark_dependent_nmethods(KlassDepChange& changes) {
-  return dependencies().mark_dependent_nmethods(changes);
+void InstanceKlass::mark_dependent_nmethods(DeoptimizationScope* deopt_scope, KlassDepChange& changes) {
+  dependencies().mark_dependent_nmethods(deopt_scope, changes);
 }
 
 void InstanceKlass::add_dependent_nmethod(nmethod* nm) {
@@ -2652,7 +2656,7 @@ static void clear_all_breakpoints(Method* m) {
 
 void InstanceKlass::unload_class(InstanceKlass* ik) {
   // Release dependencies.
-  ik->dependencies().remove_all_dependents();
+  ik->dependencies().remove_all_dependents(); //TODO: consider remove_and_mark_for_deoptimization_all_dependents()
 
   // notify the debugger
   if (JvmtiExport::should_post_class_unload()) {
@@ -3305,7 +3309,7 @@ bool InstanceKlass::remove_osr_nmethod(nmethod* n) {
   return found;
 }
 
-int InstanceKlass::mark_osr_nmethods(const Method* m) {
+int InstanceKlass::mark_osr_nmethods(DeoptimizationScope* deopt_scope, const Method* m) {
   MutexLocker ml(CompiledMethod_lock->owned_by_self() ? NULL : CompiledMethod_lock,
                  Mutex::_no_safepoint_check_flag);
   nmethod* osr = osr_nmethods_head();
@@ -3313,7 +3317,7 @@ int InstanceKlass::mark_osr_nmethods(const Method* m) {
   while (osr != NULL) {
     assert(osr->is_osr_method(), "wrong kind of nmethod found in chain");
     if (osr->method() == m) {
-      osr->mark_for_deoptimization();
+      deopt_scope->mark(osr);
       found++;
     }
     osr = osr->osr_link();

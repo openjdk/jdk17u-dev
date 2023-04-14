@@ -1184,8 +1184,7 @@ bool SystemDictionaryShared::add_unregistered_class(Thread* current, InstanceKla
   bool created = false;
   _loaded_unregistered_classes->put_if_absent(name, true, &created);
   if (created) {
-    MutexLocker mu_r(current, Compile_lock); // add_to_hierarchy asserts this.
-    SystemDictionary::add_to_hierarchy(k);
+    SystemDictionary::add_to_hierarchy(current, k);
   }
   return created;
 }
@@ -1742,13 +1741,10 @@ InstanceKlass* SystemDictionaryShared::prepare_shared_lambda_proxy_class(Instanc
   assert(nest_host == shared_nest_host, "mismatched nest host");
 
   EventClassLoad class_load_start_event;
-  {
-    MutexLocker mu_r(THREAD, Compile_lock);
+  // Add to class hierarchy, and do possible deoptimizations.
+  SystemDictionary::add_to_hierarchy(THREAD, loaded_lambda);
+  // But, do not add to dictionary.
 
-    // Add to class hierarchy, and do possible deoptimizations.
-    SystemDictionary::add_to_hierarchy(loaded_lambda);
-    // But, do not add to dictionary.
-  }
   loaded_lambda->link_class(CHECK_NULL);
   // notify jvmti
   if (JvmtiExport::should_post_class_load()) {
