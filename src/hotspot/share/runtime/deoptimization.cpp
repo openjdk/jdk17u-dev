@@ -118,9 +118,7 @@ void DeoptimizationScope::mark(CompiledMethod* cm, bool inc_recompile_counts) {
     return;
   }
 
-  CompiledMethod::DeoptimizationStatus status =
-    inc_recompile_counts ? CompiledMethod::deoptimize : CompiledMethod::deoptimize_noupdate;
-  Atomic::store(&cm->_deoptimization_status, status);
+  cm->_mark_for_deoptimization_status = inc_recompile_counts ? CompiledMethod::deoptimize : CompiledMethod::deoptimize_noupdate;
 
   // Make sure active is not committed
   assert(DeoptimizationScope::_committed_deopt_gen < DeoptimizationScope::_active_deopt_gen, "Must be");

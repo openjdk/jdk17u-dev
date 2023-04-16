@@ -51,7 +51,7 @@ CompiledMethod::CompiledMethod(Method* method, const char* name, CompilerType ty
                                int frame_complete_offset, int frame_size, ImmutableOopMapSet* oop_maps,
                                bool caller_must_gc_arguments)
   : CodeBlob(name, type, layout, frame_complete_offset, frame_size, oop_maps, caller_must_gc_arguments),
-    _deoptimization_status(not_marked),
+    _mark_for_deoptimization_status(not_marked),
     _deoptimization_generation(0),
     _method(method),
     _gc_data(NULL)
@@ -64,7 +64,7 @@ CompiledMethod::CompiledMethod(Method* method, const char* name, CompilerType ty
                                OopMapSet* oop_maps, bool caller_must_gc_arguments)
   : CodeBlob(name, type, CodeBlobLayout((address) this, size, header_size, cb), cb,
              frame_complete_offset, frame_size, oop_maps, caller_must_gc_arguments),
-    _deoptimization_status(not_marked),
+    _mark_for_deoptimization_status(not_marked),
     _deoptimization_generation(0),
     _method(method),
     _gc_data(NULL)
@@ -119,7 +119,7 @@ const char* CompiledMethod::state() const {
 void CompiledMethod::mark_for_deoptimization(bool inc_recompile_counts) {
   MutexLocker ml(CompiledMethod_lock->owned_by_self() ? NULL : CompiledMethod_lock,
                  Mutex::_no_safepoint_check_flag);
-  Atomic::store (&_deoptimization_status, inc_recompile_counts ? deoptimize : deoptimize_noupdate);
+  _mark_for_deoptimization_status = inc_recompile_counts ? deoptimize : deoptimize_noupdate;
 }
 
 //-----------------------------------------------------------------------------
