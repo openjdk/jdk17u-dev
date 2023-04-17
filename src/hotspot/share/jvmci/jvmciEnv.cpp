@@ -1553,7 +1553,7 @@ void JVMCIEnv::invalidate_nmethod_mirror(JVMCIObject mirror, JVMCI_TRAPS) {
     DeoptimizationScope deopt_scope;
     deopt_scope.mark(nm);
     nm->make_not_entrant();
-    deopt_scope.deoptimize_marked();    
+    deopt_scope.deoptimize_marked();
   }
 
   // A HotSpotNmethod instance can only reference a single nmethod
