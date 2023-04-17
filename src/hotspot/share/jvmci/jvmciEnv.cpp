@@ -1550,7 +1550,10 @@ void JVMCIEnv::invalidate_nmethod_mirror(JVMCIObject mirror, JVMCI_TRAPS) {
   nmethodLocker nml(nm);
   if (nm->is_alive()) {
     // Invalidating the HotSpotNmethod means we want the nmethod to be deoptimized.
-    Deoptimization::deoptimize_all_marked(nm);
+    DeoptimizationScope deopt_scope;
+    deopt_scope.mark(nm);
+    nm->make_not_entrant();
+    deopt_scope.deoptimize_marked();    
   }
 
   // A HotSpotNmethod instance can only reference a single nmethod
