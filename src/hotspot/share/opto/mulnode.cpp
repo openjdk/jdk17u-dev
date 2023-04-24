@@ -309,8 +309,8 @@ Node *MulLNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   }
 
   // Now we have a constant Node on the right and the constant in con
-  if (con == CONST64(0)) return nullptr;  // By zero is handled by Value call
-  if (con == CONST64(1)) return nullptr;  // By one  is handled by Identity call
+  if (con == CONST64(0)) return NULL;  // By zero is handled by Value call
+  if (con == CONST64(1)) return NULL;  // By one  is handled by Identity call
 
   // Check for negative constant; if so negate the final result
   bool sign_flip = false;

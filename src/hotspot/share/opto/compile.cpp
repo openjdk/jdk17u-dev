@@ -597,8 +597,8 @@ Compile::Compile( ciEnv* ci_env, ciMethod* target, int osr_bci,
                   _vector_reboxing_late_inlines(comp_arena(), 2, 0, nullptr),
                   _late_inlines_pos(0),
                   _number_of_mh_late_inlines(0),
-                  _native_invokers(comp_arena(), 1, 0, nullptr),
-                  _print_inlining_stream(nullptr),
+                  _native_invokers(comp_arena(), 1, 0, NULL),
+                  _print_inlining_stream(NULL),
                   _print_inlining_list(nullptr),
                   _print_inlining_idx(0),
                   _print_inlining_output(nullptr),
@@ -888,7 +888,7 @@ Compile::Compile( ciEnv* ci_env,
     _for_igvn(nullptr),
     _number_of_mh_late_inlines(0),
     _native_invokers(),
-    _print_inlining_stream(nullptr),
+    _print_inlining_stream(NULL),
     _print_inlining_list(nullptr),
     _print_inlining_idx(0),
     _print_inlining_output(nullptr),
@@ -960,7 +960,7 @@ void Compile::Init(int aliaslevel) {
 #endif
 
   // Globally visible Nodes
-  // First set TOP to nullptr to give safe behavior during creation of RootNode
+  // First set TOP to null to give safe behavior during creation of RootNode
   set_cached_top_node(nullptr);
   set_root(new RootNode());
   // Now that you have a Root to point to, create the real TOP
@@ -4173,9 +4173,9 @@ Node* Compile::constrained_convI2L(PhaseGVN* phase, Node* value, const TypeInt* 
 }
 
 void Compile::print_inlining_stream_free() {
-  if (_print_inlining_stream != nullptr) {
+  if (_print_inlining_stream != NULL) {
     _print_inlining_stream->~stringStream();
-    _print_inlining_stream = nullptr;
+    _print_inlining_stream = NULL;
   }
 }
 

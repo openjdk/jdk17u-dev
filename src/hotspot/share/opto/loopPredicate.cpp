@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -507,20 +507,20 @@ Node* PhaseIdealLoop::skip_loop_predicates(Node* entry) {
 }
 
 Node* PhaseIdealLoop::skip_all_loop_predicates(Node* entry) {
-  Node* predicate = nullptr;
+  Node* predicate = NULL;
   predicate = find_predicate_insertion_point(entry, Deoptimization::Reason_loop_limit_check);
-  if (predicate != nullptr) {
+  if (predicate != NULL) {
     entry = skip_loop_predicates(entry);
   }
   if (UseProfiledLoopPredicate) {
     predicate = find_predicate_insertion_point(entry, Deoptimization::Reason_profile_predicate);
-    if (predicate != nullptr) { // right pattern that can be used by loop predication
+    if (predicate != NULL) { // right pattern that can be used by loop predication
       entry = skip_loop_predicates(entry);
     }
   }
   if (UseLoopPredicate) {
     predicate = find_predicate_insertion_point(entry, Deoptimization::Reason_predicate);
-    if (predicate != nullptr) { // right pattern that can be used by loop predication
+    if (predicate != NULL) { // right pattern that can be used by loop predication
       entry = skip_loop_predicates(entry);
     }
   }

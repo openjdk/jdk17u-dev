@@ -424,16 +424,16 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
     Node *scale_ctrl = get_ctrl(scale);
     IdealLoopTree *scale_loop = get_loop(scale_ctrl );
     if( n_loop == scale_loop || !scale_loop->is_member( n_loop ) )
-      return nullptr;
+      return NULL;
     const TypeInt *scale_t = scale->bottom_type()->isa_int();
     if( scale_t && scale_t->is_con() && scale_t->get_con() >= 16 )
-      return nullptr;              // Dont bother with byte/short masking
+      return NULL;              // Dont bother with byte/short masking
     // Add must vary with loop (else shift would be loop-invariant)
     Node *add = n->in(1);
     Node *add_ctrl = get_ctrl(add);
     IdealLoopTree *add_loop = get_loop(add_ctrl);
     //assert( n_loop == add_loop, "" );
-    if( n_loop != add_loop ) return nullptr;  // happens w/ evil ZKM loops
+    if( n_loop != add_loop ) return NULL;  // happens w/ evil ZKM loops
 
     // Convert I-V into I+ (0-V); same for V-I
     if( add->Opcode() == Op_SubI &&
@@ -445,7 +445,7 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
       add = new AddINode( add->in(1), neg );
       register_new_node( add, add_ctrl );
     }
-    if( add->Opcode() != Op_AddI ) return nullptr;
+    if( add->Opcode() != Op_AddI ) return NULL;
     // See if one add input is loop invariant
     Node *add_var = add->in(1);
     Node *add_var_ctrl = get_ctrl(add_var);
@@ -463,9 +463,9 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
       Node *add_var_ctrl = get_ctrl(add_var);
       IdealLoopTree *add_var_loop = get_loop(add_var_ctrl );
     } else                      // Else neither input is loop invariant
-      return nullptr;
+      return NULL;
     if( n_loop == add_invar_loop || !add_invar_loop->is_member( n_loop ) )
-      return nullptr;              // No invariant part of the add?
+      return NULL;              // No invariant part of the add?
 
     // Yes!  Reshape address expression!
     Node *inv_scale = new LShiftINode( add_invar, scale );
@@ -1335,7 +1335,7 @@ void PhaseIdealLoop::split_if_with_blocks_post(Node *n) {
       }
     } else if (iff->is_CMove()) { // Trying to split-up a CMOVE
       // Can't split CMove with different control edge.
-      if (iff->in(0) != nullptr && iff->in(0) != n_ctrl ) {
+      if (iff->in(0) != NULL && iff->in(0) != n_ctrl ) {
         return;
       }
       if (get_ctrl(iff->in(2)) == n_ctrl ||
@@ -1462,7 +1462,7 @@ void PhaseIdealLoop::split_if_with_blocks_post(Node *n) {
   // Check for Opaque2's who's loop has disappeared - who's input is in the
   // same loop nest as their output.  Remove 'em, they are no longer useful.
   if( n_op == Op_Opaque2 &&
-      n->in(1) != nullptr &&
+      n->in(1) != NULL &&
       get_loop(get_ctrl(n)) == get_loop(get_ctrl(n->in(1))) ) {
     _igvn.replace_node( n, n->in(1) );
   }
@@ -2366,7 +2366,7 @@ void PhaseIdealLoop::clone_loop( IdealLoopTree *loop, Node_List &old_new, int dd
         assert( use->is_Proj(), "" );
         Node* nnn = old_new[old->_idx];
 
-        Node* newuse = nullptr;
+        Node* newuse = NULL;
         if (head->is_strip_mined() && mode != IgnoreStripMined) {
           CountedLoopNode* cl = head->as_CountedLoop();
           CountedLoopEndNode* cle = cl->loopexit();
@@ -2382,7 +2382,7 @@ void PhaseIdealLoop::clone_loop( IdealLoopTree *loop, Node_List &old_new, int dd
             }
           }
         }
-        if (newuse == nullptr) {
+        if (newuse == NULL) {
           newuse = use->clone();
         }
 

@@ -203,7 +203,7 @@ bool SubTypeCheckNode::verify(PhaseGVN* phase) {
   const Type* sub_t = phase->type(obj_or_subklass);
   const Type* super_t = phase->type(superklass);
 
-  ciKlass* subk = sub_t->isa_klassptr() ? sub_t->is_klassptr()->klass() : sub_t->is_oopptr()->klass(); // can be nullptr for bottom[]
+  ciKlass* subk = sub_t->isa_klassptr() ? sub_t->is_klassptr()->klass() : sub_t->is_oopptr()->klass(); // can be NULL for bottom[]
   ciKlass* superk = super_t->is_klassptr()->klass();
 
   if (super_t->singleton() && subk != nullptr) {

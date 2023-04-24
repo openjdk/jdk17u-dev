@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -284,42 +284,42 @@ public:
   double getd() const;
 
   const TypeInt    *is_int() const;
-  const TypeInt    *isa_int() const;             // Returns nullptr if not an Int
+  const TypeInt    *isa_int() const;             // Returns null if not an Int
   const TypeInteger* is_integer(BasicType bt) const;
   const TypeInteger* isa_integer(BasicType bt) const;
   const TypeLong   *is_long() const;
-  const TypeLong   *isa_long() const;            // Returns nullptr if not a Long
-  const TypeD      *isa_double() const;          // Returns nullptr if not a Double{Top,Con,Bot}
+  const TypeLong   *isa_long() const;            // Returns null if not a Long
+  const TypeD      *isa_double() const;          // Returns null if not a Double{Top,Con,Bot}
   const TypeD      *is_double_constant() const;  // Asserts it is a DoubleCon
-  const TypeD      *isa_double_constant() const; // Returns nullptr if not a DoubleCon
-  const TypeF      *isa_float() const;           // Returns nullptr if not a Float{Top,Con,Bot}
+  const TypeD      *isa_double_constant() const; // Returns null if not a DoubleCon
+  const TypeF      *isa_float() const;           // Returns null if not a Float{Top,Con,Bot}
   const TypeF      *is_float_constant() const;   // Asserts it is a FloatCon
-  const TypeF      *isa_float_constant() const;  // Returns nullptr if not a FloatCon
+  const TypeF      *isa_float_constant() const;  // Returns null if not a FloatCon
   const TypeTuple  *is_tuple() const;            // Collection of fields, NOT a pointer
   const TypeAry    *is_ary() const;              // Array, NOT array pointer
-  const TypeAry    *isa_ary() const;             // Returns nullptr of not ary
+  const TypeAry    *isa_ary() const;             // Returns null of not ary
   const TypeVect   *is_vect() const;             // Vector
-  const TypeVect   *isa_vect() const;            // Returns nullptr if not a Vector
+  const TypeVect   *isa_vect() const;            // Returns null if not a Vector
   const TypeVectMask *is_vectmask() const;       // Predicate/Mask Vector
-  const TypeVectMask *isa_vectmask() const;      // Returns nullptr if not a Vector Predicate/Mask
+  const TypeVectMask *isa_vectmask() const;      // Returns null if not a Vector Predicate/Mask
   const TypePtr    *is_ptr() const;              // Asserts it is a ptr type
-  const TypePtr    *isa_ptr() const;             // Returns nullptr if not ptr type
+  const TypePtr    *isa_ptr() const;             // Returns null if not ptr type
   const TypeRawPtr *isa_rawptr() const;          // NOT Java oop
   const TypeRawPtr *is_rawptr() const;           // Asserts is rawptr
   const TypeNarrowOop  *is_narrowoop() const;    // Java-style GC'd pointer
-  const TypeNarrowOop  *isa_narrowoop() const;   // Returns nullptr if not oop ptr type
+  const TypeNarrowOop  *isa_narrowoop() const;   // Returns null if not oop ptr type
   const TypeNarrowKlass *is_narrowklass() const; // compressed klass pointer
-  const TypeNarrowKlass *isa_narrowklass() const;// Returns nullptr if not oop ptr type
-  const TypeOopPtr   *isa_oopptr() const;        // Returns nullptr if not oop ptr type
+  const TypeNarrowKlass *isa_narrowklass() const;// Returns null if not oop ptr type
+  const TypeOopPtr   *isa_oopptr() const;        // Returns null if not oop ptr type
   const TypeOopPtr   *is_oopptr() const;         // Java-style GC'd pointer
-  const TypeInstPtr  *isa_instptr() const;       // Returns nullptr if not InstPtr
+  const TypeInstPtr  *isa_instptr() const;       // Returns null if not InstPtr
   const TypeInstPtr  *is_instptr() const;        // Instance
-  const TypeAryPtr   *isa_aryptr() const;        // Returns nullptr if not AryPtr
+  const TypeAryPtr   *isa_aryptr() const;        // Returns null if not AryPtr
   const TypeAryPtr   *is_aryptr() const;         // Array oop
 
-  const TypeMetadataPtr   *isa_metadataptr() const;   // Returns nullptr if not oop ptr type
+  const TypeMetadataPtr   *isa_metadataptr() const;   // Returns null if not oop ptr type
   const TypeMetadataPtr   *is_metadataptr() const;    // Java-style GC'd pointer
-  const TypeKlassPtr      *isa_klassptr() const;      // Returns nullptr if not KlassPtr
+  const TypeKlassPtr      *isa_klassptr() const;      // Returns null if not KlassPtr
   const TypeKlassPtr      *is_klassptr() const;       // assert if not KlassPtr
 
   virtual bool      is_finite() const;           // Has a finite value
@@ -1073,7 +1073,7 @@ public:
   // Creates a singleton type given an object.
   // If the object cannot be rendered as a constant,
   // may return a non-singleton type.
-  // If require_constant, produce a nullptr if a singleton is not possible.
+  // If require_constant, produce a null if a singleton is not possible.
   static const TypeOopPtr* make_from_constant(ciObject* o,
                                               bool require_constant = false);
 
@@ -1836,7 +1836,7 @@ inline bool Type::is_floatingpoint() const {
 
 inline bool Type::is_ptr_to_boxing_obj() const {
   const TypeInstPtr* tp = isa_instptr();
-  return (tp != nullptr) && (tp->offset() == 0) &&
+  return (tp != NULL) && (tp->offset() == 0) &&
          tp->klass()->is_instance_klass()  &&
          tp->klass()->as_instance_klass()->is_box_klass();
 }

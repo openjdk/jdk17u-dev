@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -264,8 +264,8 @@ bool ArrayCopyNode::prepare_array_copy(PhaseGVN *phase, bool can_reshape,
     // newly allocated object is guaranteed to not overlap with source object
     disjoint_bases = is_alloc_tightly_coupled();
 
-    if (ary_src  == nullptr || ary_src->klass()  == nullptr ||
-        ary_dest == nullptr || ary_dest->klass() == nullptr) {
+    if (ary_src  == NULL || ary_src->klass()  == NULL ||
+        ary_dest == NULL || ary_dest->klass() == NULL) {
       // We don't know if arguments are arrays
       return false;
     }

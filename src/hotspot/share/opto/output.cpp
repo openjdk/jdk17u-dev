@@ -237,7 +237,7 @@ void C2SafepointPollStubTable::emit(CodeBuffer& cb) {
   MacroAssembler masm(&cb);
   for (int i = _safepoints.length() - 1; i >= 0; i--) {
     // Make sure there is enough space in the code buffer
-    if (cb.insts()->maybe_expand_to_ensure_remaining(PhaseOutput::MAX_inst_size) && cb.blob() == nullptr) {
+    if (cb.insts()->maybe_expand_to_ensure_remaining(PhaseOutput::MAX_inst_size) && cb.blob() == NULL) {
       ciEnv::current()->record_failure("CodeCache is full");
       return;
     }

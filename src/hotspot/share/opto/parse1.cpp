@@ -2174,7 +2174,7 @@ void Parse::rtm_deopt() {
 
 void Parse::decrement_age() {
   MethodCounters* mc = method()->ensure_method_counters();
-  if (mc == nullptr) {
+  if (mc == NULL) {
     C->record_failure("Must have MCs");
     return;
   }
@@ -2252,8 +2252,8 @@ void Parse::return_current(Node* value) {
       const TypeInstPtr* phi_tip;
       const TypeInstPtr* val_tip;
       Type::get_arrays_base_elements(phi->bottom_type(), value->bottom_type(), &phi_tip, &val_tip);
-      if (phi_tip != nullptr && phi_tip->is_loaded() && phi_tip->klass()->is_interface() &&
-          val_tip != nullptr && val_tip->is_loaded() && !val_tip->klass()->is_interface()) {
+      if (phi_tip != NULL && phi_tip->is_loaded() && phi_tip->klass()->is_interface() &&
+          val_tip != NULL && val_tip->is_loaded() && !val_tip->klass()->is_interface()) {
         value = _gvn.transform(new CheckCastPPNode(0, value, phi->bottom_type()));
       }
     }

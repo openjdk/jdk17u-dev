@@ -219,7 +219,7 @@ public:
   // Get a previously recorded type for the node n.
   // This type must already have been recorded.
   // If you want the type of a very new (untransformed) node,
-  // you must use type_or_null, and test the result for nullptr.
+  // you must use type_or_null, and test the result for null.
   const Type* type(const Node* n) const {
     assert(_pnum != Ideal_Loop, "should not be used from PhaseIdealLoop");
     assert(n != nullptr, "must not be null");
@@ -228,7 +228,7 @@ public:
     return t;
   }
   // Get a previously recorded type for the node n,
-  // or else return nullptr if there is none.
+  // or else return null if there is none.
   const Type* type_or_null(const Node* n) const {
     assert(_pnum != Ideal_Loop, "should not be used from PhaseIdealLoop");
     return _types.fast_lookup(n->_idx);

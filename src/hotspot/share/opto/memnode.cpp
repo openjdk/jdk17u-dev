@@ -267,7 +267,7 @@ static Node *step_through_mergemem(PhaseGVN *phase, MergeMemNode *mmem,  const T
   const TypeOopPtr *toop = tp->isa_oopptr();
   if( tp->base() != Type::AnyPtr &&
       !(toop &&
-        toop->klass() != nullptr &&
+        toop->klass() != NULL &&
         toop->klass()->is_java_lang_Object() &&
         toop->offset() == Type::OffsetBot) ) {
     // compress paths and change unreachable cycles to TOP
@@ -395,7 +395,7 @@ Node *MemNode::Ideal_common(PhaseGVN *phase, bool can_reshape) {
 
   if (mem != old_mem) {
     set_req(MemNode::Memory, mem);
-    if (can_reshape && old_mem->outcnt() == 0 && igvn != nullptr) {
+    if (can_reshape && old_mem->outcnt() == 0 && igvn != NULL) {
       igvn->_worklist.push(old_mem);
     }
     if (phase->type(mem) == Type::TOP) return NodeSentinel;
@@ -1832,7 +1832,7 @@ Node *LoadNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   }
 
   AllocateNode* alloc = is_new_object_mark_load(phase);
-  if (alloc != nullptr && alloc->Opcode() == Op_Allocate && UseBiasedLocking) {
+  if (alloc != NULL && alloc->Opcode() == Op_Allocate && UseBiasedLocking) {
     InitializeNode* init = alloc->initialization();
     Node* control = init->proj_out(0);
     return alloc->make_ideal_mark(phase, address, control, mem);
@@ -2347,7 +2347,7 @@ const Type* LoadNode::klass_value_common(PhaseGVN* phase) const {
   const TypeAryPtr *tary = tp->isa_aryptr();
   if( tary != nullptr ) {
     ciKlass *tary_klass = tary->klass();
-    if (tary_klass != nullptr   // can be nullptr when at BOTTOM or TOP
+    if (tary_klass != nullptr   // can be null when at BOTTOM or TOP
         && tary->offset() == oopDesc::klass_offset_in_bytes()) {
       if (tary->klass_is_exact()) {
         return TypeKlassPtr::make(tary_klass);
@@ -3539,7 +3539,7 @@ void BlackholeNode::format(PhaseRegAlloc* ra, outputStream* st) const {
   bool first = true;
   for (uint i = 0; i < req(); i++) {
     Node* n = in(i);
-    if (n != nullptr && OptoReg::is_valid(ra->get_reg_first(n))) {
+    if (n != NULL && OptoReg::is_valid(ra->get_reg_first(n))) {
       if (first) {
         first = false;
       } else {
@@ -4745,21 +4745,21 @@ Node *MergeMemNode::Ideal(PhaseGVN *phase, bool can_reshape) {
 
   // Look carefully at the base node if it is a phi.
   PhiNode* phi_base;
-  if (new_base != nullptr && new_base->is_Phi())
+  if (new_base != NULL && new_base->is_Phi())
     phi_base = new_base->as_Phi();
   else
-    phi_base = nullptr;
+    phi_base = NULL;
 
-  Node*    phi_reg = nullptr;
+  Node*    phi_reg = NULL;
   uint     phi_len = (uint)-1;
-  if (phi_base != nullptr) {
+  if (phi_base != NULL) {
     phi_reg = phi_base->region();
     phi_len = phi_base->req();
     // see if the phi is unfinished
     for (uint i = 1; i < phi_len; i++) {
-      if (phi_base->in(i) == nullptr) {
+      if (phi_base->in(i) == NULL) {
         // incomplete phi; do not look at it yet!
-        phi_reg = nullptr;
+        phi_reg = NULL;
         phi_len = (uint)-1;
         break;
       }
