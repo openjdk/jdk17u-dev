@@ -31,6 +31,11 @@
 #include "utilities/debug.hpp"
 #include "utilities/macros.hpp"
 
+template <typename T>
+static inline void put_native(address p, T x) {
+    memcpy((void*)p, &x, sizeof x);
+}
+
 class CodeStrings;
 class PhaseCFG;
 class Compile;
@@ -206,7 +211,10 @@ class CodeSection {
     set_end(curr);
   }
 
-  void emit_int16(int16_t x) { *((int16_t*) end()) = x; set_end(end() + sizeof(int16_t)); }
+  template <typename T>
+  void emit_native(T x) { put_native(end(), x); set_end(end() + sizeof x); }
+
+  void emit_int16(int16_t x) { emit_native(x); }
   void emit_int16(int8_t x1, int8_t x2) {
     address curr = end();
     *((int8_t*)  curr++) = x1;
@@ -222,7 +230,7 @@ class CodeSection {
     set_end(curr);
   }
 
-  void emit_int32(int32_t x) { *((int32_t*) end()) = x; set_end(end() + sizeof(int32_t)); }
+  void emit_int32(int32_t x) { emit_native(x); }
   void emit_int32(int8_t x1, int8_t x2, int8_t x3, int8_t x4)  {
     address curr = end();
     *((int8_t*)  curr++) = x1;
@@ -232,11 +240,10 @@ class CodeSection {
     set_end(curr);
   }
 
-  void emit_int64( int64_t x)  { *((int64_t*) end()) = x; set_end(end() + sizeof(int64_t)); }
-
-  void emit_float( jfloat  x)  { *((jfloat*)  end()) = x; set_end(end() + sizeof(jfloat)); }
-  void emit_double(jdouble x)  { *((jdouble*) end()) = x; set_end(end() + sizeof(jdouble)); }
-  void emit_address(address x) { *((address*) end()) = x; set_end(end() + sizeof(address)); }
+  void emit_int64(int64_t x)  { emit_native(x); }
+  void emit_float(jfloat  x)   { emit_native(x); }
+  void emit_double(jdouble x)  { emit_native(x); }
+  void emit_address(address x) { emit_native(x); }
 
   // Share a scratch buffer for relocinfo.  (Hacky; saves a resource allocation.)
   void initialize_shared_locs(relocInfo* buf, int length);
