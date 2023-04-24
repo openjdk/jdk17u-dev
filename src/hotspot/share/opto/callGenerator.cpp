@@ -701,7 +701,7 @@ void CallGenerator::do_late_inline_helper() {
 
     // The call is marked as pure (no important side effects), but result isn't used.
     // It's safe to remove the call.
-    result_not_used = (callprojs.resproj == NULL || callprojs.resproj->outcnt() == 0);
+    result_not_used = (callprojs.resproj == nullptr || callprojs.resproj->outcnt() == 0);
   }
 
   if (result_not_used) {
@@ -1089,10 +1089,10 @@ JVMState* NativeCallGenerator::generate(JVMState* jvms) {
   GraphKit kit(jvms);
 
   Node* call = kit.make_native_call(_call_addr, tf(), method()->arg_size(), _nep); // -fallback, - nep
-  if (call == NULL) return NULL;
+  if (call == nullptr) return nullptr;
 
   kit.C->print_inlining_update(this);
-  if (kit.C->log() != NULL) {
+  if (kit.C->log() != nullptr) {
     kit.C->log()->elem("l2n_intrinsification_success bci='%d' entry_point='" INTPTR_FORMAT "'", jvms->bci(), p2i(_call_addr));
   }
 

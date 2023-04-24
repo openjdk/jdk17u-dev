@@ -525,10 +525,10 @@ int NTarjan::DFS( NTarjan *ntarjan, VectorSet &visited, PhaseIdealLoop *pil, uin
       dfsorder[b->_idx] = dfsnum;      // Save DFS order info
       w->_semi = dfsnum;               // Node to DFS map
       w->_label = w;                   // DFS to vertex map
-      w->_ancestor = NULL;             // Fast LINK & EVAL setup
+      w->_ancestor = nullptr;             // Fast LINK & EVAL setup
       w->_child = &ntarjan[0];         // Sentinal
       w->_size = 1;
-      w->_bucket = NULL;
+      w->_bucket = nullptr;
 
       // Need DEF-USE info for this pass
       for ( int i = b->outcnt(); i-- > 0; ) { // Put on stack backwards

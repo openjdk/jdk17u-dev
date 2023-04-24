@@ -144,7 +144,7 @@ Node* Parse::array_addressing(BasicType type, int vals, const Type*& elemtype) {
   }
 
   ciKlass * arytype_klass = arytype->klass();
-  if ((arytype_klass != NULL) && (!arytype_klass->is_loaded())) {
+  if ((arytype_klass != nullptr) && (!arytype_klass->is_loaded())) {
     // Only fails for some -Xcomp runs
     // The class is unloaded.  We have to run this bytecode in the interpreter.
     uncommon_trap(Deoptimization::Reason_unloaded,
@@ -439,7 +439,7 @@ void Parse::do_tableswitch() {
   int rp = -1;
   if (lo_index != min_jint) {
     uint cnt = 1;
-    if (profile != NULL) {
+    if (profile != nullptr) {
       cnt = profile->default_count() / (hi_index != max_jint ? 2 : 1);
     }
     ranges[++rp].setRange(min_jint, lo_index-1, default_dest, cnt);
@@ -449,7 +449,7 @@ void Parse::do_tableswitch() {
     int  dest      = iter().get_dest_table(j+3);
     makes_backward_branch |= (dest <= bci());
     uint cnt = 1;
-    if (profile != NULL) {
+    if (profile != nullptr) {
       cnt = profile->count_at(j);
     }
     if (rp < 0 || !ranges[rp].adjoin(match_int, dest, cnt, trim_ranges)) {
@@ -460,7 +460,7 @@ void Parse::do_tableswitch() {
   assert(ranges[rp].hi() == highest, "");
   if (highest != max_jint) {
     uint cnt = 1;
-    if (profile != NULL) {
+    if (profile != nullptr) {
       cnt = profile->default_count() / (lo_index != min_jint ? 2 : 1);
     }
     if (!ranges[rp].adjoinRange(highest+1, max_jint, default_dest, cnt, trim_ranges)) {
@@ -513,7 +513,7 @@ void Parse::do_lookupswitch() {
       table[3*j+0] = iter().get_int_table(2+2*j);
       table[3*j+1] = iter().get_dest_table(2+2*j+1);
       // Handle overflow when converting from uint to jint
-      table[3*j+2] = (profile == NULL) ? 1 : MIN2<uint>(max_jint, profile->count_at(j));
+      table[3*j+2] = (profile == nullptr) ? 1 : MIN2<uint>(max_jint, profile->count_at(j));
     }
     qsort(table, len, 3*sizeof(table[0]), jint_cmp);
   }
@@ -531,7 +531,7 @@ void Parse::do_lookupswitch() {
     defaults += (float)max_jint - prev + 1;
   }
   float default_cnt = 1;
-  if (profile != NULL) {
+  if (profile != nullptr) {
     default_cnt = profile->default_count()/defaults;
   }
 

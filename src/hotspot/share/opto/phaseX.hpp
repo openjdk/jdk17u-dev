@@ -219,23 +219,23 @@ public:
   // Get a previously recorded type for the node n.
   // This type must already have been recorded.
   // If you want the type of a very new (untransformed) node,
-  // you must use type_or_null, and test the result for NULL.
+  // you must use type_or_null, and test the result for nullptr.
   const Type* type(const Node* n) const {
     assert(_pnum != Ideal_Loop, "should not be used from PhaseIdealLoop");
-    assert(n != NULL, "must not be null");
+    assert(n != nullptr, "must not be null");
     const Type* t = _types.fast_lookup(n->_idx);
-    assert(t != NULL, "must set before get");
+    assert(t != nullptr, "must set before get");
     return t;
   }
   // Get a previously recorded type for the node n,
-  // or else return NULL if there is none.
+  // or else return nullptr if there is none.
   const Type* type_or_null(const Node* n) const {
     assert(_pnum != Ideal_Loop, "should not be used from PhaseIdealLoop");
     return _types.fast_lookup(n->_idx);
   }
   // Record a type for a node.
   void    set_type(const Node* n, const Type *t) {
-    assert(t != NULL, "type must not be null");
+    assert(t != nullptr, "type must not be null");
     _types.map(n->_idx, t);
   }
   // Record an initial type for a node, the node's bottom type.
@@ -333,7 +333,7 @@ public:
   // Caller guarantees that old_type and new_type are no higher than limit_type.
   virtual const Type* saturate(const Type* new_type, const Type* old_type,
                                const Type* limit_type) const
-  { ShouldNotCallThis(); return NULL; }
+  { ShouldNotCallThis(); return nullptr; }
 
   // true if CFG node d dominates CFG node n
   virtual bool is_dominator(Node *d, Node *n) { fatal("unimplemented for this pass"); return false; };

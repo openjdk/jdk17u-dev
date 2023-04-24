@@ -412,7 +412,7 @@ protected:
 
 #ifdef ASSERT
   bool is_dead() const;
-#define is_not_dead(n) ((n) == NULL || !VerifyIterativeGVN || !((n)->is_dead()))
+#define is_not_dead(n) ((n) == nullptr || !VerifyIterativeGVN || !((n)->is_dead()))
   bool is_reachable_from_root() const;
 #endif
   // Check whether node has become unreachable
@@ -1128,18 +1128,18 @@ public:
   // Same thing for long (and intptr_t, via type.hpp):
   jlong get_long() const {
     const TypeLong* t = find_long_type();
-    guarantee(t != NULL, "must be con");
+    guarantee(t != nullptr, "must be con");
     return t->get_con();
   }
   jlong find_long_con(jint value_if_unknown) const {
     const TypeLong* t = find_long_type();
-    return (t != NULL && t->is_con()) ? t->get_con() : value_if_unknown;
+    return (t != nullptr && t->is_con()) ? t->get_con() : value_if_unknown;
   }
   const TypeLong* find_long_type() const;
 
   jlong get_integer_as_long(BasicType bt) const {
     const TypeInteger* t = find_integer_type(bt);
-    guarantee(t != NULL, "must be con");
+    guarantee(t != nullptr, "must be con");
     return t->get_con_as_long(bt);
   }
   const TypePtr* get_ptr_type() const;
@@ -1227,7 +1227,7 @@ public:
       if (in(i))
         tty->print(" %4d", in(i)->_idx);
       else
-        tty->print(" NULL");
+        tty->print(" nullptr");
     tty->print("\n");
   }
 #endif

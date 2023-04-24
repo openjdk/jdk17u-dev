@@ -1312,7 +1312,7 @@ MachNode *Matcher::match_sfpt( SafePointNode *sfpt ) {
   // These are usually backing store for register arguments for varargs.
   if( call != nullptr && call->is_CallRuntime() )
     out_arg_limit_per_call = OptoReg::add(out_arg_limit_per_call,C->varargs_C_out_slots_killed());
-  if( call != NULL && call->is_CallNative() )
+  if( call != nullptr && call->is_CallNative() )
     out_arg_limit_per_call = OptoReg::add(out_arg_limit_per_call, call->as_CallNative()->_shadow_space_bytes);
 
 
@@ -2674,7 +2674,7 @@ void Matcher::specialize_generic_vector_operands() {
 
   while (live_nodes.size() > 0) {
     MachNode* m = live_nodes.pop()->isa_Mach();
-    if (m != NULL) {
+    if (m != nullptr) {
       if (Matcher::is_generic_reg2reg_move(m)) {
         // Register allocator properly handles vec <=> leg moves using register masks.
         int opnd_idx = m->operand_index(1);
@@ -2697,7 +2697,7 @@ bool Matcher::verify_after_postselect_cleanup() {
     C->identify_useful_nodes(useful);
     for (uint i = 0; i < useful.size(); i++) {
       MachNode* m = useful.at(i)->isa_Mach();
-      if (m != NULL) {
+      if (m != nullptr) {
         assert(!Matcher::is_generic_reg2reg_move(m), "no MoveVec nodes allowed");
         for (uint j = 0; j < m->num_opnds(); j++) {
           assert(!Matcher::is_generic_vector(m->_opnds[j]), "no generic vector operands allowed");

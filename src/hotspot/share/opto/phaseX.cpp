@@ -1587,7 +1587,7 @@ void PhaseIterGVN::add_users_to_worklist( Node *n ) {
       }
       if (use_op == Op_CmpI) {
         Node* phi = countedloop_phi_from_cmp((CmpINode*)use, n);
-        if (phi != NULL) {
+        if (phi != nullptr) {
           // If an opaque node feeds into the limit condition of a
           // CountedLoop, we need to process the Phi node for the
           // induction variable when the opaque node is removed:
@@ -1599,9 +1599,9 @@ void PhaseIterGVN::add_users_to_worklist( Node *n ) {
         for (uint i = 0; i < in1->outcnt(); i++) {
           if (in1->raw_out(i)->Opcode() == Op_CastII) {
             Node* castii = in1->raw_out(i);
-            if (castii->in(0) != NULL && castii->in(0)->in(0) != NULL && castii->in(0)->in(0)->is_If()) {
+            if (castii->in(0) != nullptr && castii->in(0)->in(0) != nullptr && castii->in(0)->in(0)->is_If()) {
               Node* ifnode = castii->in(0)->in(0);
-              if (ifnode->in(1) != NULL && ifnode->in(1)->is_Bool() && ifnode->in(1)->in(1) == use) {
+              if (ifnode->in(1) != nullptr && ifnode->in(1)->is_Bool() && ifnode->in(1)->in(1) == use) {
                 // Reprocess a CastII node that may depend on an
                 // opaque node value when the opaque node is
                 // removed. In case it carries a dependency we can do
@@ -1837,7 +1837,7 @@ void PhaseCCP::analyze() {
             Node* p = m->fast_out(i2);  // Propagate changes to uses
             if (p->is_Proj() && p->as_Proj()->_con == TypeFunc::Control) {
               Node* catch_node = p->find_out_with(Op_Catch);
-              if (catch_node != NULL) {
+              if (catch_node != nullptr) {
                 worklist.push(catch_node);
               }
             }
@@ -1868,7 +1868,7 @@ void PhaseCCP::analyze() {
         // PhiNode::Value().
         if (m_op == Op_CmpI || m_op == Op_CmpL) {
           PhiNode* phi = countedloop_phi_from_cmp(m->as_Cmp(), n);
-          if (phi != NULL) {
+          if (phi != nullptr) {
             worklist.push(phi);
           }
         }
@@ -2141,7 +2141,7 @@ void PhasePeephole::do_transform() {
         int deleted_count = 0;
         // check for peephole opportunities
         MachNode *m2 = m->peephole(block, instruction_index, _regalloc, deleted_count);
-        if( m2 != NULL ) {
+        if( m2 != nullptr ) {
 #ifndef PRODUCT
           if( PrintOptoPeephole ) {
             // Print method, first time only

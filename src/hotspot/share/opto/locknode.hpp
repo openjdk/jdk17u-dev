@@ -82,9 +82,9 @@ public:
   FastLockNode(Node *ctrl, Node *oop, Node *box) : CmpNode(oop,box) {
     init_req(0,ctrl);
     init_class_id(Class_FastLock);
-    _counters = NULL;
-    _rtm_counters = NULL;
-    _stack_rtm_counters = NULL;
+    _counters = nullptr;
+    _rtm_counters = nullptr;
+    _stack_rtm_counters = nullptr;
   }
   Node* obj_node() const { return in(1); }
   Node* box_node() const { return in(2); }

@@ -505,12 +505,12 @@ void Parse::do_call() {
 
   // Find target being called
   bool             will_link;
-  ciSignature*     declared_signature = NULL;
+  ciSignature*     declared_signature = nullptr;
   ciMethod*        orig_callee  = iter().get_method(will_link, &declared_signature);  // callee in the bytecode
   ciInstanceKlass* holder_klass = orig_callee->holder();
   ciKlass*         holder       = iter().get_declared_method_holder();
   ciInstanceKlass* klass = ciEnv::get_instance_klass_for_declared_method_holder(holder);
-  assert(declared_signature != NULL, "cannot be null");
+  assert(declared_signature != nullptr, "cannot be null");
 
   // Bump max node limit for JSR292 users
   if (bc() == Bytecodes::_invokedynamic || orig_callee->is_method_handle_intrinsic()) {
@@ -590,12 +590,12 @@ void Parse::do_call() {
     receiver_constraint = holder;
   }
 
-  if (receiver_constraint != NULL) {
+  if (receiver_constraint != nullptr) {
     Node* receiver_node = stack(sp() - nargs);
     Node* cls_node = makecon(TypeKlassPtr::make(receiver_constraint));
-    Node* bad_type_ctrl = NULL;
+    Node* bad_type_ctrl = nullptr;
     Node* casted_receiver = gen_checkcast(receiver_node, cls_node, &bad_type_ctrl);
-    if (bad_type_ctrl != NULL) {
+    if (bad_type_ctrl != nullptr) {
       PreserveJVMState pjvms(this);
       set_control(bad_type_ctrl);
       uncommon_trap(Deoptimization::Reason_class_check,
@@ -919,10 +919,10 @@ void Parse::catch_inline_exceptions(SafePointNode* ex_map) {
   ex_node = use_exception_state(ex_map);
 
   // Get the exception oop klass from its header
-  Node* ex_klass_node = NULL;
+  Node* ex_klass_node = nullptr;
   if (has_ex_handler() && !ex_type->klass_is_exact()) {
     Node* p = basic_plus_adr( ex_node, ex_node, oopDesc::klass_offset_in_bytes());
-    ex_klass_node = _gvn.transform(LoadKlassNode::make(_gvn, NULL, immutable_memory(), p, TypeInstPtr::KLASS, TypeKlassPtr::OBJECT));
+    ex_klass_node = _gvn.transform(LoadKlassNode::make(_gvn, nullptr, immutable_memory(), p, TypeInstPtr::KLASS, TypeKlassPtr::OBJECT));
 
     // Compute the exception klass a little more cleverly.
     // Obvious solution is to simple do a LoadKlass from the 'ex_node'.
@@ -934,13 +934,13 @@ void Parse::catch_inline_exceptions(SafePointNode* ex_map) {
       ex_klass_node = new PhiNode(ex_node->in(0), TypeKlassPtr::OBJECT);
       for (uint i = 1; i < ex_node->req(); i++) {
         Node* ex_in = ex_node->in(i);
-        if (ex_in == top() || ex_in == NULL) {
+        if (ex_in == top() || ex_in == nullptr) {
           // This path was not taken.
           ex_klass_node->init_req(i, top());
           continue;
         }
         Node* p = basic_plus_adr(ex_in, ex_in, oopDesc::klass_offset_in_bytes());
-        Node* k = _gvn.transform( LoadKlassNode::make(_gvn, NULL, immutable_memory(), p, TypeInstPtr::KLASS, TypeKlassPtr::OBJECT));
+        Node* k = _gvn.transform( LoadKlassNode::make(_gvn, nullptr, immutable_memory(), p, TypeInstPtr::KLASS, TypeKlassPtr::OBJECT));
         ex_klass_node->init_req( i, k );
       }
       _gvn.set_type(ex_klass_node, TypeKlassPtr::OBJECT);

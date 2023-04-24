@@ -133,8 +133,8 @@ const Type *Type::TOP;          // No values in set
 
 //------------------------------get_const_type---------------------------
 const Type* Type::get_const_type(ciType* type) {
-  if (type == NULL) {
-    return NULL;
+  if (type == nullptr) {
+    return nullptr;
   } else if (type->is_primitive_type()) {
     return get_const_basic_type(type->basic_type());
   } else {
@@ -783,7 +783,7 @@ bool Type::interface_vs_oop_helper(const Type *t) const {
 
   const TypePtr* this_ptr = this->make_ptr(); // In case it is narrow_oop
   const TypePtr*    t_ptr =    t->make_ptr();
-  if( this_ptr == NULL || t_ptr == NULL )
+  if( this_ptr == nullptr || t_ptr == nullptr )
     return result;
 
   const TypeInstPtr* this_inst = this_ptr->isa_instptr();
@@ -802,18 +802,18 @@ bool Type::interface_vs_oop(const Type *t) const {
     return true;
   }
   // Now check the speculative parts as well
-  const TypePtr* this_spec = isa_ptr() != NULL ? is_ptr()->speculative() : NULL;
-  const TypePtr* t_spec = t->isa_ptr() != NULL ? t->is_ptr()->speculative() : NULL;
-  if (this_spec != NULL && t_spec != NULL) {
+  const TypePtr* this_spec = isa_ptr() != nullptr ? is_ptr()->speculative() : nullptr;
+  const TypePtr* t_spec = t->isa_ptr() != nullptr ? t->is_ptr()->speculative() : nullptr;
+  if (this_spec != nullptr && t_spec != nullptr) {
     if (this_spec->interface_vs_oop_helper(t_spec)) {
       return true;
     }
     return false;
   }
-  if (this_spec != NULL && this_spec->interface_vs_oop_helper(t)) {
+  if (this_spec != nullptr && this_spec->interface_vs_oop_helper(t)) {
     return true;
   }
-  if (t_spec != NULL && interface_vs_oop_helper(t_spec)) {
+  if (t_spec != nullptr && interface_vs_oop_helper(t_spec)) {
     return true;
   }
   return false;
@@ -1890,10 +1890,10 @@ bool TypeLong::is_finite() const {
 #ifndef PRODUCT
 static const char* longnamenear(jlong x, const char* xname, char* buf, jlong n) {
   if (n > x) {
-    if (n >= x + 10000)  return NULL;
+    if (n >= x + 10000)  return nullptr;
     sprintf(buf, "%s+" JLONG_FORMAT, xname, n - x);
   } else if (n < x) {
-    if (n <= x - 10000)  return NULL;
+    if (n <= x - 10000)  return nullptr;
     sprintf(buf, "%s-" JLONG_FORMAT, xname, x - n);
   } else {
     return xname;
@@ -1911,11 +1911,11 @@ static const char* longname(char* buf, jlong n) {
     return "max";
   else if (n > max_jlong - 10000)
     sprintf(buf, "max-" JLONG_FORMAT, max_jlong - n);
-  else if ((str = longnamenear(max_juint, "maxuint", buf, n)) != NULL)
+  else if ((str = longnamenear(max_juint, "maxuint", buf, n)) != nullptr)
     return str;
-  else if ((str = longnamenear(max_jint, "maxint", buf, n)) != NULL)
+  else if ((str = longnamenear(max_jint, "maxint", buf, n)) != nullptr)
     return str;
-  else if ((str = longnamenear(min_jint, "minint", buf, n)) != NULL)
+  else if ((str = longnamenear(min_jint, "minint", buf, n)) != nullptr)
     return str;
   else
     sprintf(buf, JLONG_FORMAT, n);
@@ -2269,7 +2269,7 @@ bool TypeAry::interface_vs_oop(const Type *t) const {
   if (t_ary) {
     const TypePtr* this_ptr = _elem->make_ptr(); // In case we have narrow_oops
     const TypePtr*    t_ptr = t_ary->_elem->make_ptr();
-    if(this_ptr != NULL && t_ptr != NULL) {
+    if(this_ptr != nullptr && t_ptr != nullptr) {
       return this_ptr->interface_vs_oop(t_ptr);
     }
   }
@@ -2315,7 +2315,7 @@ bool TypeAry::ary_must_be_exact() const {
   }
   if (!toop)                return true;   // a primitive type, like int
   ciKlass* tklass = toop->klass();
-  if (tklass == NULL)       return false;  // unloaded class
+  if (tklass == nullptr)       return false;  // unloaded class
   if (!tklass->is_loaded()) return false;  // unloaded class
   const TypeInstPtr* tinst;
   if (_elem->isa_narrowoop())
@@ -2653,11 +2653,11 @@ int TypePtr::hash(void) const {
  * Return same type without a speculative part
  */
 const Type* TypePtr::remove_speculative() const {
-  if (_speculative == NULL) {
+  if (_speculative == nullptr) {
     return this;
   }
   assert(_inline_depth == InlineDepthTop || _inline_depth == InlineDepthBottom, "non speculative type shouldn't have inline depth");
-  return make(AnyPtr, _ptr, _offset, NULL, _inline_depth);
+  return make(AnyPtr, _ptr, _offset, nullptr, _inline_depth);
 }
 
 /**
@@ -2781,8 +2781,8 @@ int TypePtr::hash_speculative() const {
  * @param offset  offset to add
  */
 const TypePtr* TypePtr::add_offset_speculative(intptr_t offset) const {
-  if (_speculative == NULL) {
-    return NULL;
+  if (_speculative == nullptr) {
+    return nullptr;
   }
   return _speculative->add_offset(offset)->is_ptr();
 }
@@ -2791,20 +2791,20 @@ const TypePtr* TypePtr::add_offset_speculative(intptr_t offset) const {
  * return exact klass from the speculative type if there's one
  */
 ciKlass* TypePtr::speculative_type() const {
-  if (_speculative != NULL && _speculative->isa_oopptr()) {
+  if (_speculative != nullptr && _speculative->isa_oopptr()) {
     const TypeOopPtr* speculative = _speculative->join(this)->is_oopptr();
     if (speculative->klass_is_exact()) {
       return speculative->klass();
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 /**
  * return true if speculative type may be null
  */
 bool TypePtr::speculative_maybe_null() const {
-  if (_speculative != NULL) {
+  if (_speculative != nullptr) {
     const TypePtr* speculative = _speculative->join(this)->is_ptr();
     return speculative->maybe_null();
   }
@@ -2957,19 +2957,19 @@ const TypeRawPtr *TypeRawPtr::NOTNULL;
 //------------------------------make-------------------------------------------
 const TypeRawPtr *TypeRawPtr::make( enum PTR ptr ) {
   assert( ptr != Constant, "what is the constant?" );
-  assert( ptr != Null, "Use TypePtr for NULL" );
+  assert( ptr != Null, "Use TypePtr for nullptr" );
   return (TypeRawPtr*)(new TypeRawPtr(ptr,0))->hashcons();
 }
 
 const TypeRawPtr *TypeRawPtr::make( address bits ) {
-  assert( bits, "Use TypePtr for NULL" );
+  assert( bits, "Use TypePtr for nullptr" );
   return (TypeRawPtr*)(new TypeRawPtr(Constant,bits))->hashcons();
 }
 
 //------------------------------cast_to_ptr_type-------------------------------
 const Type *TypeRawPtr::cast_to_ptr_type(PTR ptr) const {
   assert( ptr != Constant, "what is the constant?" );
-  assert( ptr != Null, "Use TypePtr for NULL" );
+  assert( ptr != Null, "Use TypePtr for nullptr" );
   assert( _bits==0, "Why cast a constant address?");
   if( ptr == _ptr ) return this;
   return make(ptr);
@@ -3114,7 +3114,7 @@ TypeOopPtr::TypeOopPtr(TYPES t, PTR ptr, ciKlass* k, bool xk, ciObject* o, int o
                              _offset != arrayOopDesc::length_offset_in_bytes());
     } else if (klass()->is_instance_klass()) {
       ciInstanceKlass* ik = klass()->as_instance_klass();
-      ciField* field = NULL;
+      ciField* field = nullptr;
       if (this->isa_klassptr()) {
         // Perm objects don't use compressed references
       } else if (_offset == OffsetBot || _offset == OffsetTop) {
@@ -3147,7 +3147,7 @@ TypeOopPtr::TypeOopPtr(TYPES t, PTR ptr, ciKlass* k, bool xk, ciObject* o, int o
         } else {
           // Instance fields which contains a compressed oop references.
           field = ik->get_field_by_offset(_offset, false);
-          if (field != NULL) {
+          if (field != nullptr) {
             BasicType basic_elem_type = field->layout_type();
             _is_ptr_to_narrowoop = UseCompressedOops && is_reference_type(basic_elem_type);
           } else if (klass()->equals(ciEnv::current()->Object_klass())) {
@@ -3171,7 +3171,7 @@ const TypeOopPtr *TypeOopPtr::make(PTR ptr, int offset, int instance_id,
   assert(ptr != Constant, "no constant generic pointers");
   ciKlass*  k = Compile::current()->env()->Object_klass();
   bool      xk = false;
-  ciObject* o = NULL;
+  ciObject* o = nullptr;
   return (TypeOopPtr*)(new TypeOopPtr(OopPtr, ptr, k, xk, o, offset, instance_id, speculative, inline_depth))->hashcons();
 }
 
@@ -3204,7 +3204,7 @@ const Type *TypeOopPtr::cast_to_exactness(bool klass_is_exact) const {
 const TypeKlassPtr* TypeOopPtr::as_klass_type() const {
   ciKlass* k = klass();
   bool    xk = klass_is_exact();
-  if (k == NULL)
+  if (k == nullptr)
     return TypeKlassPtr::OBJECT;
   else
     return TypeKlassPtr::make(xk? Constant: NotNull, k, 0);
@@ -3286,7 +3286,7 @@ const Type *TypeOopPtr::xmeet_helper(const Type *t) const {
 // Dual of a pure heap pointer.  No relevant klass or oop information.
 const Type *TypeOopPtr::xdual() const {
   assert(klass() == Compile::current()->env()->Object_klass(), "no klasses here");
-  assert(const_oop() == NULL,             "no constants here");
+  assert(const_oop() == nullptr,             "no constants here");
   return new TypeOopPtr(_base, dual_ptr(), klass(), klass_is_exact(), const_oop(), dual_offset(), dual_instance_id(), dual_speculative(), dual_inline_depth());
 }
 
@@ -3319,7 +3319,7 @@ const TypeOopPtr* TypeOopPtr::make_from_klass_common(ciKlass *klass, bool klass_
         klass_is_exact = true;
       }
     }
-    return TypeInstPtr::make(TypePtr::BotPTR, klass, klass_is_exact, NULL, 0);
+    return TypeInstPtr::make(TypePtr::BotPTR, klass, klass_is_exact, nullptr, 0);
   } else if (klass->is_obj_array_klass()) {
     // Element is an object array. Recursively call ourself.
     const TypeOopPtr *etype = TypeOopPtr::make_from_klass_common(klass->as_obj_array_klass()->element_klass(), false, try_for_exact);
@@ -3327,7 +3327,7 @@ const TypeOopPtr* TypeOopPtr::make_from_klass_common(ciKlass *klass, bool klass_
     const TypeAry* arr0 = TypeAry::make(etype, TypeInt::POS);
     // We used to pass NotNull in here, asserting that the sub-arrays
     // are all not-null.  This is not true in generally, as code can
-    // slam NULLs down in the subarrays.
+    // slam nullptrs down in the subarrays.
     const TypeAryPtr* arr = TypeAryPtr::make(TypePtr::BotPTR, arr0, klass, xk, 0);
     return arr;
   } else if (klass->is_type_array_klass()) {
@@ -3430,13 +3430,13 @@ const Type *TypeOopPtr::filter_helper(const Type *kills, bool include_speculativ
     // into a Phi which "knows" it's an Interface type we'll have to
     // uplift the type.
     if (!empty()) {
-      if (ktip != NULL && ktip->is_loaded() && ktip->klass()->is_interface()) {
+      if (ktip != nullptr && ktip->is_loaded() && ktip->klass()->is_interface()) {
         return kills;           // Uplift to interface
       }
       // Also check for evil cases of 'this' being a class array
       // and 'kills' expecting an array of interfaces.
-      Type::get_arrays_base_elements(ft, kills, NULL, &ktip);
-      if (ktip != NULL && ktip->is_loaded() && ktip->klass()->is_interface()) {
+      Type::get_arrays_base_elements(ft, kills, nullptr, &ktip);
+      if (ktip != nullptr && ktip->is_loaded() && ktip->klass()->is_interface()) {
         return kills;           // Uplift to array of interface
       }
     }
@@ -3449,7 +3449,7 @@ const Type *TypeOopPtr::filter_helper(const Type *kills, bool include_speculativ
   // class-typed Phi and an interface flows in, it's possible that the meet &
   // join report an interface back out.  This isn't possible but happens
   // because the type system doesn't interact well with interfaces.
-  if (ftip != NULL && ktip != NULL &&
+  if (ftip != nullptr && ktip != nullptr &&
       ftip->is_loaded() &&  ftip->klass()->is_interface() &&
       ktip->is_loaded() && !ktip->klass()->is_interface()) {
     assert(!ftip->klass_is_exact(), "interface could not be exact");
@@ -3522,11 +3522,11 @@ const TypePtr *TypeOopPtr::add_offset(intptr_t offset) const {
  * Return same type without a speculative part
  */
 const Type* TypeOopPtr::remove_speculative() const {
-  if (_speculative == NULL) {
+  if (_speculative == nullptr) {
     return this;
   }
   assert(_inline_depth == InlineDepthTop || _inline_depth == InlineDepthBottom, "non speculative type shouldn't have inline depth");
-  return make(_ptr, _offset, _instance_id, NULL, _inline_depth);
+  return make(_ptr, _offset, _instance_id, nullptr, _inline_depth);
 }
 
 /**
@@ -3606,8 +3606,8 @@ TypeInstPtr::TypeInstPtr(PTR ptr, ciKlass* k, bool xk, ciObject* o, int off,
                          int instance_id, const TypePtr* speculative, int inline_depth)
   : TypeOopPtr(InstPtr, ptr, k, xk, o, off, instance_id, speculative, inline_depth),
     _name(k->name()) {
-   assert(k != NULL &&
-          (k->is_loaded() || o == NULL),
+   assert(k != nullptr &&
+          (k->is_loaded() || o == nullptr),
           "cannot have constants with non-loaded klass");
 };
 
@@ -3721,7 +3721,7 @@ const TypeInstPtr *TypeInstPtr::xmeet_unloaded(const TypeInstPtr *tinst) const {
       assert(loaded->ptr() != TypePtr::Null, "insanity check");
       //
       if(      loaded->ptr() == TypePtr::TopPTR ) { return unloaded; }
-      else if (loaded->ptr() == TypePtr::AnyNull) { return TypeInstPtr::make(ptr, unloaded->klass(), false, NULL, off, instance_id, speculative, depth); }
+      else if (loaded->ptr() == TypePtr::AnyNull) { return TypeInstPtr::make(ptr, unloaded->klass(), false, nullptr, off, instance_id, speculative, depth); }
       else if (loaded->ptr() == TypePtr::BotPTR ) { return TypeInstPtr::BOTTOM; }
       else if (loaded->ptr() == TypePtr::Constant || loaded->ptr() == TypePtr::NotNull) {
         if (unloaded->ptr() == TypePtr::BotPTR  ) { return TypeInstPtr::BOTTOM;  }
@@ -3789,7 +3789,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
       const TypePtr* speculative = xmeet_speculative(tp);
       int depth = meet_inline_depth(tp->inline_depth());
       return make(ptr, klass(), klass_is_exact(),
-                  (ptr == Constant ? const_oop() : NULL), offset, instance_id, speculative, depth);
+                  (ptr == Constant ? const_oop() : nullptr), offset, instance_id, speculative, depth);
     }
     case NotNull:
     case BotPTR: {
@@ -3817,7 +3817,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
     case TopPTR:
     case AnyNull: {
       return make(ptr, klass(), klass_is_exact(),
-                  (ptr == Constant ? const_oop() : NULL), offset, instance_id, speculative, depth);
+                  (ptr == Constant ? const_oop() : nullptr), offset, instance_id, speculative, depth);
     }
     case NotNull:
     case BotPTR:
@@ -3856,7 +3856,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
     // and we can handle the constants further down.  This case handles
     // both-not-loaded or both-loaded classes
     if (ptr != Constant && klass()->equals(tinst->klass()) && klass_is_exact() == tinst->klass_is_exact()) {
-      return make(ptr, klass(), klass_is_exact(), NULL, off, instance_id, speculative, depth);
+      return make(ptr, klass(), klass_is_exact(), nullptr, off, instance_id, speculative, depth);
     }
 
     // Classes require inspection in the Java klass hierarchy.  Must be loaded.
@@ -3919,7 +3919,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
           instance_id = InstanceBot;
         }
       }
-      ciObject* o = NULL;  // the Constant value, if any
+      ciObject* o = nullptr;  // the Constant value, if any
       if (ptr == Constant) {
         // Find out which constant.
         o = (this_klass == klass()) ? const_oop() : tinst->const_oop();
@@ -3954,7 +3954,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
     // centerline and or-ed above it.  (N.B. Constants are always exact.)
 
     // Check for subtyping:
-    ciKlass *subtype = NULL;
+    ciKlass *subtype = nullptr;
     bool subtype_exact = false;
     if( tinst_klass->equals(this_klass) ) {
       subtype = this_klass;
@@ -3985,13 +3985,13 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
     // Check for classes now being equal
     if (tinst_klass->equals(this_klass)) {
       // If the klasses are equal, the constants may still differ.  Fall to
-      // NotNull if they do (neither constant is NULL; that is a special case
+      // NotNull if they do (neither constant is nullptr; that is a special case
       // handled elsewhere).
-      ciObject* o = NULL;             // Assume not constant when done
+      ciObject* o = nullptr;             // Assume not constant when done
       ciObject* this_oop  = const_oop();
       ciObject* tinst_oop = tinst->const_oop();
       if( ptr == Constant ) {
-        if (this_oop != NULL && tinst_oop != NULL &&
+        if (this_oop != nullptr && tinst_oop != nullptr &&
             this_oop->equals(tinst_oop) )
           o = this_oop;
         else if (above_centerline(this ->_ptr))
@@ -4013,7 +4013,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
 
     // Now we find the LCA of Java classes
     ciKlass* k = this_klass->least_common_ancestor(tinst_klass);
-    return make(ptr, k, false, NULL, off, instance_id, speculative, depth);
+    return make(ptr, k, false, nullptr, off, instance_id, speculative, depth);
   } // End of case InstPtr
 
   } // End of switch
@@ -4116,12 +4116,12 @@ const TypePtr *TypeInstPtr::add_offset(intptr_t offset) const {
 }
 
 const Type *TypeInstPtr::remove_speculative() const {
-  if (_speculative == NULL) {
+  if (_speculative == nullptr) {
     return this;
   }
   assert(_inline_depth == InlineDepthTop || _inline_depth == InlineDepthBottom, "non speculative type shouldn't have inline depth");
   return make(_ptr, klass(), klass_is_exact(), const_oop(), _offset,
-              _instance_id, NULL, _inline_depth);
+              _instance_id, nullptr, _inline_depth);
 }
 
 const TypePtr *TypeInstPtr::with_inline_depth(int depth) const {
@@ -4152,21 +4152,21 @@ const TypeAryPtr *TypeAryPtr::DOUBLES;
 //------------------------------make-------------------------------------------
 const TypeAryPtr *TypeAryPtr::make(PTR ptr, const TypeAry *ary, ciKlass* k, bool xk, int offset,
                                    int instance_id, const TypePtr* speculative, int inline_depth) {
-  assert(!(k == NULL && ary->_elem->isa_int()),
+  assert(!(k == nullptr && ary->_elem->isa_int()),
          "integral arrays must be pre-equipped with a class");
   if (!xk)  xk = ary->ary_must_be_exact();
   assert(instance_id <= 0 || xk, "instances are always exactly typed");
-  return (TypeAryPtr*)(new TypeAryPtr(ptr, NULL, ary, k, xk, offset, instance_id, false, speculative, inline_depth))->hashcons();
+  return (TypeAryPtr*)(new TypeAryPtr(ptr, nullptr, ary, k, xk, offset, instance_id, false, speculative, inline_depth))->hashcons();
 }
 
 //------------------------------make-------------------------------------------
 const TypeAryPtr *TypeAryPtr::make(PTR ptr, ciObject* o, const TypeAry *ary, ciKlass* k, bool xk, int offset,
                                    int instance_id, const TypePtr* speculative, int inline_depth,
                                    bool is_autobox_cache) {
-  assert(!(k == NULL && ary->_elem->isa_int()),
+  assert(!(k == nullptr && ary->_elem->isa_int()),
          "integral arrays must be pre-equipped with a class");
   assert( (ptr==Constant && o) || (ptr!=Constant && !o), "" );
-  if (!xk)  xk = (o != NULL) || ary->ary_must_be_exact();
+  if (!xk)  xk = (o != nullptr) || ary->ary_must_be_exact();
   assert(instance_id <= 0 || xk, "instances are always exactly typed");
   return (TypeAryPtr*)(new TypeAryPtr(ptr, o, ary, k, xk, offset, instance_id, is_autobox_cache, speculative, inline_depth))->hashcons();
 }
@@ -4389,13 +4389,13 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
     int instance_id = meet_instance_id(tap->instance_id());
     const TypePtr* speculative = xmeet_speculative(tap);
     int depth = meet_inline_depth(tap->inline_depth());
-    ciKlass* lazy_klass = NULL;
+    ciKlass* lazy_klass = nullptr;
     if (tary->_elem->isa_int()) {
       // Integral array element types have irrelevant lattice relations.
       // It is the klass that determines array layout, not the element type.
-      if (_klass == NULL)
+      if (_klass == nullptr)
         lazy_klass = tap->_klass;
-      else if (tap->_klass == NULL || tap->_klass == _klass) {
+      else if (tap->_klass == nullptr || tap->_klass == _klass) {
         lazy_klass = _klass;
       } else {
         // Something like byte[int+] meets char[int+].
@@ -4408,7 +4408,7 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
       // are not equal or super klass is exact.
       if ((above_centerline(ptr) || ptr == Constant) && klass() != tap->klass() &&
           // meet with top[] and bottom[] are processed further down:
-          tap->_klass != NULL  && this->_klass != NULL   &&
+          tap->_klass != nullptr  && this->_klass != nullptr   &&
           // both are exact and not equal:
           ((tap->_klass_is_exact && this->_klass_is_exact) ||
            // 'tap'  is exact and super or unrelated:
@@ -4418,7 +4418,7 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
       if (above_centerline(ptr) || (tary->_elem->make_ptr() && above_centerline(tary->_elem->make_ptr()->_ptr))) {
         tary = TypeAry::make(Type::BOTTOM, tary->_size, tary->_stable);
       }
-      return make(NotNull, NULL, tary, lazy_klass, false, off, InstanceBot, speculative, depth);
+      return make(NotNull, nullptr, tary, lazy_klass, false, off, InstanceBot, speculative, depth);
     }
 
     bool xk = false;
@@ -4435,10 +4435,10 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
     case Constant: {
       ciObject* o = const_oop();
       if( _ptr == Constant ) {
-        if( tap->const_oop() != NULL && !o->equals(tap->const_oop()) ) {
+        if( tap->const_oop() != nullptr && !o->equals(tap->const_oop()) ) {
           xk = (klass() == tap->klass());
           ptr = NotNull;
-          o = NULL;
+          o = nullptr;
           instance_id = InstanceBot;
         } else {
           xk = true;
@@ -4461,7 +4461,7 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
         xk = (tap->_klass_is_exact & this->_klass_is_exact) &&
              (klass() == tap->klass()); // Only precise for identical arrays
       }
-      return make(ptr, NULL, tary, lazy_klass, xk, off, instance_id, speculative, depth);
+      return make(ptr, nullptr, tary, lazy_klass, xk, off, instance_id, speculative, depth);
     default: ShouldNotReachHere();
     }
   }
@@ -4486,7 +4486,7 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
         // cannot subclass, so the meet has to fall badly below the centerline
         ptr = NotNull;
         instance_id = InstanceBot;
-        return TypeInstPtr::make(ptr, ciEnv::current()->Object_klass(), false, NULL,offset, instance_id, speculative, depth);
+        return TypeInstPtr::make(ptr, ciEnv::current()->Object_klass(), false, nullptr,offset, instance_id, speculative, depth);
       }
     case Constant:
     case NotNull:
@@ -4512,7 +4512,7 @@ const Type *TypeAryPtr::xmeet_helper(const Type *t) const {
       if (instance_id > 0) {
         instance_id = InstanceBot;
       }
-      return TypeInstPtr::make(ptr, ciEnv::current()->Object_klass(), false, NULL, offset, instance_id, speculative, depth);
+      return TypeInstPtr::make(ptr, ciEnv::current()->Object_klass(), false, nullptr, offset, instance_id, speculative, depth);
     default: typerr(t);
     }
   }
@@ -4594,11 +4594,11 @@ const TypePtr *TypeAryPtr::add_offset(intptr_t offset) const {
 }
 
 const Type *TypeAryPtr::remove_speculative() const {
-  if (_speculative == NULL) {
+  if (_speculative == nullptr) {
     return this;
   }
   assert(_inline_depth == InlineDepthTop || _inline_depth == InlineDepthBottom, "non speculative type shouldn't have inline depth");
-  return make(_ptr, _const_oop, _ary->remove_speculative()->is_ary(), _klass, _klass_is_exact, _offset, _instance_id, NULL, _inline_depth);
+  return make(_ptr, _const_oop, _ary->remove_speculative()->is_ary(), _klass, _klass_is_exact, _offset, _instance_id, nullptr, _inline_depth);
 }
 
 const TypePtr *TypeAryPtr::with_inline_depth(int depth) const {
@@ -4967,7 +4967,7 @@ TypeKlassPtr::TypeKlassPtr( PTR ptr, ciKlass* klass, int offset )
 //------------------------------make-------------------------------------------
 // ptr to klass 'k', if Constant, or possibly to a sub-klass if not a Constant
 const TypeKlassPtr *TypeKlassPtr::make( PTR ptr, ciKlass* k, int offset ) {
-  assert( k != NULL, "Expect a non-NULL klass");
+  assert( k != nullptr, "Expect a non-NULL klass");
   assert(k->is_instance_klass() || k->is_array_klass(), "Incorrect type of klass oop");
   TypeKlassPtr *r =
     (TypeKlassPtr*)(new TypeKlassPtr(ptr, k, offset))->hashcons();
@@ -5008,7 +5008,7 @@ const Type *TypeKlassPtr::filter_helper(const Type *kills, bool include_speculat
   const TypeKlassPtr* ktkp = kills->isa_klassptr();
 
   if (ft->empty()) {
-    if (!empty() && ktkp != NULL && ktkp->klass()->is_loaded() && ktkp->klass()->is_interface())
+    if (!empty() && ktkp != nullptr && ktkp->klass()->is_loaded() && ktkp->klass()->is_interface())
       return kills;             // Uplift to interface
 
     return Type::TOP;           // Canonical empty value
@@ -5016,7 +5016,7 @@ const Type *TypeKlassPtr::filter_helper(const Type *kills, bool include_speculat
 
   // Interface klass type could be exact in opposite to interface type,
   // return it here instead of incorrect Constant ptr J/L/Object (6894807).
-  if (ftkp != NULL && ktkp != NULL &&
+  if (ftkp != nullptr && ktkp != nullptr &&
       ftkp->is_loaded() &&  ftkp->klass()->is_interface() &&
       !ftkp->klass_is_exact() && // Keep exact interface klass
       ktkp->is_loaded() && !ktkp->klass()->is_interface()) {
@@ -5039,20 +5039,20 @@ ciKlass* TypeAryPtr::compute_klass(DEBUG_ONLY(bool verify)) const {
   }
 
   // Get element klass
-  if ((tinst = el->isa_instptr()) != NULL) {
+  if ((tinst = el->isa_instptr()) != nullptr) {
     // Compute array klass from element klass
     k_ary = ciObjArrayKlass::make(tinst->klass());
-  } else if ((tary = el->isa_aryptr()) != NULL) {
+  } else if ((tary = el->isa_aryptr()) != nullptr) {
     // Compute array klass from element klass
     ciKlass* k_elem = tary->klass();
     // If element type is something like bottom[], k_elem will be null.
-    if (k_elem != NULL)
+    if (k_elem != nullptr)
       k_ary = ciObjArrayKlass::make(k_elem);
   } else if ((el->base() == Type::Top) ||
              (el->base() == Type::Bottom)) {
     // element type of Bottom occurs from meet of basic type
     // and object; Top occurs when doing join on Bottom.
-    // Leave k_ary at NULL.
+    // Leave k_ary at nullptr.
   } else {
     // Cannot compute array klass directly from basic type,
     // since subtypes of TypeInt all have basic type T_INT.
@@ -5105,7 +5105,7 @@ ciKlass* TypeAryPtr::klass() const {
     // a bit less efficient than caching, but calls to
     // TypeAryPtr::OOPS->klass() are not common enough to matter.
     ((TypeAryPtr*)this)->_klass = k_ary;
-    if (UseCompressedOops && k_ary != NULL && k_ary->is_obj_array_klass() &&
+    if (UseCompressedOops && k_ary != nullptr && k_ary->is_obj_array_klass() &&
         _offset != 0 && _offset != arrayOopDesc::length_offset_in_bytes()) {
       ((TypeAryPtr*)this)->_is_ptr_to_narrowoop = true;
     }
@@ -5141,9 +5141,9 @@ const Type *TypeKlassPtr::cast_to_exactness(bool klass_is_exact) const {
 const TypeOopPtr* TypeKlassPtr::as_instance_type() const {
   ciKlass* k = klass();
   bool    xk = klass_is_exact();
-  //return TypeInstPtr::make(TypePtr::NotNull, k, xk, NULL, 0);
+  //return TypeInstPtr::make(TypePtr::NotNull, k, xk, nullptr, 0);
   const TypeOopPtr* toop = TypeOopPtr::make_from_klass_raw(k);
-  guarantee(toop != NULL, "need type for given klass");
+  guarantee(toop != nullptr, "need type for given klass");
   toop = toop->cast_to_ptr_type(TypePtr::NotNull)->is_oopptr();
   return toop->cast_to_exactness(xk)->is_oopptr();
 }
@@ -5253,7 +5253,7 @@ const Type    *TypeKlassPtr::xmeet( const Type *t ) const {
     // Check for classes now being equal
     if (tkls_klass->equals(this_klass)) {
       // If the klasses are equal, the constants may still differ.  Fall to
-      // NotNull if they do (neither constant is NULL; that is a special case
+      // NotNull if they do (neither constant is nullptr; that is a special case
       // handled elsewhere).
       if( ptr == Constant ) {
         if (this->_ptr == Constant && tkls->_ptr == Constant &&
@@ -5355,10 +5355,10 @@ const TypeFunc *TypeFunc::make( const TypeTuple *domain, const TypeTuple *range 
 const TypeFunc *TypeFunc::make(ciMethod* method) {
   Compile* C = Compile::current();
   const TypeFunc* tf = C->last_tf(method); // check cache
-  if (tf != NULL)  return tf;  // The hit rate here is almost 50%.
+  if (tf != nullptr)  return tf;  // The hit rate here is almost 50%.
   const TypeTuple *domain;
   if (method->is_static()) {
-    domain = TypeTuple::make_domain(NULL, method->signature());
+    domain = TypeTuple::make_domain(nullptr, method->signature());
   } else {
     domain = TypeTuple::make_domain(method->holder(), method->signature());
   }

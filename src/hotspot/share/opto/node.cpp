@@ -626,7 +626,7 @@ void Node::destruct(PhaseValues* phase) {
   int edge_size = _max*sizeof(void*);
   int out_edge_size = _outmax*sizeof(void*);
   char *edge_end = ((char*)_in) + edge_size;
-  char *out_array = (char*)(_out == NO_OUT_ARRAY? NULL: _out);
+  char *out_array = (char*)(_out == NO_OUT_ARRAY? nullptr: _out);
   int node_size = size_of();
 
   // Free the output edge array
@@ -771,19 +771,19 @@ void Node::add_req( Node *n ) {
   assert( is_not_dead(n), "can not use dead node");
 
   // Look to see if I can move precedence down one without reallocating
-  if( (_cnt >= _max) || (in(_max-1) != NULL) )
+  if( (_cnt >= _max) || (in(_max-1) != nullptr) )
     grow( _max+1 );
 
   // Find a precedence edge to move
-  if( in(_cnt) != NULL ) {       // Next precedence edge is busy?
+  if( in(_cnt) != nullptr ) {       // Next precedence edge is busy?
     uint i;
     for( i=_cnt; i<_max; i++ )
-      if( in(i) == NULL )       // Find the NULL at end of prec edge list
+      if( in(i) == nullptr )       // Find the nullptr at end of prec edge list
         break;                  // There must be one, since we grew the array
     _in[i] = in(_cnt);          // Move prec over, making space for req edge
   }
   _in[_cnt++] = n;            // Stuff over old prec edge
-  if (n != NULL) n->add_out((Node *)this);
+  if (n != nullptr) n->add_out((Node *)this);
 }
 
 //---------------------------add_req_batch-------------------------------------
@@ -860,14 +860,14 @@ void Node::del_req_ordered( uint idx ) {
 // Insert a new required input at the end
 void Node::ins_req( uint idx, Node *n ) {
   assert( is_not_dead(n), "can not use dead node");
-  add_req(NULL);                // Make space
+  add_req(nullptr);                // Make space
   assert( idx < _max, "Must have allocated enough space");
   // Slide over
   if(_cnt-idx-1 > 0) {
     Copy::conjoint_words_to_higher((HeapWord*)&_in[idx], (HeapWord*)&_in[idx+1], ((_cnt-idx-1)*sizeof(Node*)));
   }
   _in[idx] = n;                            // Stuff over old required edge
-  if (n != NULL) n->add_out((Node *)this); // Add reciprocal def-use edge
+  if (n != nullptr) n->add_out((Node *)this); // Add reciprocal def-use edge
 }
 
 //-----------------------------find_edge---------------------------------------
@@ -1025,35 +1025,35 @@ Node* Node::uncast_helper(const Node* p, bool keep_deps) {
 
 //------------------------------add_prec---------------------------------------
 // Add a new precedence input.  Precedence inputs are unordered, with
-// duplicates removed and NULLs packed down at the end.
+// duplicates removed and nullptrs packed down at the end.
 void Node::add_prec( Node *n ) {
   assert( is_not_dead(n), "can not use dead node");
 
-  // Check for NULL at end
+  // Check for nullptr at end
   if( _cnt >= _max || in(_max-1) )
     grow( _max+1 );
 
   // Find a precedence edge to move
   uint i = _cnt;
-  while( in(i) != NULL ) {
+  while( in(i) != nullptr ) {
     if (in(i) == n) return; // Avoid spec violation: duplicated prec edge.
     i++;
   }
-  _in[i] = n;                                // Stuff prec edge over NULL
-  if ( n != NULL) n->add_out((Node *)this);  // Add mirror edge
+  _in[i] = n;                                // Stuff prec edge over nullptr
+  if ( n != nullptr) n->add_out((Node *)this);  // Add mirror edge
 
 #ifdef ASSERT
-  while ((++i)<_max) { assert(_in[i] == NULL, "spec violation: Gap in prec edges (node %d)", _idx); }
+  while ((++i)<_max) { assert(_in[i] == nullptr, "spec violation: Gap in prec edges (node %d)", _idx); }
 #endif
 }
 
 //------------------------------rm_prec----------------------------------------
 // Remove a precedence input.  Precedence inputs are unordered, with
-// duplicates removed and NULLs packed down at the end.
+// duplicates removed and nullptrs packed down at the end.
 void Node::rm_prec( uint j ) {
   assert(j < _max, "oob: i=%d, _max=%d", j, _max);
   assert(j >= _cnt, "not a precedence edge");
-  if (_in[j] == NULL) return;   // Avoid spec violation: Gap in prec edges.
+  if (_in[j] == nullptr) return;   // Avoid spec violation: Gap in prec edges.
   _in[j]->del_out((Node *)this);
   close_prec_gap_at(j);
 }
@@ -1625,14 +1625,14 @@ Node* Node::find(const int idx, bool only_ctrl) {
   Node_List worklist;
   Arena* old_arena = Compile::current()->old_arena();
   add_to_worklist(this, &worklist, old_arena, &old_space, &new_space);
-  Node* result = NULL;
+  Node* result = nullptr;
   int node_idx = (idx >= 0) ? idx : -idx;
 
   for (uint list_index = 0; list_index < worklist.size(); list_index++) {
     Node* n = worklist[list_index];
 
     if ((int)n->_idx == node_idx debug_only(|| n->debug_idx() == node_idx)) {
-      if (result != NULL) {
+      if (result != nullptr) {
         tty->print("find: " INTPTR_FORMAT " and " INTPTR_FORMAT " both have idx==%d\n",
                   (uintptr_t)result, (uintptr_t)n, node_idx);
       }
@@ -1655,7 +1655,7 @@ Node* Node::find(const int idx, bool only_ctrl) {
 #ifdef ASSERT
     // Search along debug_orig edges last
     Node* orig = n->debug_orig();
-    while (orig != NULL && add_to_worklist(orig, &worklist, old_arena, &old_space, &new_space)) {
+    while (orig != nullptr && add_to_worklist(orig, &worklist, old_arena, &old_space, &new_space)) {
       orig = orig->debug_orig();
     }
 #endif // ASSERT
@@ -1665,7 +1665,7 @@ Node* Node::find(const int idx, bool only_ctrl) {
 
 bool Node::add_to_worklist(Node* n, Node_List* worklist, Arena* old_arena, VectorSet* old_space, VectorSet* new_space) {
   if (not_a_node(n)) {
-    return false; // Gracefully handle NULL, -1, 0xabababab, etc.
+    return false; // Gracefully handle nullptr, -1, 0xabababab, etc.
   }
 
   // Contained in new_space or old_space? Check old_arena first since it's mostly empty.
@@ -1788,10 +1788,10 @@ void Node::dump(const char* suffix, bool mark, outputStream *st) const {
 
   const Type *t = bottom_type();
 
-  if (t != NULL && (t->isa_instptr() || t->isa_klassptr())) {
+  if (t != nullptr && (t->isa_instptr() || t->isa_klassptr())) {
     const TypeInstPtr  *toop = t->isa_instptr();
     const TypeKlassPtr *tkls = t->isa_klassptr();
-    ciKlass*           klass = toop ? toop->klass() : (tkls ? tkls->klass() : NULL );
+    ciKlass*           klass = toop ? toop->klass() : (tkls ? tkls->klass() : nullptr );
     if (klass && klass->is_loaded() && klass->is_interface()) {
       st->print("  Interface:");
     } else if (toop) {
@@ -2185,7 +2185,7 @@ void Node::verify_edges(Unique_Node_List &visited) {
   // Walk over all input edges, checking for correspondence
   for( i = 0; i < len(); i++ ) {
     n = in(i);
-    if (n != NULL && !n->is_top()) {
+    if (n != nullptr && !n->is_top()) {
       // Count instances of (Node *)this
       cnt = 0;
       for (idx = 0; idx < n->_outcnt; idx++ ) {
@@ -2198,7 +2198,7 @@ void Node::verify_edges(Unique_Node_List &visited) {
         if( in(j) == n ) cnt--;
       }
       assert( cnt == 0,"Mismatched edge count.");
-    } else if (n == NULL) {
+    } else if (n == nullptr) {
       assert(i >= req() || i == 0 || is_Region() || is_Phi() || is_ArrayCopy() || (is_Unlock() && i == req()-1)
               || (is_MemBar() && i == 5), // the precedence edge to a membar can be removed during macro node expansion
               "only region, phi, arraycopy, unlock or membar nodes have null data edges");
@@ -2210,7 +2210,7 @@ void Node::verify_edges(Unique_Node_List &visited) {
   // Recursive walk over all input edges
   for( i = 0; i < len(); i++ ) {
     n = in(i);
-    if( n != NULL )
+    if( n != nullptr )
       in(i)->verify_edges(visited);
   }
 }
@@ -2383,19 +2383,19 @@ Node* Node::find_similar(int opc) {
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 
 //--------------------------unique_ctrl_out------------------------------
 // Return the unique control out if only one. Null if none or more than one.
 Node* Node::unique_ctrl_out() const {
-  Node* found = NULL;
+  Node* found = nullptr;
   for (uint i = 0; i < outcnt(); i++) {
     Node* use = raw_out(i);
     if (use->is_CFG() && use != this) {
-      if (found != NULL) {
-        return NULL;
+      if (found != nullptr) {
+        return nullptr;
       }
       found = use;
     }
@@ -2404,7 +2404,7 @@ Node* Node::unique_ctrl_out() const {
 }
 
 void Node::ensure_control_or_add_prec(Node* c) {
-  if (in(0) == NULL) {
+  if (in(0) == nullptr) {
     set_req(0, c);
   } else if (in(0) != c) {
     add_prec(c);

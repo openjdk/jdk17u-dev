@@ -361,13 +361,13 @@ bool Compile::push_thru_add(PhaseGVN* phase, Node* z, const TypeInteger* tz, con
 Node *ConvI2LNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   PhaseIterGVN *igvn = phase->is_IterGVN();
   const TypeLong* this_type = this->type()->is_long();
-  Node* this_changed = NULL;
+  Node* this_changed = nullptr;
 
-  if (igvn != NULL) {
+  if (igvn != nullptr) {
     // Do NOT remove this node's type assertion until no more loop ops can happen.
     if (phase->C->post_loop_opts_phase()) {
       const TypeInt* in_type = phase->type(in(1))->isa_int();
-      if (in_type != NULL && this_type != NULL &&
+      if (in_type != nullptr && this_type != nullptr &&
           (in_type->_lo != this_type->_lo ||
            in_type->_hi != this_type->_hi)) {
         // Although this WORSENS the type, it increases GVN opportunities,
@@ -430,10 +430,10 @@ Node *ConvI2LNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   // Addressing arithmetic will not absorb it as part of a 64-bit AddL.
 
   Node* z = in(1);
-  const TypeInteger* rx = NULL;
-  const TypeInteger* ry = NULL;
+  const TypeInteger* rx = nullptr;
+  const TypeInteger* ry = nullptr;
   if (Compile::push_thru_add(phase, z, this_type, rx, ry, T_LONG)) {
-    if (igvn == NULL) {
+    if (igvn == nullptr) {
       // Postpone this optimization to iterative GVN, where we can handle deep
       // AddI chains without an exponential number of recursive Ideal() calls.
       phase->record_for_igvn(this);

@@ -429,7 +429,7 @@ private:
 
   // Set the escape state of an object and its fields.
   void set_escape_state(PointsToNode* ptn, PointsToNode::EscapeState esc) {
-    // Don't change non-escaping state of NULL pointer.
+    // Don't change non-escaping state of nullptr pointer.
     if (ptn != null_obj) {
       if (ptn->escape_state() < esc) {
         ptn->set_escape_state(esc);
@@ -440,7 +440,7 @@ private:
     }
   }
   void set_fields_escape_state(PointsToNode* ptn, PointsToNode::EscapeState esc) {
-    // Don't change non-escaping state of NULL pointer.
+    // Don't change non-escaping state of nullptr pointer.
     if (ptn != null_obj) {
       if (ptn->fields_escape_state() < esc) {
         ptn->set_fields_escape_state(esc);

@@ -1792,7 +1792,7 @@ void PhaseBlockLayout::reorder_traces(int count) {
   _cfg.clear_blocks();
   for (int i = 0; i < new_count; i++) {
     Trace *tr = new_traces[i];
-    if (tr != NULL) {
+    if (tr != nullptr) {
       tr->fixup_blocks(_cfg);
     }
   }
@@ -1874,7 +1874,7 @@ bool Trace::backedge(CFGEdge *e) {
     // Backbranch to the top of a trace
     // Scroll forward through the trace from the targ_block. If we find
     // a loop head before another loop top, use the the loop head alignment.
-    for (Block *b = targ_block; b != NULL; b = next(b)) {
+    for (Block *b = targ_block; b != nullptr; b = next(b)) {
       if (b->has_loop_alignment()) {
         break;
       }
@@ -1904,7 +1904,7 @@ bool Trace::backedge(CFGEdge *e) {
 // ensure that blocks have the correct two-way branch sense
 void Trace::fixup_blocks(PhaseCFG &cfg) {
   Block *last = last_block();
-  for (Block *b = first_block(); b != NULL; b = next(b)) {
+  for (Block *b = first_block(); b != nullptr; b = next(b)) {
     cfg.add_block(b);
     if (!b->is_connector()) {
       int nfallthru = b->num_fall_throughs();

@@ -809,21 +809,21 @@ bool CallNode::may_modify(const TypeOopPtr *t_oop, PhaseTransform *phase) {
     if (is_CallStaticJava() && as_CallStaticJava()->is_boxing_method()) {
       // Skip unrelated boxing methods.
       Node* proj = proj_out_or_null(TypeFunc::Parms);
-      if ((proj == NULL) || (phase->type(proj)->is_instptr()->klass() != boxing_klass)) {
+      if ((proj == nullptr) || (phase->type(proj)->is_instptr()->klass() != boxing_klass)) {
         return false;
       }
     }
-    if (is_CallJava() && as_CallJava()->method() != NULL) {
+    if (is_CallJava() && as_CallJava()->method() != nullptr) {
       ciMethod* meth = as_CallJava()->method();
       if (meth->is_getter()) {
         return false;
       }
       // May modify (by reflection) if an boxing object is passed
       // as argument or returned.
-      Node* proj = returns_pointer() ? proj_out_or_null(TypeFunc::Parms) : NULL;
-      if (proj != NULL) {
+      Node* proj = returns_pointer() ? proj_out_or_null(TypeFunc::Parms) : nullptr;
+      if (proj != nullptr) {
         const TypeInstPtr* inst_t = phase->type(proj)->isa_instptr();
-        if ((inst_t != NULL) && (!inst_t->klass_is_exact() ||
+        if ((inst_t != nullptr) && (!inst_t->klass_is_exact() ||
                                  (inst_t->klass() == boxing_klass))) {
           return true;
         }
@@ -831,7 +831,7 @@ bool CallNode::may_modify(const TypeOopPtr *t_oop, PhaseTransform *phase) {
       const TypeTuple* d = tf()->domain();
       for (uint i = TypeFunc::Parms; i < d->cnt(); i++) {
         const TypeInstPtr* inst_t = d->field_at(i)->isa_instptr();
-        if ((inst_t != NULL) && (!inst_t->klass_is_exact() ||
+        if ((inst_t != nullptr) && (!inst_t->klass_is_exact() ||
                                  (inst_t->klass() == boxing_klass))) {
           return true;
         }
@@ -905,8 +905,8 @@ void CallNode::extract_projections(CallProjections* projs, bool separate_io_proj
         // For Control (fallthrough) and I_O (catch_all_index) we have CatchProj -> Catch -> Proj
         projs->fallthrough_proj = pn;
         const Node *cn = pn->unique_ctrl_out();
-        if (cn != NULL && cn->is_Catch()) {
-          ProjNode *cpn = NULL;
+        if (cn != nullptr && cn->is_Catch()) {
+          ProjNode *cpn = nullptr;
           for (DUIterator_Fast kmax, k = cn->fast_outs(kmax); k < kmax; k++) {
             cpn = cn->fast_out(k)->as_Proj();
             assert(cpn->is_CatchProj(), "must be a CatchProjNode");
@@ -1084,7 +1084,7 @@ Node* CallStaticJavaNode::Ideal(PhaseGVN* phase, bool can_reshape) {
       if (in(TypeFunc::Parms + callee->arg_size() - 1)->Opcode() == Op_ConP /* NEP */
           && in(TypeFunc::Parms + 1)->Opcode() == Op_ConL /* address */) {
         phase->C->prepend_late_inline(cg);
-        set_generator(NULL);
+        set_generator(nullptr);
       }
     } else {
       assert(callee->has_member_arg(), "wrong type of call?");
@@ -1261,7 +1261,7 @@ Node* CallNativeNode::match(const ProjNode *proj, const Matcher *matcher) {
     default:
       ShouldNotReachHere();
   }
-  return NULL;
+  return nullptr;
 }
 #ifndef PRODUCT
 void CallNativeNode::print_regs(const GrowableArray<VMReg>& regs, outputStream* st) {

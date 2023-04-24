@@ -1244,9 +1244,9 @@ Node* GraphKit::null_check_common(Node* value, BasicType type,
       const Type *t = _gvn.type( value );
 
       const TypeOopPtr* tp = t->isa_oopptr();
-      if (tp != NULL && tp->klass() != NULL && !tp->klass()->is_loaded()
+      if (tp != nullptr && tp->klass() != nullptr && !tp->klass()->is_loaded()
           // Only for do_null_check, not any of its siblings:
-          && !assert_null && null_control == NULL) {
+          && !assert_null && null_control == nullptr) {
         // Usually, any field access or invocation on an unloaded oop type
         // will simply fail to link, since the statically linked class is
         // likely also to be unloaded.  However, in -Xcomp mode, sometimes
@@ -2520,17 +2520,17 @@ Node* GraphKit::make_runtime_call(int flags,
     prev_mem = set_predefined_input_for_runtime_call(call, narrow_mem);
   }
 
-  // Hook each parm in order.  Stop looking at the first NULL.
-  if (parm0 != NULL) { call->init_req(TypeFunc::Parms+0, parm0);
-  if (parm1 != NULL) { call->init_req(TypeFunc::Parms+1, parm1);
-  if (parm2 != NULL) { call->init_req(TypeFunc::Parms+2, parm2);
-  if (parm3 != NULL) { call->init_req(TypeFunc::Parms+3, parm3);
-  if (parm4 != NULL) { call->init_req(TypeFunc::Parms+4, parm4);
-  if (parm5 != NULL) { call->init_req(TypeFunc::Parms+5, parm5);
-  if (parm6 != NULL) { call->init_req(TypeFunc::Parms+6, parm6);
-  if (parm7 != NULL) { call->init_req(TypeFunc::Parms+7, parm7);
+  // Hook each parm in order.  Stop looking at the first nullptr.
+  if (parm0 != nullptr) { call->init_req(TypeFunc::Parms+0, parm0);
+  if (parm1 != nullptr) { call->init_req(TypeFunc::Parms+1, parm1);
+  if (parm2 != nullptr) { call->init_req(TypeFunc::Parms+2, parm2);
+  if (parm3 != nullptr) { call->init_req(TypeFunc::Parms+3, parm3);
+  if (parm4 != nullptr) { call->init_req(TypeFunc::Parms+4, parm4);
+  if (parm5 != nullptr) { call->init_req(TypeFunc::Parms+5, parm5);
+  if (parm6 != nullptr) { call->init_req(TypeFunc::Parms+6, parm6);
+  if (parm7 != nullptr) { call->init_req(TypeFunc::Parms+7, parm7);
     /* close each nested if ===> */  } } } } } } } }
-  assert(call->in(call->req()-1) != NULL, "must initialize all parms");
+  assert(call->in(call->req()-1) != nullptr, "must initialize all parms");
 
   if (!is_leaf) {
     // Non-leaves can block and take safepoints:
@@ -2635,14 +2635,14 @@ Node* GraphKit::make_native_call(address call_addr, const TypeFunc* call_type, u
     RuntimeStub* invoker = SharedRuntime::make_native_invoker(call_addr,
                                                               nep->shadow_space(),
                                                               arg_regs, ret_regs);
-    if (invoker == NULL) {
+    if (invoker == nullptr) {
       C->record_failure("native invoker not implemented on this platform");
-      return NULL;
+      return nullptr;
     }
     C->add_native_invoker(invoker);
     call_addr = invoker->code_begin();
   }
-  assert(call_addr != NULL, "sanity");
+  assert(call_addr != nullptr, "sanity");
 
   CallNativeNode* call = new CallNativeNode(new_call_type, call_addr, nep->name(), TypePtr::BOTTOM,
                                             arg_regs,
@@ -2666,7 +2666,7 @@ Node* GraphKit::make_native_call(address call_addr, const TypeFunc* call_type, u
   set_predefined_output_for_runtime_call(call);
 
   Node* ret;
-  if (method() == NULL || method()->return_type()->basic_type() == T_VOID) {
+  if (method() == nullptr || method()->return_type()->basic_type() == T_VOID) {
     ret = top();
   } else {
     ret =  gvn().transform(new ProjNode(call, TypeFunc::Parms));
@@ -2860,10 +2860,10 @@ Node* Phase::gen_subtype_check(Node* subklass, Node* superklass, Node** ctrl, No
   //   incorrect/missed optimization of the following Load.
   // - it's a cache so, worse case, not reading the latest value
   //   wouldn't cause incorrect execution
-  if (might_be_cache && mem != NULL) {
+  if (might_be_cache && mem != nullptr) {
     kmem = mem->is_MergeMem() ? mem->as_MergeMem()->memory_at(C->get_alias_index(gvn.type(p2)->is_ptr())) : mem;
   }
-  Node *nkls = gvn.transform(LoadKlassNode::make(gvn, NULL, kmem, p2, gvn.type(p2)->is_ptr(), TypeKlassPtr::OBJECT_OR_NULL));
+  Node *nkls = gvn.transform(LoadKlassNode::make(gvn, nullptr, kmem, p2, gvn.type(p2)->is_ptr(), TypeKlassPtr::OBJECT_OR_NULL));
 
   // Compile speed common case: ARE a subtype and we canNOT fail
   if( superklass == nkls )
@@ -3110,21 +3110,21 @@ Node* GraphKit::maybe_cast_profiled_receiver(Node* not_null_obj,
                                              ciKlass* require_klass,
                                              ciKlass* spec_klass,
                                              bool safe_for_replace) {
-  if (!UseTypeProfile || !TypeProfileCasts) return NULL;
+  if (!UseTypeProfile || !TypeProfileCasts) return nullptr;
 
-  Deoptimization::DeoptReason reason = Deoptimization::reason_class_check(spec_klass != NULL);
+  Deoptimization::DeoptReason reason = Deoptimization::reason_class_check(spec_klass != nullptr);
 
   // Make sure we haven't already deoptimized from this tactic.
   if (too_many_traps_or_recompiles(reason))
-    return NULL;
+    return nullptr;
 
   // (No, this isn't a call, but it's enough like a virtual call
   // to use the same ciMethod accessor to get the profile info...)
   // If we have a speculative type use it instead of profiling (which
   // may not help us)
-  ciKlass* exact_kls = spec_klass == NULL ? profile_has_unique_klass() : spec_klass;
-  if (exact_kls != NULL) {// no cast failures here
-    if (require_klass == NULL ||
+  ciKlass* exact_kls = spec_klass == nullptr ? profile_has_unique_klass() : spec_klass;
+  if (exact_kls != nullptr) {// no cast failures here
+    if (require_klass == nullptr ||
         C->static_subtype_check(require_klass, exact_kls) == Compile::SSC_always_true) {
       // If we narrow the type to match what the type profile sees or
       // the speculative type, we can then remove the rest of the
@@ -3252,7 +3252,7 @@ Node* GraphKit::gen_instanceof(Node* obj, Node* superklass, bool safe_for_replac
   if (_gvn.type(superklass)->singleton()) {
     ciKlass* superk = _gvn.type(superklass)->is_klassptr()->klass();
     ciKlass* subk = _gvn.type(obj)->is_oopptr()->klass();
-    if (subk != NULL && subk->is_loaded()) {
+    if (subk != nullptr && subk->is_loaded()) {
       int static_res = C->static_subtype_check(superk, subk);
       known_statically = (static_res == Compile::SSC_always_true || static_res == Compile::SSC_always_false);
     }
@@ -3322,7 +3322,7 @@ Node* GraphKit::gen_checkcast(Node *obj, Node* superklass,
   // for example, in some objArray manipulations, such as a[i]=a[j].)
   if (tk->singleton()) {
     const TypeOopPtr* objtp = _gvn.type(obj)->isa_oopptr();
-    if (objtp != NULL && objtp->klass() != NULL) {
+    if (objtp != nullptr && objtp->klass() != nullptr) {
       switch (C->static_subtype_check(tk->klass(), objtp->klass())) {
       case Compile::SSC_always_true:
         // If we know the type check always succeed then we don't use
@@ -3393,10 +3393,10 @@ Node* GraphKit::gen_checkcast(Node *obj, Node* superklass,
     // We may not have profiling here or it may not help us. If we have
     // a speculative type use it to perform an exact cast.
     ciKlass* spec_obj_type = obj_type->speculative_type();
-    if (spec_obj_type != NULL || data != NULL) {
+    if (spec_obj_type != nullptr || data != nullptr) {
       cast_obj = maybe_cast_profiled_receiver(not_null_obj, tk->klass(), spec_obj_type, safe_for_replace);
-      if (cast_obj != NULL) {
-        if (failure_control != NULL) // failure is now impossible
+      if (cast_obj != nullptr) {
+        if (failure_control != nullptr) // failure is now impossible
           (*failure_control) = top();
         // adjust the type of the phi to the exact klass:
         phi->raise_bottom_type(_gvn.type(cast_obj)->meet_speculative(TypePtr::NULL_PTR));
@@ -3614,13 +3614,13 @@ void GraphKit::shared_unlock(Node* box, Node* obj) {
 //-------------------------------get_layout_helper-----------------------------
 // If the given klass is a constant or known to be an array,
 // fetch the constant layout helper value into constant_value
-// and return (Node*)NULL.  Otherwise, load the non-constant
+// and return (Node*)nullptr.  Otherwise, load the non-constant
 // layout helper value, and return the node which represents it.
 // This two-faced routine is useful because allocation sites
 // almost always feature constant types.
 Node* GraphKit::get_layout_helper(Node* klass_node, jint& constant_value) {
   const TypeKlassPtr* inst_klass = _gvn.type(klass_node)->isa_klassptr();
-  if (!StressReflectiveCode && inst_klass != NULL) {
+  if (!StressReflectiveCode && inst_klass != nullptr) {
     ciKlass* klass = inst_klass->klass();
     bool    xklass = inst_klass->klass_is_exact();
     if (xklass || klass->is_array_klass()) {

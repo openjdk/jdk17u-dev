@@ -620,7 +620,7 @@ class Compile : public Phase {
 
   void begin_method(int level = 1) {
 #ifndef PRODUCT
-    if (_method != NULL && should_print(level)) {
+    if (_method != nullptr && should_print(level)) {
       _printer->begin_method();
     }
 #endif
@@ -636,7 +636,7 @@ class Compile : public Phase {
     bool need = directive()->IGVPrintLevelOption >= level;
     if (need && !_printer) {
       _printer = IdealGraphPrinter::printer();
-      assert(_printer != NULL, "_printer is NULL when we need it!");
+      assert(_printer != nullptr, "_printer is nullptr when we need it!");
       _printer->set_compile(this);
     }
     return need;

@@ -298,7 +298,7 @@ void Parse::do_newarray(BasicType elem_type) {
 // Also handle the degenerate 1-dimensional case of anewarray.
 Node* Parse::expand_multianewarray(ciArrayKlass* array_klass, Node* *lengths, int ndimensions, int nargs) {
   Node* length = lengths[0];
-  assert(length != NULL, "");
+  assert(length != nullptr, "");
   Node* array = new_array(makecon(TypeKlassPtr::make(array_klass)), length, nargs);
   if (ndimensions > 1) {
     jint length_con = find_int_con(length, -1);
@@ -379,19 +379,19 @@ void Parse::do_multianewarray() {
   case 4: fun = OptoRuntime::multianewarray4_Java(); break;
   case 5: fun = OptoRuntime::multianewarray5_Java(); break;
   };
-  Node* c = NULL;
+  Node* c = nullptr;
 
-  if (fun != NULL) {
+  if (fun != nullptr) {
     c = make_runtime_call(RC_NO_LEAF | RC_NO_IO,
                           OptoRuntime::multianewarray_Type(ndimensions),
-                          fun, NULL, TypeRawPtr::BOTTOM,
+                          fun, nullptr, TypeRawPtr::BOTTOM,
                           makecon(TypeKlassPtr::make(array_klass)),
                           length[0], length[1], length[2],
-                          (ndimensions > 2) ? length[3] : NULL,
-                          (ndimensions > 3) ? length[4] : NULL);
+                          (ndimensions > 2) ? length[3] : nullptr,
+                          (ndimensions > 3) ? length[4] : nullptr);
   } else {
     // Create a java array for dimension sizes
-    Node* dims = NULL;
+    Node* dims = nullptr;
     { PreserveReexecuteState preexecs(this);
       inc_sp(ndimensions);
       Node* dims_array_klass = makecon(TypeKlassPtr::make(ciArrayKlass::make(ciType::make(T_INT))));
@@ -406,7 +406,7 @@ void Parse::do_multianewarray() {
 
     c = make_runtime_call(RC_NO_LEAF | RC_NO_IO,
                           OptoRuntime::multianewarrayN_Type(),
-                          OptoRuntime::multianewarrayN_Java(), NULL, TypeRawPtr::BOTTOM,
+                          OptoRuntime::multianewarrayN_Java(), nullptr, TypeRawPtr::BOTTOM,
                           makecon(TypeKlassPtr::make(array_klass)),
                           dims);
   }

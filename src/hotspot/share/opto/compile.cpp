@@ -254,7 +254,7 @@ void Compile::print_statistics() {
     PhaseOutput::print_statistics();
     PhasePeephole::print_statistics();
     PhaseIdealLoop::print_statistics();
-    if (xtty != NULL)  xtty->tail("statistics");
+    if (xtty != nullptr)  xtty->tail("statistics");
   }
   if (_intrinsic_hist_flags[as_int(vmIntrinsics::_none)] != 0) {
     // put this under its own <statistics> element.
@@ -551,9 +551,9 @@ Compile::Compile( ciEnv* ci_env, ciMethod* target, int osr_bci,
                   _do_locks_coarsening(do_locks_coarsening),
                   _method(target),
                   _entry_bci(osr_bci),
-                  _stub_function(NULL),
-                  _stub_name(NULL),
-                  _stub_entry_point(NULL),
+                  _stub_function(nullptr),
+                  _stub_name(nullptr),
+                  _stub_entry_point(nullptr),
                   _max_node_limit(MaxNodeLimit),
                   _post_loop_opts_phase(false),
                   _inlining_progress(false),
@@ -573,36 +573,36 @@ Compile::Compile( ciEnv* ci_env, ciMethod* target, int osr_bci,
                   _env(ci_env),
                   _directive(directive),
                   _log(ci_env->log()),
-                  _failure_reason(NULL),
-                  _intrinsics        (comp_arena(), 0, 0, NULL),
-                  _macro_nodes       (comp_arena(), 8, 0, NULL),
-                  _predicate_opaqs   (comp_arena(), 8, 0, NULL),
-                  _skeleton_predicate_opaqs (comp_arena(), 8, 0, NULL),
-                  _expensive_nodes   (comp_arena(), 8, 0, NULL),
-                  _for_post_loop_igvn(comp_arena(), 8, 0, NULL),
-                  _coarsened_locks   (comp_arena(), 8, 0, NULL),
-                  _congraph(NULL),
-                  NOT_PRODUCT(_printer(NULL) COMMA)
+                  _failure_reason(nullptr),
+                  _intrinsics        (comp_arena(), 0, 0, nullptr),
+                  _macro_nodes       (comp_arena(), 8, 0, nullptr),
+                  _predicate_opaqs   (comp_arena(), 8, 0, nullptr),
+                  _skeleton_predicate_opaqs (comp_arena(), 8, 0, nullptr),
+                  _expensive_nodes   (comp_arena(), 8, 0, nullptr),
+                  _for_post_loop_igvn(comp_arena(), 8, 0, nullptr),
+                  _coarsened_locks   (comp_arena(), 8, 0, nullptr),
+                  _congraph(nullptr),
+                  NOT_PRODUCT(_printer(nullptr) COMMA)
                   _dead_node_list(comp_arena()),
                   _dead_node_count(0),
                   _node_arena(mtCompiler),
                   _old_arena(mtCompiler),
-                  _mach_constant_base_node(NULL),
+                  _mach_constant_base_node(nullptr),
                   _Compile_types(mtCompiler),
-                  _initial_gvn(NULL),
-                  _for_igvn(NULL),
-                  _late_inlines(comp_arena(), 2, 0, NULL),
-                  _string_late_inlines(comp_arena(), 2, 0, NULL),
-                  _boxing_late_inlines(comp_arena(), 2, 0, NULL),
-                  _vector_reboxing_late_inlines(comp_arena(), 2, 0, NULL),
+                  _initial_gvn(nullptr),
+                  _for_igvn(nullptr),
+                  _late_inlines(comp_arena(), 2, 0, nullptr),
+                  _string_late_inlines(comp_arena(), 2, 0, nullptr),
+                  _boxing_late_inlines(comp_arena(), 2, 0, nullptr),
+                  _vector_reboxing_late_inlines(comp_arena(), 2, 0, nullptr),
                   _late_inlines_pos(0),
                   _number_of_mh_late_inlines(0),
-                  _native_invokers(comp_arena(), 1, 0, NULL),
-                  _print_inlining_stream(NULL),
-                  _print_inlining_list(NULL),
+                  _native_invokers(comp_arena(), 1, 0, nullptr),
+                  _print_inlining_stream(nullptr),
+                  _print_inlining_list(nullptr),
                   _print_inlining_idx(0),
-                  _print_inlining_output(NULL),
-                  _replay_inline_data(NULL),
+                  _print_inlining_output(nullptr),
+                  _replay_inline_data(nullptr),
                   _java_calls(0),
                   _inner_loops(0),
                   _interpreter_frame_size(0)
@@ -797,13 +797,13 @@ Compile::Compile( ciEnv* ci_env, ciMethod* target, int osr_bci,
     // This output goes directly to the tty, not the compiler log.
     // To enable tools to match it up with the compilation activity,
     // be sure to tag this tty output with the compile ID.
-    if (xtty != NULL) {
+    if (xtty != nullptr) {
       xtty->head("ideal compile_id='%d'%s", compile_id(),
                  is_osr_compilation()    ? " compile_kind='osr'" :
                  "");
     }
     root()->dump(9999);
-    if (xtty != NULL) {
+    if (xtty != nullptr) {
       xtty->tail("ideal");
     }
   }
@@ -852,11 +852,11 @@ Compile::Compile( ciEnv* ci_env,
     _install_code(true),
     _eliminate_boxing(false),
     _do_locks_coarsening(false),
-    _method(NULL),
+    _method(nullptr),
     _entry_bci(InvocationEntryBci),
     _stub_function(stub_function),
     _stub_name(stub_name),
-    _stub_entry_point(NULL),
+    _stub_entry_point(nullptr),
     _max_node_limit(MaxNodeLimit),
     _post_loop_opts_phase(false),
     _inlining_progress(false),
@@ -875,24 +875,24 @@ Compile::Compile( ciEnv* ci_env,
     _env(ci_env),
     _directive(directive),
     _log(ci_env->log()),
-    _failure_reason(NULL),
-    _congraph(NULL),
-    NOT_PRODUCT(_printer(NULL) COMMA)
+    _failure_reason(nullptr),
+    _congraph(nullptr),
+    NOT_PRODUCT(_printer(nullptr) COMMA)
     _dead_node_list(comp_arena()),
     _dead_node_count(0),
     _node_arena(mtCompiler),
     _old_arena(mtCompiler),
-    _mach_constant_base_node(NULL),
+    _mach_constant_base_node(nullptr),
     _Compile_types(mtCompiler),
-    _initial_gvn(NULL),
-    _for_igvn(NULL),
+    _initial_gvn(nullptr),
+    _for_igvn(nullptr),
     _number_of_mh_late_inlines(0),
     _native_invokers(),
-    _print_inlining_stream(NULL),
-    _print_inlining_list(NULL),
+    _print_inlining_stream(nullptr),
+    _print_inlining_list(nullptr),
     _print_inlining_idx(0),
-    _print_inlining_output(NULL),
-    _replay_inline_data(NULL),
+    _print_inlining_output(nullptr),
+    _replay_inline_data(nullptr),
     _java_calls(0),
     _inner_loops(0),
     _interpreter_frame_size(0),
@@ -902,8 +902,8 @@ Compile::Compile( ciEnv* ci_env,
     _allowed_reasons(0) {
   C = this;
 
-  TraceTime t1(NULL, &_t_totalCompilation, CITime, false);
-  TraceTime t2(NULL, &_t_stubCompilation, CITime, false);
+  TraceTime t1(nullptr, &_t_totalCompilation, CITime, false);
+  TraceTime t2(nullptr, &_t_stubCompilation, CITime, false);
 
 #ifndef PRODUCT
   set_print_assembly(PrintFrameConverterAssembly);
@@ -938,20 +938,20 @@ Compile::Compile( ciEnv* ci_env,
 // Prepare for a single compilation
 void Compile::Init(int aliaslevel) {
   _unique  = 0;
-  _regalloc = NULL;
+  _regalloc = nullptr;
 
-  _tf      = NULL;  // filled in later
-  _top     = NULL;  // cached later
-  _matcher = NULL;  // filled in later
-  _cfg     = NULL;  // filled in later
+  _tf      = nullptr;  // filled in later
+  _top     = nullptr;  // cached later
+  _matcher = nullptr;  // filled in later
+  _cfg     = nullptr;  // filled in later
 
   IA32_ONLY( set_24_bit_selection_and_mode(true, false); )
 
-  _node_note_array = NULL;
-  _default_node_notes = NULL;
-  DEBUG_ONLY( _modified_nodes = NULL; ) // Used in Optimize()
+  _node_note_array = nullptr;
+  _default_node_notes = nullptr;
+  DEBUG_ONLY( _modified_nodes = nullptr; ) // Used in Optimize()
 
-  _immutable_memory = NULL; // filled in at first inquiry
+  _immutable_memory = nullptr; // filled in at first inquiry
 
 #ifdef ASSERT
   _type_verify_symmetry = true;
@@ -960,12 +960,12 @@ void Compile::Init(int aliaslevel) {
 #endif
 
   // Globally visible Nodes
-  // First set TOP to NULL to give safe behavior during creation of RootNode
-  set_cached_top_node(NULL);
+  // First set TOP to nullptr to give safe behavior during creation of RootNode
+  set_cached_top_node(nullptr);
   set_root(new RootNode());
   // Now that you have a Root to point to, create the real TOP
   set_cached_top_node( new ConNode(Type::TOP) );
-  set_recent_alloc(NULL, NULL);
+  set_recent_alloc(nullptr, nullptr);
 
   // Create Debug Information Recorder to record scopes, oopmaps, etc.
   env()->set_oop_recorder(new OopRecorder(env()->arena()));
@@ -1350,7 +1350,7 @@ const TypePtr *Compile::flatten_alias_type( const TypePtr *tj ) const {
     // During the 2nd round of IterGVN, NotNull castings are removed.
     // Make sure the Bottom and NotNull variants alias the same.
     // Also, make sure exact and non-exact variants alias the same.
-    if (ptr == TypePtr::NotNull || ta->klass_is_exact() || ta->speculative() != NULL) {
+    if (ptr == TypePtr::NotNull || ta->klass_is_exact() || ta->speculative() != nullptr) {
       tj = ta = TypeAryPtr::make(TypePtr::BotPTR,ta->ary(),ta->klass(),false,offset);
     }
   }
@@ -1375,7 +1375,7 @@ const TypePtr *Compile::flatten_alias_type( const TypePtr *tj ) const {
       // Also, make sure exact and non-exact variants alias the same.
       tj = to = TypeInstPtr::make(TypePtr::BotPTR,to->klass(),false,0,offset);
     }
-    if (to->speculative() != NULL) {
+    if (to->speculative() != nullptr) {
       tj = to = TypeInstPtr::make(to->ptr(),to->klass(),to->klass_is_exact(),to->const_oop(),to->offset(), to->instance_id());
     }
     // Canonicalize the holder of this field
@@ -1383,13 +1383,13 @@ const TypePtr *Compile::flatten_alias_type( const TypePtr *tj ) const {
       // First handle header references such as a LoadKlassNode, even if the
       // object's klass is unloaded at compile time (4965979).
       if (!is_known_inst) { // Do it only for non-instance types
-        tj = to = TypeInstPtr::make(TypePtr::BotPTR, env()->Object_klass(), false, NULL, offset);
+        tj = to = TypeInstPtr::make(TypePtr::BotPTR, env()->Object_klass(), false, nullptr, offset);
       }
     } else if (offset < 0 || offset >= k->layout_helper_size_in_bytes()) {
       // Static fields are in the space above the normal instance
       // fields in the java.lang.Class instance.
       if (to->klass() != ciEnv::current()->Class_klass()) {
-        to = NULL;
+        to = nullptr;
         tj = TypeOopPtr::BOTTOM;
         offset = tj->offset();
       }
@@ -1537,7 +1537,7 @@ void Compile::AliasType::print_on(outputStream* st) {
   st->print(" in ");
   adr_type()->dump_on(st);
   const TypeOopPtr* tjp = adr_type()->isa_oopptr();
-  if (field() != NULL && tjp) {
+  if (field() != nullptr && tjp) {
     if (tjp->klass()  != field()->holder() ||
         tjp->offset() != field()->offset_in_bytes()) {
       st->print(" != ");
@@ -1666,7 +1666,7 @@ Compile::AliasType* Compile::find_alias_type(const TypePtr* adr_type, bool no_cr
     const TypeInstPtr* tinst = flat->isa_instptr();
     if (tinst && tinst->offset() >= instanceOopDesc::base_offset_in_bytes()) {
       ciField* field;
-      if (tinst->const_oop() != NULL &&
+      if (tinst->const_oop() != nullptr &&
           tinst->klass() == ciEnv::current()->Class_klass() &&
           tinst->offset() >= (tinst->klass()->as_instance_klass()->layout_helper_size_in_bytes())) {
         // static field
@@ -2175,7 +2175,7 @@ void Compile::Optimize() {
 
     if (failing())  return;
 
-    if (congraph() != NULL && macro_count() > 0) {
+    if (congraph() != nullptr && macro_count() > 0) {
       TracePhase tp("macroEliminate", &timers[_t_macroEliminate]);
       PhaseMacroExpand mexp(igvn);
       mexp.eliminate_macro_nodes();
@@ -4173,9 +4173,9 @@ Node* Compile::constrained_convI2L(PhaseGVN* phase, Node* value, const TypeInt* 
 }
 
 void Compile::print_inlining_stream_free() {
-  if (_print_inlining_stream != NULL) {
+  if (_print_inlining_stream != nullptr) {
     _print_inlining_stream->~stringStream();
-    _print_inlining_stream = NULL;
+    _print_inlining_stream = nullptr;
   }
 }
 
@@ -4279,16 +4279,16 @@ void Compile::process_print_inlining() {
   if (print_inlining() || print_intrinsics()) {
     ResourceMark rm;
     stringStream ss;
-    assert(_print_inlining_list != NULL, "process_print_inlining should be called only once.");
+    assert(_print_inlining_list != nullptr, "process_print_inlining should be called only once.");
     for (int i = 0; i < _print_inlining_list->length(); i++) {
       PrintInliningBuffer* pib = _print_inlining_list->at(i);
       ss.print("%s", pib->ss()->as_string());
       delete pib;
-      DEBUG_ONLY(_print_inlining_list->at_put(i, NULL));
+      DEBUG_ONLY(_print_inlining_list->at_put(i, nullptr));
     }
     // Reset _print_inlining_list, it only contains destructed objects.
     // It is on the arena, so it will be freed when the arena is reset.
-    _print_inlining_list = NULL;
+    _print_inlining_list = nullptr;
     // _print_inlining_stream won't be used anymore, either.
     print_inlining_stream_free();
     size_t end = ss.size();
@@ -4791,10 +4791,10 @@ void Compile::print_method(CompilerPhaseType cpt, Node* n, int level) {
   ResourceMark rm;
   stringStream ss;
   ss.print_raw(CompilerPhaseTypeHelper::to_string(cpt));
-  if (n != NULL) {
+  if (n != nullptr) {
     ss.print(": %d %s ", n->_idx, NodeClassNames[n->Opcode()]);
   } else {
-    ss.print_raw(": NULL");
+    ss.print_raw(": nullptr");
   }
   C->print_method(cpt, ss.as_string(), level);
 }
@@ -4806,7 +4806,7 @@ void Compile::end_method(int level) {
   }
 
 #ifndef PRODUCT
-  if (_method != NULL && should_print(level)) {
+  if (_method != nullptr && should_print(level)) {
     _printer->end_method();
   }
 #endif

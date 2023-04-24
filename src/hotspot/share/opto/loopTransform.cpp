@@ -907,14 +907,14 @@ bool IdealLoopTree::policy_unroll(PhaseIdealLoop *phase) {
   Node *init_n = cl->init_trip();
   Node *limit_n = cl->limit();
   int stride_con = cl->stride_con();
-  if (limit_n == NULL) return false; // We will dereference it below.
+  if (limit_n == nullptr) return false; // We will dereference it below.
 
   // Non-constant bounds.
   // Protect against over-unrolling when init or/and limit are not constant
   // (so that trip_count's init value is maxint) but iv range is known.
-  if (init_n == NULL || !init_n->is_Con() || !limit_n->is_Con()) {
+  if (init_n == nullptr || !init_n->is_Con() || !limit_n->is_Con()) {
     Node* phi = cl->phi();
-    if (phi != NULL) {
+    if (phi != nullptr) {
       assert(phi->is_Phi() && phi->in(0) == _head, "Counted loop should have iv phi.");
       const TypeInt* iv_type = phase->_igvn.type(phi)->is_int();
       int next_stride = stride_con * 2; // stride after this unroll
@@ -1113,7 +1113,7 @@ bool IdealLoopTree::policy_range_check(PhaseIdealLoop *phase) const {
         }
       }
 
-      if (!phase->is_scaled_iv_plus_offset(rc_exp, trip_counter, NULL, NULL)) {
+      if (!phase->is_scaled_iv_plus_offset(rc_exp, trip_counter, nullptr, nullptr)) {
         continue;
       }
       // Found a test like 'trip+off vs limit'. Test is an IfNode, has two (2)
@@ -1207,19 +1207,19 @@ Node* PhaseIdealLoop::cast_incr_before_loop(Node* incr, Node* ctrl, Node* loop) 
       return castii;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 #ifdef ASSERT
 void PhaseIdealLoop::ensure_zero_trip_guard_proj(Node* node, bool is_main_loop) {
   assert(node->is_IfProj(), "must be the zero trip guard If node");
   Node* zer_bol = node->in(0)->in(1);
-  assert(zer_bol != NULL && zer_bol->is_Bool(), "must be Bool");
+  assert(zer_bol != nullptr && zer_bol->is_Bool(), "must be Bool");
   Node* zer_cmp = zer_bol->in(1);
-  assert(zer_cmp != NULL && zer_cmp->Opcode() == Op_CmpI, "must be CmpI");
+  assert(zer_cmp != nullptr && zer_cmp->Opcode() == Op_CmpI, "must be CmpI");
   // For the main loop, the opaque node is the second input to zer_cmp, for the post loop it's the first input node
   Node* zer_opaq = zer_cmp->in(is_main_loop ? 2 : 1);
-  assert(zer_opaq != NULL && zer_opaq->Opcode() == Op_Opaque1, "must be Opaque1");
+  assert(zer_opaq != nullptr && zer_opaq->Opcode() == Op_Opaque1, "must be Opaque1");
 }
 #endif
 
@@ -1264,7 +1264,7 @@ void PhaseIdealLoop::copy_skeleton_predicates_to_main_loop_helper(Node* predicat
         // Clone the skeleton predicate twice and initialize one with the initial
         // value of the loop induction variable. Leave the other predicate
         // to be initialized when increasing the stride during loop unrolling.
-        prev_proj = clone_skeleton_predicate_for_main_or_post_loop(iff, opaque_init, NULL, predicate, uncommon_proj,
+        prev_proj = clone_skeleton_predicate_for_main_or_post_loop(iff, opaque_init, nullptr, predicate, uncommon_proj,
                                                                    current_proj, outer_loop, prev_proj);
         assert(skeleton_predicate_has_opaque(prev_proj->in(0)->as_If()), "");
 
@@ -2190,9 +2190,9 @@ void PhaseIdealLoop::do_unroll(IdealLoopTree *loop, Node_List &old_new, bool adj
         assert(bt == BoolTest::lt || bt == BoolTest::gt, "canonical test is expected");
         Node* adj_max = _igvn.intcon((stride_con > 0) ? min_jint : max_jint);
         set_ctrl(adj_max, C->root());
-        Node* old_limit = NULL;
-        Node* adj_limit = NULL;
-        Node* bol = limit->is_CMove() ? limit->in(CMoveNode::Condition) : NULL;
+        Node* old_limit = nullptr;
+        Node* adj_limit = nullptr;
+        Node* bol = limit->is_CMove() ? limit->in(CMoveNode::Condition) : nullptr;
         if (loop_head->unrolled_count() > 1 &&
             limit->is_CMove() && limit->Opcode() == Op_CMoveI &&
             limit->in(CMoveNode::IfTrue) == adj_max &&
@@ -2210,7 +2210,7 @@ void PhaseIdealLoop::do_unroll(IdealLoopTree *loop, Node_List &old_new, bool adj
           old_limit = limit;
           adj_limit = new SubINode(limit, stride);
         }
-        assert(old_limit != NULL && adj_limit != NULL, "");
+        assert(old_limit != nullptr && adj_limit != nullptr, "");
         register_new_node(adj_limit, ctrl); // adjust amount
         Node* adj_cmp = new CmpINode(old_limit, adj_limit);
         register_new_node(adj_cmp, ctrl);
@@ -2573,7 +2573,7 @@ void PhaseIdealLoop::add_constraint(jlong stride_con, jlong scale_con, Node* off
 bool PhaseIdealLoop::is_scaled_iv(Node* exp, Node* iv, int* p_scale) {
   exp = exp->uncast();
   if (exp == iv) {
-    if (p_scale != NULL) {
+    if (p_scale != nullptr) {
       *p_scale = 1;
     }
     return true;
@@ -2581,20 +2581,20 @@ bool PhaseIdealLoop::is_scaled_iv(Node* exp, Node* iv, int* p_scale) {
   int opc = exp->Opcode();
   if (opc == Op_MulI) {
     if (exp->in(1)->uncast() == iv && exp->in(2)->is_Con()) {
-      if (p_scale != NULL) {
+      if (p_scale != nullptr) {
         *p_scale = exp->in(2)->get_int();
       }
       return true;
     }
     if (exp->in(2)->uncast() == iv && exp->in(1)->is_Con()) {
-      if (p_scale != NULL) {
+      if (p_scale != nullptr) {
         *p_scale = exp->in(1)->get_int();
       }
       return true;
     }
   } else if (opc == Op_LShiftI) {
     if (exp->in(1)->uncast() == iv && exp->in(2)->is_Con()) {
-      if (p_scale != NULL) {
+      if (p_scale != nullptr) {
         *p_scale = 1 << exp->in(2)->get_int();
       }
       return true;
@@ -2607,7 +2607,7 @@ bool PhaseIdealLoop::is_scaled_iv(Node* exp, Node* iv, int* p_scale) {
 // Return true if exp is a simple induction variable expression: k1*iv + (invar + k2)
 bool PhaseIdealLoop::is_scaled_iv_plus_offset(Node* exp, Node* iv, int* p_scale, Node** p_offset, int depth) {
   if (is_scaled_iv(exp, iv, p_scale)) {
-    if (p_offset != NULL) {
+    if (p_offset != nullptr) {
       Node *zero = _igvn.intcon(0);
       set_ctrl(zero, C->root());
       *p_offset = zero;
@@ -2618,23 +2618,23 @@ bool PhaseIdealLoop::is_scaled_iv_plus_offset(Node* exp, Node* iv, int* p_scale,
   int opc = exp->Opcode();
   if (opc == Op_AddI) {
     if (is_scaled_iv(exp->in(1), iv, p_scale)) {
-      if (p_offset != NULL) {
+      if (p_offset != nullptr) {
         *p_offset = exp->in(2);
       }
       return true;
     }
     if (is_scaled_iv(exp->in(2), iv, p_scale)) {
-      if (p_offset != NULL) {
+      if (p_offset != nullptr) {
         *p_offset = exp->in(1);
       }
       return true;
     }
     if (exp->in(2)->is_Con()) {
-      Node* offset2 = NULL;
+      Node* offset2 = nullptr;
       if (depth < 2 &&
           is_scaled_iv_plus_offset(exp->in(1), iv, p_scale,
-                                   p_offset != NULL ? &offset2 : NULL, depth+1)) {
-        if (p_offset != NULL) {
+                                   p_offset != nullptr ? &offset2 : nullptr, depth+1)) {
+        if (p_offset != nullptr) {
           Node *ctrl_off2 = get_ctrl(offset2);
           Node* offset = new AddINode(offset2, exp->in(2));
           register_new_node(offset, ctrl_off2);
@@ -2645,7 +2645,7 @@ bool PhaseIdealLoop::is_scaled_iv_plus_offset(Node* exp, Node* iv, int* p_scale,
     }
   } else if (opc == Op_SubI) {
     if (is_scaled_iv(exp->in(1), iv, p_scale)) {
-      if (p_offset != NULL) {
+      if (p_offset != nullptr) {
         Node *zero = _igvn.intcon(0);
         set_ctrl(zero, C->root());
         Node *ctrl_off = get_ctrl(exp->in(2));
@@ -2656,7 +2656,7 @@ bool PhaseIdealLoop::is_scaled_iv_plus_offset(Node* exp, Node* iv, int* p_scale,
       return true;
     }
     if (is_scaled_iv(exp->in(2), iv, p_scale)) {
-      if (p_offset != NULL) {
+      if (p_offset != nullptr) {
         *p_scale *= -1;
         *p_offset = exp->in(1);
       }
@@ -2725,7 +2725,7 @@ int PhaseIdealLoop::do_range_check(IdealLoopTree *loop, Node_List &old_new) {
   // Check graph shape. Cannot optimize a loop if zero-trip
   // Opaque1 node is optimized away and then another round
   // of loop opts attempted.
-  if (cl->is_canonical_loop_entry() == NULL) {
+  if (cl->is_canonical_loop_entry() == nullptr) {
     return closed_range_checks;
   }
 
@@ -2760,7 +2760,7 @@ int PhaseIdealLoop::do_range_check(IdealLoopTree *loop, Node_List &old_new) {
   // Ensure the original loop limit is available from the
   // pre-loop Opaque1 node.
   Node *orig_limit = pre_opaq->original_loop_limit();
-  if (orig_limit == NULL || _igvn.type(orig_limit) == Type::TOP) {
+  if (orig_limit == nullptr || _igvn.type(orig_limit) == Type::TOP) {
     return closed_range_checks;
   }
   // Must know if its a count-up or count-down loop
@@ -3327,11 +3327,11 @@ bool IdealLoopTree::do_remove_empty_loop(PhaseIdealLoop *phase) {
 
 #ifdef ASSERT
   // Ensure only one phi which is the iv.
-  Node* iv = NULL;
+  Node* iv = nullptr;
   for (DUIterator_Fast imax, i = cl->fast_outs(imax); i < imax; i++) {
     Node* n = cl->fast_out(i);
     if (n->Opcode() == Op_Phi) {
-      assert(iv == NULL, "Too many phis");
+      assert(iv == nullptr, "Too many phis");
       iv = n;
     }
   }

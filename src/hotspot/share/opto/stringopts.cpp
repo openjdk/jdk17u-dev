@@ -71,8 +71,8 @@ class StringConcat : public ResourceObj {
 
   StringConcat(PhaseStringOpts* stringopts, CallStaticJavaNode* end):
     _stringopts(stringopts),
-    _string_alloc(NULL),
-    _begin(NULL),
+    _string_alloc(nullptr),
+    _begin(nullptr),
     _end(end),
     _multiple(false) {
     _arguments = new Node(1);
@@ -89,10 +89,10 @@ class StringConcat : public ResourceObj {
     // probably inadequate at the moment.
     CallProjections endprojs;
     sc->end()->extract_projections(&endprojs, false);
-    if (endprojs.resproj != NULL) {
+    if (endprojs.resproj != nullptr) {
       for (SimpleDUIterator i(endprojs.resproj); i.has_next(); i.next()) {
         CallStaticJavaNode *use = i.get()->isa_CallStaticJava();
-        if (use != NULL && use->method() != NULL &&
+        if (use != nullptr && use->method() != nullptr &&
             use->method()->intrinsic_id() == vmIntrinsics::_String_String &&
             use->in(TypeFunc::Parms + 1) == endprojs.resproj) {
           // Found useless new String(sb.toString()) so reuse the newly allocated String
@@ -217,13 +217,13 @@ class StringConcat : public ResourceObj {
 
   void maybe_log_transform() {
     CompileLog* log = _stringopts->C->log();
-    if (log != NULL) {
+    if (log != nullptr) {
       log->head("replace_string_concat arguments='%d' string_alloc='%d' multiple='%d'",
                 num_arguments(),
-                _string_alloc != NULL,
+                _string_alloc != nullptr,
                 _multiple);
       JVMState* p = _begin->jvms();
-      while (p != NULL) {
+      while (p != nullptr) {
         log->elem("jvms bci='%d' method='%d'", p->bci(), log->identify(p->method()));
         p = p->caller();
       }
@@ -462,8 +462,8 @@ StringConcat* PhaseStringOpts::build_candidate(CallStaticJavaNode* call) {
 
   StringConcat* sc = new StringConcat(this, call);
 
-  AllocateNode* alloc = NULL;
-  InitializeNode* init = NULL;
+  AllocateNode* alloc = nullptr;
+  InitializeNode* init = nullptr;
 
   // possible opportunity for StringBuilder fusion
   CallStaticJavaNode* cnode = call;
@@ -648,7 +648,7 @@ PhaseStringOpts::PhaseStringOpts(PhaseGVN* gvn, Unique_Node_List*):
 
   size_table_field = C->env()->Integer_klass()->get_field_by_name(ciSymbol::make("sizeTable"),
                                                                   ciSymbols::int_array_signature(), true);
-  if (size_table_field == NULL) {
+  if (size_table_field == nullptr) {
     // Something wrong so give up.
     assert(false, "why can't we find Integer.sizeTable?");
     return;
@@ -1192,7 +1192,7 @@ Node* PhaseStringOpts::fetch_static_field(GraphKit& kit, ciField* field) {
       // Do not "join" in the previous type; it doesn't add value,
       // and may yield a vacuous result if the field is of interface type.
       type = TypeOopPtr::make_from_constant(con, true)->isa_oopptr();
-      assert(type != NULL, "field singleton type must be consistent");
+      assert(type != nullptr, "field singleton type must be consistent");
       return __ makecon(type);
     } else {
       type = TypeOopPtr::make_from_klass(field_klass->as_klass());
@@ -1201,7 +1201,7 @@ Node* PhaseStringOpts::fetch_static_field(GraphKit& kit, ciField* field) {
     type = Type::get_const_basic_type(bt);
   }
 
-  return kit.make_load(NULL, kit.basic_plus_adr(klass_node, field->offset_in_bytes()),
+  return kit.make_load(nullptr, kit.basic_plus_adr(klass_node, field->offset_in_bytes()),
                        type, T_OBJECT,
                        C->get_alias_index(mirror_type->add_offset(field->offset_in_bytes())),
                        MemNode::unordered);
@@ -2050,7 +2050,7 @@ void PhaseStringOpts::replace_string_concat(StringConcat* sc) {
 
     // If we're not reusing an existing String allocation then allocate one here.
     result = sc->string_alloc();
-    if (result == NULL) {
+    if (result == nullptr) {
       PreserveReexecuteState preexecs(&kit);
       // The original jvms is for an allocation of either a String or
       // StringBuffer so no stack adjustment is necessary for proper

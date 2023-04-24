@@ -264,8 +264,8 @@ bool ArrayCopyNode::prepare_array_copy(PhaseGVN *phase, bool can_reshape,
     // newly allocated object is guaranteed to not overlap with source object
     disjoint_bases = is_alloc_tightly_coupled();
 
-    if (ary_src  == NULL || ary_src->klass()  == NULL ||
-        ary_dest == NULL || ary_dest->klass() == NULL) {
+    if (ary_src  == nullptr || ary_src->klass()  == nullptr ||
+        ary_dest == nullptr || ary_dest->klass() == nullptr) {
       // We don't know if arguments are arrays
       return false;
     }
