@@ -75,13 +75,13 @@ private:
 
  public:
   NamedCounter(const char *n, CounterTag tag = NoTag):
-    _name(n == NULL ? NULL : os::strdup(n)),
+    _name(n == nullptr ? nullptr : os::strdup(n)),
     _count(0),
     _tag(tag),
-    _next(NULL) {}
+    _next(nullptr) {}
 
   ~NamedCounter() {
-    if (_name != NULL) {
+    if (_name != nullptr) {
       os::free((void*)_name);
     }
   }
@@ -94,7 +94,7 @@ private:
 
   NamedCounter* next() const    { return _next; }
   void set_next(NamedCounter* next) {
-    assert(_next == NULL || next == NULL, "already set");
+    assert(_next == nullptr || next == nullptr, "already set");
     _next = next;
   }
 

@@ -93,7 +93,7 @@ IndexSet::BitBlock *IndexSet::alloc_block() {
 #endif
   Compile *compile = Compile::current();
   BitBlock* free_list = (BitBlock*)compile->indexSet_free_block_list();
-  if (free_list == NULL) {
+  if (free_list == nullptr) {
     populate_free_list();
     free_list = (BitBlock*)compile->indexSet_free_block_list();
   }

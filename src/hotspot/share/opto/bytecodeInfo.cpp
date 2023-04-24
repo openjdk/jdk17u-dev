@@ -213,11 +213,11 @@ bool InlineTree::should_not_inline(ciMethod *callee_method,
   }
 
   // one more inlining restriction
-  if (fail_msg == NULL && callee_method->has_unloaded_classes_in_signature()) {
+  if (fail_msg == nullptr && callee_method->has_unloaded_classes_in_signature()) {
     fail_msg = "unloaded signature classes";
   }
 
-  if (fail_msg != NULL) {
+  if (fail_msg != nullptr) {
     set_msg(fail_msg);
     return true;
   }
@@ -272,10 +272,10 @@ bool InlineTree::should_not_inline(ciMethod *callee_method,
 
   // don't inline exception code unless the top method belongs to an
   // exception class
-  if (caller_tree() != NULL &&
+  if (caller_tree() != nullptr &&
       callee_method->holder()->is_subclass_of(C->env()->Throwable_klass())) {
     const InlineTree *top = this;
-    while (top->caller_tree() != NULL) top = top->caller_tree();
+    while (top->caller_tree() != nullptr) top = top->caller_tree();
     ciInstanceKlass* k = top->method()->holder();
     if (!k->is_subclass_of(C->env()->Throwable_klass())) {
       set_msg("exception method");
@@ -436,8 +436,8 @@ bool InlineTree::try_to_inline(ciMethod* callee_method, ciMethod* caller_method,
       }
     }
     // count callers of current method and callee
-    Node* callee_argument0 = is_compiled_lambda_form ? jvms->map()->argument(jvms, 0)->uncast() : NULL;
-    for (JVMState* j = jvms->caller(); j != NULL && j->has_method(); j = j->caller()) {
+    Node* callee_argument0 = is_compiled_lambda_form ? jvms->map()->argument(jvms, 0)->uncast() : nullptr;
+    for (JVMState* j = jvms->caller(); j != nullptr && j->has_method(); j = j->caller()) {
       if (j->method() == callee_method) {
         if (is_compiled_lambda_form) {
           // Since compiled lambda forms are heavily reused we allow recursive inlining.  If it is truly
@@ -476,7 +476,7 @@ bool InlineTree::try_to_inline(ciMethod* callee_method, ciMethod* caller_method,
 //------------------------------pass_initial_checks----------------------------
 bool InlineTree::pass_initial_checks(ciMethod* caller_method, int caller_bci, ciMethod* callee_method) {
   // Check if a callee_method was suggested
-  if (callee_method == NULL) {
+  if (callee_method == nullptr) {
     return false;
   }
   ciInstanceKlass *callee_holder = callee_method->holder();
@@ -518,15 +518,15 @@ const char* InlineTree::check_can_parse(ciMethod* callee) {
   if (!callee->has_balanced_monitors())         return "not compilable (unbalanced monitors)";
   if ( callee->get_flow_analysis()->failing())  return "not compilable (flow analysis failed)";
   if (!callee->can_be_parsed())                 return "cannot be parsed";
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------print_inlining---------------------------------
 void InlineTree::print_inlining(ciMethod* callee_method, int caller_bci,
                                 ciMethod* caller_method, bool success) const {
   const char* inline_msg = msg();
-  assert(inline_msg != NULL, "just checking");
-  if (C->log() != NULL) {
+  assert(inline_msg != nullptr, "just checking");
+  if (C->log() != nullptr) {
     if (success) {
       C->log()->inline_success(inline_msg);
     } else {
@@ -537,10 +537,10 @@ void InlineTree::print_inlining(ciMethod* callee_method, int caller_bci,
                                                caller_bci, inline_msg);
   if (C->print_inlining()) {
     C->print_inlining(callee_method, inline_level(), caller_bci, inline_msg);
-    guarantee(callee_method != NULL, "would crash in CompilerEvent::InlineEvent::post");
+    guarantee(callee_method != nullptr, "would crash in CompilerEvent::InlineEvent::post");
     if (Verbose) {
       const InlineTree *top = this;
-      while (top->caller_tree() != NULL) { top = top->caller_tree(); }
+      while (top->caller_tree() != nullptr) { top = top->caller_tree(); }
       //tty->print("  bcs: %d+%d  invoked: %d", top->count_inline_bcs(), callee_method->code_size(), callee_method->interpreter_invocation_count());
     }
   }
@@ -577,7 +577,7 @@ bool InlineTree::ok_to_inline(ciMethod* callee_method, JVMState* jvms, ciCallPro
 
   // Do some parse checks.
   set_msg(check_can_parse(callee_method));
-  if (msg() != NULL) {
+  if (msg() != nullptr) {
     print_inlining(callee_method, caller_bci, caller_method, false /* !success */);
     return false;
   }
@@ -587,7 +587,7 @@ bool InlineTree::ok_to_inline(ciMethod* callee_method, JVMState* jvms, ciCallPro
                                should_delay); // out
   if (success) {
     // Inline!
-    if (msg() == NULL) {
+    if (msg() == nullptr) {
       set_msg("inline (hot)");
     }
     print_inlining(callee_method, caller_bci, caller_method, true /* success */);
@@ -595,7 +595,7 @@ bool InlineTree::ok_to_inline(ciMethod* callee_method, JVMState* jvms, ciCallPro
     return true;
   } else {
     // Do not inline
-    if (msg() == NULL) {
+    if (msg() == nullptr) {
       set_msg("too cold to inline");
     }
     print_inlining(callee_method, caller_bci, caller_method, false /* !success */ );
@@ -607,11 +607,11 @@ bool InlineTree::ok_to_inline(ciMethod* callee_method, JVMState* jvms, ciCallPro
 InlineTree *InlineTree::build_inline_tree_for_callee( ciMethod* callee_method, JVMState* caller_jvms, int caller_bci) {
   // Attempt inlining.
   InlineTree* old_ilt = callee_at(caller_bci, callee_method);
-  if (old_ilt != NULL) {
+  if (old_ilt != nullptr) {
     return old_ilt;
   }
   int max_inline_level_adjust = 0;
-  if (caller_jvms->method() != NULL) {
+  if (caller_jvms->method() != nullptr) {
     if (caller_jvms->method()->is_compiled_lambda_form()) {
       max_inline_level_adjust += 1;  // don't count actions in MH or indy adapter frames
     } else if (callee_method->is_method_handle_intrinsic() ||
@@ -646,7 +646,7 @@ InlineTree *InlineTree::callee_at(int bci, ciMethod* callee) const {
       return sub;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -655,7 +655,7 @@ InlineTree *InlineTree::build_inline_tree_root() {
   Compile* C = Compile::current();
 
   // Root of inline tree
-  InlineTree* ilt = new InlineTree(C, NULL, C->method(), NULL, -1, MaxInlineLevel);
+  InlineTree* ilt = new InlineTree(C, nullptr, C->method(), nullptr, -1, MaxInlineLevel);
 
   return ilt;
 }
@@ -674,11 +674,11 @@ InlineTree* InlineTree::find_subtree_from_root(InlineTree* root, JVMState* jvms,
     assert(jvmsp->method() == iltp->method(), "tree still in sync");
     ciMethod* d_callee = (d == depth) ? callee : jvms->of_depth(d+1)->method();
     InlineTree* sub = iltp->callee_at(jvmsp->bci(), d_callee);
-    if (sub == NULL) {
+    if (sub == nullptr) {
       if (d == depth) {
         sub = iltp->build_inline_tree_for_callee(d_callee, jvmsp, jvmsp->bci());
       }
-      guarantee(sub != NULL, "should be a sub-ilt here");
+      guarantee(sub != nullptr, "should be a sub-ilt here");
       return sub;
     }
     iltp = sub;

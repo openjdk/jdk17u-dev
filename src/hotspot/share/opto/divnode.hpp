@@ -148,7 +148,7 @@ public:
   };
   virtual int Opcode() const;
   virtual Node* Identity(PhaseGVN* phase) { return this; }
-  virtual Node *Ideal(PhaseGVN *phase, bool can_reshape) { return NULL; }
+  virtual Node *Ideal(PhaseGVN *phase, bool can_reshape) { return nullptr; }
   virtual const Type* Value(PhaseGVN* phase)  const { return bottom_type(); }
   virtual uint hash() const { return Node::hash(); }
   virtual bool is_CFG() const  { return false; }

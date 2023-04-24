@@ -47,7 +47,7 @@ class   PhaseRegAlloc;
 
 
 //-----------------------------------------------------------------------------
-// Expandable closed hash-table of nodes, initialized to NULL.
+// Expandable closed hash-table of nodes, initialized to null.
 // Note that the constructor just zeros things
 // Storage is reclaimed when the Arena's lifetime is over.
 class NodeHash : public StackObj {
@@ -82,7 +82,7 @@ public:
   // Return 75% of _max, rounded up.
   uint   insert_limit() const { return _max - (_max>>2); }
 
-  void   clear();               // Set all entries to NULL, keep storage.
+  void   clear();               // Set all entries to null, keep storage.
   // Size of hash table
   uint   size()         const { return _max; }
   // Return Node* at index in table
@@ -116,7 +116,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // Map dense integer indices to Types.  Uses classic doubling-array trick.
-// Abstractly provides an infinite array of Type*'s, initialized to NULL.
+// Abstractly provides an infinite array of Type*'s, initialized to null.
 // Note that the constructor just zeros things, and since I use Arena
 // allocation I do not need a destructor to reclaim storage.
 // Despite the general name, this class is customized for use by PhaseTransform.
@@ -125,8 +125,8 @@ class Type_Array : public StackObj {
   uint   _max;
   const Type **_types;
   void grow( uint i );          // Grow array node to fit
-  const Type *operator[] ( uint i ) const // Lookup, or NULL for not mapped
-  { return (i<_max) ? _types[i] : (Type*)NULL; }
+  const Type *operator[] ( uint i ) const // Lookup, or null for not mapped
+  { return (i<_max) ? _types[i] : (Type*)nullptr; }
   friend class PhaseTransform;
 public:
   Type_Array(Arena *a) : _a(a), _max(0), _types(0) {}
@@ -243,14 +243,14 @@ public:
     // Use this for initialization when bottom_type() (or better) is not handy.
     // Usually the initialization shoudl be to n->Value(this) instead,
     // or a hand-optimized value like Type::MEMORY or Type::CONTROL.
-    assert(_types[n->_idx] == NULL, "must set the initial type just once");
+    assert(_types[n->_idx] == nullptr, "must set the initial type just once");
     _types.map(n->_idx, n->bottom_type());
   }
   // Make sure the types array is big enough to record a size for the node n.
   // (In product builds, we never want to do range checks on the types array!)
   void ensure_type_or_null(const Node* n) {
     if (n->_idx >= _types.Size())
-      _types.map(n->_idx, NULL);   // Grow the types array as needed.
+      _types.map(n->_idx, nullptr);   // Grow the types array as needed.
   }
 
   // Utility functions:
@@ -258,18 +258,18 @@ public:
   const TypeLong* find_long_type(Node* n);
   jint  find_int_con( Node* n, jint  value_if_unknown) {
     const TypeInt* t = find_int_type(n);
-    return (t != NULL && t->is_con()) ? t->get_con() : value_if_unknown;
+    return (t != nullptr && t->is_con()) ? t->get_con() : value_if_unknown;
   }
   jlong find_long_con(Node* n, jlong value_if_unknown) {
     const TypeLong* t = find_long_type(n);
-    return (t != NULL && t->is_con()) ? t->get_con() : value_if_unknown;
+    return (t != nullptr && t->is_con()) ? t->get_con() : value_if_unknown;
   }
 
   // Make an idealized constant, i.e., one of ConINode, ConPNode, ConFNode, etc.
   // Same as transform(ConNode::make(t)).
   ConNode* makecon(const Type* t);
   virtual ConNode* uncached_makecon(const Type* t)  // override in PhaseValues
-  { ShouldNotCallThis(); return NULL; }
+  { ShouldNotCallThis(); return nullptr; }
 
   // Fast int or long constant.  Same as TypeInt::make(i) or TypeLong::make(l).
   ConINode* intcon(jint i);
@@ -371,7 +371,7 @@ public:
   PhaseValues(Arena* arena, uint est_max_size);
   PhaseValues(PhaseValues* pt);
   NOT_PRODUCT(~PhaseValues();)
-  PhaseIterGVN* is_IterGVN() { return (_iterGVN) ? (PhaseIterGVN*)this : NULL; }
+  PhaseIterGVN* is_IterGVN() { return (_iterGVN) ? (PhaseIterGVN*)this : nullptr; }
 
   // Some Ideal and other transforms delete --> modify --> insert values
   bool   hash_delete(Node* n)     { return _table.hash_delete(n); }
@@ -493,7 +493,7 @@ public:
   // transforms can be triggered on the region.
   // Optional 'orig' is an earlier version of this node.
   // It is significant only for debugging and profiling.
-  Node* register_new_node_with_optimizer(Node* n, Node* orig = NULL);
+  Node* register_new_node_with_optimizer(Node* n, Node* orig = nullptr);
 
   // Kill a globally dead Node.  All uses are also globally dead and are
   // aggressively trimmed.

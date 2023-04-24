@@ -208,7 +208,7 @@ bool PhaseIdealLoop::split_up( Node *n, Node *blk1, Node *blk2 ) {
       Node* m = wq.at(i);
       if (m->is_If()) {
         assert(skeleton_predicate_has_opaque(m->as_If()), "opaque node not reachable from if?");
-        Node* bol = clone_skeleton_predicate_bool(m, NULL, NULL, m->in(0));
+        Node* bol = clone_skeleton_predicate_bool(m, nullptr, nullptr, m->in(0));
         _igvn.replace_input_of(m, 1, bol);
       } else {
         assert(!m->is_CFG(), "not CFG expected");
@@ -252,7 +252,7 @@ bool PhaseIdealLoop::split_up( Node *n, Node *blk1, Node *blk2 ) {
   // ConvI2L may have type information on it which becomes invalid if
   // it moves up in the graph so change any clones so widen the type
   // to TypeLong::INT when pushing it up.
-  const Type* rtype = NULL;
+  const Type* rtype = nullptr;
   if (n->Opcode() == Op_ConvI2L && n->bottom_type() != TypeLong::INT) {
     rtype = TypeLong::INT;
   }
@@ -262,7 +262,7 @@ bool PhaseIdealLoop::split_up( Node *n, Node *blk1, Node *blk2 ) {
   for( uint j = 1; j < blk1->req(); j++ ) {
     Node *x = n->clone();
     // Widen the type of the ConvI2L when pushing up.
-    if (rtype != NULL) x->as_Type()->set_type(rtype);
+    if (rtype != nullptr) x->as_Type()->set_type(rtype);
     if( n->in(0) && n->in(0) == blk1 )
       x->set_req( 0, blk1->in(j) );
     for( uint i = 1; i < n->req(); i++ ) {
@@ -412,7 +412,7 @@ Node *PhaseIdealLoop::find_use_block( Node *use, Node *def, Node *old_false, Nod
     set_ctrl(use, new_true);
   }
 
-  if (use_blk == NULL) {        // He's dead, Jim
+  if (use_blk == nullptr) {        // He's dead, Jim
     _igvn.replace_node(use, C->top());
   }
 
@@ -490,7 +490,7 @@ void PhaseIdealLoop::do_split_if( Node *iff ) {
       for (j = n->outs(); n->has_out(j); j++) {
         Node* m = n->out(j);
         // If m is dead, throw it away, and declare progress
-        if (_nodes[m->_idx] == NULL) {
+        if (_nodes[m->_idx] == nullptr) {
           _igvn.remove_dead_node(m);
           // fall through
         }
@@ -551,7 +551,7 @@ void PhaseIdealLoop::do_split_if( Node *iff ) {
   // Lazy replace IDOM info with the region's dominator
   lazy_replace(iff, region_dom);
   lazy_update(region, region_dom); // idom must be update before handle_uses
-  region->set_req(0, NULL);        // Break the self-cycle. Required for lazy_update to work on region
+  region->set_req(0, nullptr);        // Break the self-cycle. Required for lazy_update to work on region
 
   // Now make the original merge point go dead, by handling all its uses.
   small_cache region_cache;
