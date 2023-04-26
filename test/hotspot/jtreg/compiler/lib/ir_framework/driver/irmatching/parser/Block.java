@@ -1,9 +1,5 @@
 /*
-<<<<<<<< HEAD:test/hotspot/jtreg/compiler/lib/ir_framework/driver/irmatching/parser/Block.java
  * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
-========
- * Copyright (c) 2022, Red Hat, Inc. All rights reserved.
->>>>>>>> master:test/hotspot/jtreg/compiler/allocation/TestAllocArrayAfterAllocNoUse.java
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +21,6 @@
  * questions.
  */
 
-<<<<<<<< HEAD:test/hotspot/jtreg/compiler/lib/ir_framework/driver/irmatching/parser/Block.java
 package compiler.lib.ir_framework.driver.irmatching.parser;
 
 import java.util.List;
@@ -44,34 +39,5 @@ record Block(String output, List<String> testClassCompilations) {
 
     public List<String> getTestClassCompilations() {
         return testClassCompilations;
-========
-/**
- * @test
- * @bug 8279125
- * @summary fatal error: no reachable node should have no use
- * @requires vm.flavor == "server"
- *
- * @run main/othervm -XX:-BackgroundCompilation -XX:-DoEscapeAnalysis TestAllocArrayAfterAllocNoUse
- *
- */
-
-public class TestAllocArrayAfterAllocNoUse {
-    private static Object field;
-
-    public static void main(String[] args) {
-        for (int i = 0; i < 20_000; i++) {
-            test();
-        }
-    }
-
-    private static void test() {
-        try {
-            final TestAllocArrayAfterAllocNoUse o = new TestAllocArrayAfterAllocNoUse();
-        } catch (Exception e) {
-            final int[] array = new int[100];
-            field = array;
-        }
-
->>>>>>>> master:test/hotspot/jtreg/compiler/allocation/TestAllocArrayAfterAllocNoUse.java
     }
 }
