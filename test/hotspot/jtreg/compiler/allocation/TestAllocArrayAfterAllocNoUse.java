@@ -1,9 +1,5 @@
 /*
-<<<<<<<< HEAD:test/hotspot/jtreg/compiler/lib/ir_framework/driver/irmatching/parser/Block.java
- * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
-========
  * Copyright (c) 2022, Red Hat, Inc. All rights reserved.
->>>>>>>> master:test/hotspot/jtreg/compiler/allocation/TestAllocArrayAfterAllocNoUse.java
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,26 +21,6 @@
  * questions.
  */
 
-<<<<<<<< HEAD:test/hotspot/jtreg/compiler/lib/ir_framework/driver/irmatching/parser/Block.java
-package compiler.lib.ir_framework.driver.irmatching.parser;
-
-import java.util.List;
-
-/**
- * Class representing a PrintIdeal or PrintOptoAssembly output block read from the hotspot_pid* file.
- */
-record Block(String output, List<String> testClassCompilations) {
-    public String getOutput() {
-        return output;
-    }
-
-    public boolean containsTestClassCompilations() {
-        return !testClassCompilations.isEmpty();
-    }
-
-    public List<String> getTestClassCompilations() {
-        return testClassCompilations;
-========
 /**
  * @test
  * @bug 8279125
@@ -72,6 +48,5 @@ public class TestAllocArrayAfterAllocNoUse {
             field = array;
         }
 
->>>>>>>> master:test/hotspot/jtreg/compiler/allocation/TestAllocArrayAfterAllocNoUse.java
     }
 }

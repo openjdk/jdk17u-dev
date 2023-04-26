@@ -69,31 +69,6 @@ public class XPathNodeSetFnTest extends XPathTestBase {
                 {"count(//Customer)", CUSTOMERS},
                 {"count(//@id)", ID_ATTRIBUTES},
                 {"count(//Customer/@id)", CUSTOMERS},
-<<<<<<< HEAD
-                {"count(//@*)", ID_ATTRIBUTES + FOO_ID_ATTRIBUTES},
-                {"count(//*)",
-                        ROOT + CUSTOMERS + FOO_CUSTOMERS +
-                                (CUSTOMERS + FOO_CUSTOMERS) *
-                                        CUSTOMER_ELEMENTS},
-                {"count(//*[@id])", ID_ATTRIBUTES},
-                {"count(./*)", ROOT},
-                {"count(//Customer[1]/following::*)",
-                        CUSTOMERS - 1 + FOO_CUSTOMERS +
-                                (CUSTOMERS - 1 + FOO_CUSTOMERS) *
-                                        CUSTOMER_ELEMENTS},
-                {"count(//Customer[1]/following-sibling::*)",
-                        CUSTOMERS - 1 + FOO_CUSTOMERS},
-                {"count(//Customer[3]/preceding::*)",
-                        CUSTOMERS - 1 + (CUSTOMERS - 1) * CUSTOMER_ELEMENTS},
-                {"count(//Customer[3]/preceding-sibling::*)", CUSTOMERS - 1},
-                {"count(//Customer[1]/ancestor::*)", ROOT},
-                {"count(//Customer[1]/ancestor-or-self::*)", ROOT + 1},
-                {"count(//Customer[1]/descendant::*)", CUSTOMER_ELEMENTS},
-                {"count(//Customer[1]/descendant-or-self::*)",
-                        CUSTOMER_ELEMENTS + 1},
-                {"count(//Customer/node())",
-                        ID_ATTRIBUTES + CUSTOMERS * CUSTOMER_ELEMENTS},
-=======
                 {"count(//@*)",
                         LANG_ATTRIBUTES + ID_ATTRIBUTES + FOO_ID_ATTRIBUTES},
                 {"count(//*)",
@@ -123,7 +98,6 @@ public class XPathNodeSetFnTest extends XPathTestBase {
                 // element nodes and text nodes.
                 {"count(//Customer/node())",
                         CUSTOMERS + CUSTOMERS * (CUSTOMER_ELEMENTS * 2)},
->>>>>>> master
         };
     }
 
@@ -136,10 +110,7 @@ public class XPathNodeSetFnTest extends XPathTestBase {
     public Object[][] getPositionExp() {
         return new Object[][]{
                 {"//Customer[position()=1]", "Customer_x1"},
-<<<<<<< HEAD
-=======
                 {"//Customer[position()]", "Customer_x1"},
->>>>>>> master
                 {"//Customer[position()=last()]", "Customer_x3"},
                 {"//Customer[position()>1 and position()<last()]",
                         "Customer_x2"},
@@ -161,10 +132,7 @@ public class XPathNodeSetFnTest extends XPathTestBase {
                 {"local-name(//Customer/@id)", "id"},
                 {"local-name(//foo:Customer/@foo:id)", "id"},
                 {"local-name(//*[local-name()='Customer'])", "Customer"},
-<<<<<<< HEAD
-=======
                 {"local-name(//*[local-name(.)='Customer'])", "Customer"},
->>>>>>> master
                 {"namespace-uri(.)", ""},
                 {"namespace-uri(//Customers)", ""},
                 {"namespace-uri(//Customer)", ""},
@@ -172,17 +140,12 @@ public class XPathNodeSetFnTest extends XPathTestBase {
                 {"namespace-uri(//@id)", ""},
                 {"namespace-uri(//@foo:id)", "foo"},
                 {"name(//*[namespace-uri()=\"foo\"])", "foo:Customer"},
-<<<<<<< HEAD
-=======
                 {"name(//*[namespace-uri(.)=\"foo\"])", "foo:Customer"},
->>>>>>> master
                 {"name(//Customer)", "Customer"},
                 {"name(//foo:Customer)", "foo:Customer"},
                 {"name(//Customer/@id)", "id"},
                 {"name(//foo:Customer/@foo:id)", "foo:id"},
                 {"name(//*[name()='foo:Customer'])", "foo:Customer"},
-<<<<<<< HEAD
-=======
                 {"name(//*[name(.)='foo:Customer'])", "foo:Customer"},
         };
     }
@@ -225,7 +188,6 @@ public class XPathNodeSetFnTest extends XPathTestBase {
                 {"namespace-uri(true())"},
                 {"namespace-uri('')"},
                 {"namespace-uri('abc')"},
->>>>>>> master
         };
     }
 
@@ -308,8 +270,6 @@ public class XPathNodeSetFnTest extends XPathTestBase {
         Assert.assertEquals(s, expected);
         Assert.assertEquals(s2, s);
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Verifies that XPathExpressionException is thrown on xpath evaluation.
@@ -321,5 +281,4 @@ public class XPathNodeSetFnTest extends XPathTestBase {
         Assert.assertThrows(XPathExpressionException.class, () -> testEval(doc,
                 exp));
     }
->>>>>>> master
 }
