@@ -906,6 +906,7 @@ JavaThread* CompileBroker::make_thread(ThreadType type, jobject thread_handle, C
     // queue compile jobs which will run at whatever default priority the
     // newly created CompilerThread runs at.
 
+
     // At this point it may be possible that no osthread was created for the
     // JavaThread due to lack of memory. We would have to throw an exception
     // in that case. However, since this must work and we do not allow
