@@ -527,11 +527,12 @@ void NativeCallTrampolineStub::set_destination(address new_destination) {
   OrderAccess::release();
 }
 
+#if INCLUDE_JVMCI
 // Generate a trampoline for a branch to dest.  If there's no need for a
 // trampoline, simply patch the call directly to dest.
 void NativeCall::trampoline_jump(CodeBuffer &cbuf, address dest, JVMCI_TRAPS) {
   MacroAssembler a(&cbuf);
-  
+
   if (!a.far_branches()) {
     // If not using far branches, patch this call directly to dest.
     set_destination(dest);
@@ -548,3 +549,4 @@ void NativeCall::trampoline_jump(CodeBuffer &cbuf, address dest, JVMCI_TRAPS) {
     JVMCI_ERROR("single-use stub should not exist");
   }
 }
+#endif
