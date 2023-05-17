@@ -25,6 +25,7 @@ import javax.swing.border.TitledBorder;
 
 /*
  * @test
+ * @key headful
  * @bug 8204963
  * @summary Verifies TitledBorder's memory leak
  * @run main/othervm -Xmx10M TestTitledBorderLeak
