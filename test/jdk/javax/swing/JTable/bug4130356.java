@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,5 +21,23 @@
  * questions.
  */
 
+/*
+   @test
+   @bug 4130356
+   @summary JTable.setRowSelectionInterval(int, int) shouldn't accept invalid range
+*/
 
-provides jdk.internal.org.jline.terminal.spi.JnaSupport with jdk.internal.org.jline.terminal.impl.jna.JnaSupportImpl;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+
+public class bug4130356 {
+
+  public static void main(String[] argv) {
+    JTable table = new JTable(4,3);
+    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    try {
+      table.setRowSelectionInterval(10,13);
+      throw new Error("Invalid arguments supported!!!");
+    } catch (IllegalArgumentException iae) {}
+  }
+}

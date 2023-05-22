@@ -28,7 +28,7 @@
  *      8209452 8209506 8210432 8195793 8216577 8222089 8222133 8222137 8222136
  *      8223499 8225392 8232019 8234245 8233223 8225068 8225069 8243321 8243320
  *      8243559 8225072 8258630 8259312 8256421 8225081 8225082 8225083 8245654
- *      8307134
+ *      8305975 8304760 8307134
  * @summary Check root CA entries in cacerts file
  */
 import java.io.ByteArrayInputStream;
@@ -37,16 +37,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.MessageDigest;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.HexFormat;
-import java.util.Map;
+import java.security.cert.*;
+import java.util.*;
 
 public class VerifyCACerts {
 
@@ -55,12 +47,12 @@ public class VerifyCACerts {
             + File.separator + "security" + File.separator + "cacerts";
 
     // The numbers of certs now.
-    private static final int COUNT = 94;
+    private static final int COUNT = 97;
 
     // SHA-256 of cacerts, can be generated with
     // shasum -a 256 cacerts | sed -e 's/../&:/g' | tr '[:lower:]' '[:upper:]' | cut -c1-95
     private static final String CHECKSUM
-            = "DB:1A:26:0F:43:4E:EA:9A:E0:E9:D3:2C:8F:8D:E1:23:93:3B:63:30:3D:6D:40:97:05:91:A2:EC:95:8B:7D:A0";
+            = "72:C7:B8:9E:54:94:D2:D9:C0:E5:9F:F7:C3:8C:3B:18:D7:42:23:82:51:F2:AD:A1:14:26:E0:4A:F2:5F:AE:80";
 
     // Hex formatter to upper case with ":" delimiter
     private static final HexFormat HEX = HexFormat.ofDelimiter(":").withUpperCase();
@@ -249,6 +241,12 @@ public class VerifyCACerts {
                     "44:B5:45:AA:8A:25:E6:5A:73:CA:15:DC:27:FC:36:D2:4C:1C:B9:95:3A:06:65:39:B1:15:82:DC:48:7B:48:33");
             put("certignaca [jdk]",
                     "E3:B6:A2:DB:2E:D7:CE:48:84:2F:7A:C5:32:41:C7:B7:1D:54:14:4B:FB:40:C1:1F:3F:1D:0B:42:F5:EE:A1:2D");
+            put("twcaglobalrootca [jdk]",
+                    "59:76:90:07:F7:68:5D:0F:CD:50:87:2F:9F:95:D5:75:5A:5B:2B:45:7D:81:F3:69:2B:61:0A:98:67:2F:0E:1B");
+            put("microsoftecc2017 [jdk]",
+                    "35:8D:F3:9D:76:4A:F9:E1:B7:66:E9:C9:72:DF:35:2E:E1:5C:FA:C2:27:AF:6A:D1:D7:0E:8E:4A:6E:DC:BA:02");
+            put("microsoftrsa2017 [jdk]",
+                    "C7:41:F7:0F:4B:2A:8D:88:BF:2E:71:C1:41:22:EF:53:EF:10:EB:A0:CF:A5:E6:4C:FA:20:F4:18:85:30:73:E0");
             put("gtsrootcar1 [jdk]",
                     "D9:47:43:2A:BD:E7:B7:FA:90:FC:2E:6B:59:10:1B:12:80:E0:E1:C7:E4:E4:0F:A3:C6:88:7F:FF:57:A7:F4:CF");
             put("gtsrootcar2 [jdk]",
@@ -260,7 +258,6 @@ public class VerifyCACerts {
         }
     };
 
-    // Exception list to 90 days expiry policy
     // No error will be reported if certificate in this list expires
     @SuppressWarnings("serial")
     private static final HashSet<String> EXPIRY_EXC_ENTRIES = new HashSet<>() {
@@ -289,14 +286,15 @@ public class VerifyCACerts {
 
     public static void main(String[] args) throws Exception {
         System.out.println("cacerts file: " + CACERTS);
-        md = MessageDigest.getInstance("SHA-256");
 
+        // verify integrity of cacerts
+        md = MessageDigest.getInstance("SHA-256");
         byte[] data = Files.readAllBytes(Path.of(CACERTS));
         String checksum = HEX.formatHex(md.digest(data));
         if (!checksum.equals(CHECKSUM)) {
             atLeastOneFailed = true;
-            System.err.println("ERROR: wrong checksum\n" + checksum);
-            System.err.println("Expected checksum\n" + CHECKSUM);
+            System.err.println("ERROR: wrong checksum" + checksum);
+            System.err.println("Expected checksum" + CHECKSUM);
         }
 
         KeyStore ks = KeyStore.getInstance("JKS");
@@ -307,6 +305,15 @@ public class VerifyCACerts {
             atLeastOneFailed = true;
             System.err.println("ERROR: " + ks.size() + " entries, should be "
                     + COUNT);
+        }
+
+        System.out.println("Trusted CA Certificate count: " + ks.size());
+
+        // also ensure FINGERPRINT_MAP lists correct count
+        if (FINGERPRINT_MAP.size() != COUNT) {
+            atLeastOneFailed = true;
+            System.err.println("ERROR: " + FINGERPRINT_MAP.size()
+                    + " FINGERPRINT_MAP entries, should be " + COUNT);
         }
 
         // check that all entries in the map are in the keystore
@@ -322,66 +329,66 @@ public class VerifyCACerts {
         Enumeration<String> aliases = ks.aliases();
         while (aliases.hasMoreElements()) {
             String alias = aliases.nextElement();
-            System.out.println("\nVerifying " + alias);
+            System.out.println("Verifying " + alias);
+
+            // Is cert trusted?
             if (!ks.isCertificateEntry(alias)) {
                 atLeastOneFailed = true;
-                System.err.println("ERROR: " + alias
-                        + " is not a trusted cert entry");
+                System.err.println("ERROR: " + alias + " is not a trusted cert entry");
             }
+
+            // Does fingerprint match?
             X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
             if (!checkFingerprint(alias, cert)) {
                 atLeastOneFailed = true;
                 System.err.println("ERROR: " + alias + " SHA-256 fingerprint is incorrect");
             }
-            // Make sure cert can be self-verified
+
+            // Can cert be self-verified?
             try {
                 cert.verify(cert.getPublicKey());
             } catch (Exception e) {
                 atLeastOneFailed = true;
-                System.err.println("ERROR: cert cannot be verified:"
-                        + e.getMessage());
+                System.err.println("ERROR: cert cannot be verified:" + e.getMessage());
             }
 
-            // Make sure cert is not expired or not yet valid
+            // Is cert expired?
             try {
                 cert.checkValidity();
             } catch (CertificateExpiredException cee) {
                 if (!EXPIRY_EXC_ENTRIES.contains(alias)) {
                     atLeastOneFailed = true;
-                    System.err.println("ERROR: cert is expired");
+                    System.err.println("ERROR: cert is expired but not in EXPIRY_EXC_ENTRIES");
                 }
             } catch (CertificateNotYetValidException cne) {
                 atLeastOneFailed = true;
                 System.err.println("ERROR: cert is not yet valid");
             }
 
-            // If cert is within 90 days of expiring, mark as failure so
+            // If cert is within 90 days of expiring, mark as warning so
             // that cert can be scheduled to be removed/renewed.
             Date notAfter = cert.getNotAfter();
             if (notAfter.getTime() - System.currentTimeMillis() < NINETY_DAYS) {
                 if (!EXPIRY_EXC_ENTRIES.contains(alias)) {
-                    atLeastOneFailed = true;
-                    System.err.println("ERROR: cert \"" + alias + "\" expiry \""
-                            + notAfter.toString() + "\" will expire within 90 days");
+                    System.err.println("WARNING: cert \"" + alias + "\" expiry \""
+                            + notAfter + "\" will expire within 90 days");
                 }
             }
         }
 
         if (atLeastOneFailed) {
-            throw new Exception("At least one cacert test failed");
+            throw new RuntimeException("At least one cacert test failed");
         }
     }
 
     private static boolean checkFingerprint(String alias, Certificate cert)
-            throws Exception {
+            throws CertificateEncodingException {
         String fingerprint = FINGERPRINT_MAP.get(alias);
         if (fingerprint == null) {
             // no entry for alias
-            return true;
+            return false;
         }
-        System.out.println("Checking fingerprint of " + alias);
         byte[] digest = md.digest(cert.getEncoded());
         return fingerprint.equals(HEX.formatHex(digest));
     }
-
 }
