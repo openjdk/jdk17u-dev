@@ -563,9 +563,7 @@ public:
         class LazyRootClosure : public ThreadClosure {
         public:
           void do_thread(Thread* thread) {
-            if (thread->is_Java_thread()) {
-              StackWatermarkSet::start_processing(thread->as_Java_thread(), StackWatermarkKind::gc);
-            }
+            StackWatermarkSet::start_processing(thread->as_Java_thread(), StackWatermarkKind::gc);
           }
         };
         LazyRootClosure cl;
