@@ -4182,9 +4182,8 @@ public final class DateTimeFormatterBuilder {
             }
             Locale locale = context.getLocale();
             boolean isCaseSensitive = context.isCaseSensitive();
-            Set<String> regionIds = new HashSet<>(ZoneRulesProvider.getAvailableZoneIds());
-            Set<String> nonRegionIds = new HashSet<>(64);
-            int regionIdsSize = regionIds.size();
+            Set<String> availableZoneIds = ZoneRulesProvider.getAvailableZoneIds();
+            int regionIdsSize = availableZoneIds.size();
 
             Map<Locale, Entry<Integer, SoftReference<PrefixTree>>> cached =
                 isCaseSensitive ? cachedTree : cachedTreeCI;
@@ -4197,6 +4196,8 @@ public final class DateTimeFormatterBuilder {
                 (tree = entry.getValue().get()) == null)) {
                 tree = PrefixTree.newTree(context);
                 zoneStrings = TimeZoneNameUtility.getZoneStrings(locale);
+                Set<String> nonRegionIds = new HashSet<>(64);
+                Set<String> regionIds = new HashSet<>(availableZoneIds);
                 for (String[] names : zoneStrings) {
                     String zid = names[0];
                     if (!regionIds.remove(zid)) {
