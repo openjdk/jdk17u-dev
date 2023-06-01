@@ -4169,11 +4169,12 @@ public final class DateTimeFormatterBuilder {
             return true;
         }
 
-        // cache per instance for now
+        // Cache per instance for now. These HashMaps normally contain a single
+        // element, initialize them with initial capacity = 2 to avoid resizes due to load factor.
         private final Map<Locale, Entry<Integer, SoftReference<PrefixTree>>>
-            cachedTree = new HashMap<>();
+            cachedTree = new HashMap<>(2);
         private final Map<Locale, Entry<Integer, SoftReference<PrefixTree>>>
-            cachedTreeCI = new HashMap<>();
+            cachedTreeCI = new HashMap<>(2);
 
         @Override
         protected PrefixTree getTree(DateTimeParseContext context) {
