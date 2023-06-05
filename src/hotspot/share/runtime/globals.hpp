@@ -1586,6 +1586,9 @@ const intx ObjectAlignmentInBytes = 8;
           range(1, 1024)                                                    \
           constraint(CodeCacheSegmentSizeConstraintFunc, AfterErgo)         \
                                                                             \
+  product(uintx, ExtraHotCodeHeapSize, 32 * M,                              \
+          "EHT: Extra Hot CodeCache Segmnent Size")                         \
+                                                                            \
   develop_pd(intx, CodeEntryAlignment,                                      \
           "Code entry alignment for generated code (in bytes)")             \
           constraint(CodeEntryAlignmentConstraintFunc, AfterErgo)           \
@@ -1605,6 +1608,9 @@ const intx ObjectAlignmentInBytes = 8;
                                                                             \
   product(bool, SegmentedCodeCache, false,                                  \
           "Use a segmented code cache")                                     \
+                                                                            \
+  product(bool, ExtraHotCodeCache, false,                                   \
+          "Use a separate segment for code of extra hot methods")           \
                                                                             \
   product_pd(uintx, ReservedCodeCacheSize,                                  \
           "Reserved code cache size (in bytes) - maximum code cache size")  \

@@ -917,6 +917,10 @@ public:
     return _method_counters;
   }
 
+  void set_extra_hot()              {       _access_flags.set_extra_hot(); }
+  bool is_extra_hot() const         { return access_flags().is_extra_hot();  }
+  void clear_extra_hot()            {       _access_flags.clear_extra_hot(); }
+
   bool   is_not_c1_compilable() const         { return access_flags().is_not_c1_compilable();  }
   void  set_not_c1_compilable()               {       _access_flags.set_not_c1_compilable();   }
   void clear_not_c1_compilable()              {       _access_flags.clear_not_c1_compilable(); }

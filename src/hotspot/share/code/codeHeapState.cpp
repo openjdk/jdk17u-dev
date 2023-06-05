@@ -270,12 +270,8 @@ static int                     minTemp    = 0;
 static unsigned int  latest_compilation_id   = 0;
 static volatile bool initialization_complete = false;
 
-const char* CodeHeapState::get_heapName(CodeHeap* heap) {
-  if (SegmentedCodeCache) {
-    return heap->name();
-  } else {
-    return "CodeHeap";
-  }
+const char* CodeHeapState::get_heapName(CodeHeap* heap) { // EHT
+  return heap->name();
 }
 
 // returns the index for the heap being processed.

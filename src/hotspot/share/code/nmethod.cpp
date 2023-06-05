@@ -574,7 +574,15 @@ nmethod* nmethod::new_nmethod(const methodHandle& method,
 #endif
       + align_up(debug_info->data_size()           , oopSize);
 
-    nm = new (nmethod_size, comp_level)
+    int code_blob_type = CodeCache::get_code_blob_type(comp_level);
+    if (method->is_extra_hot()) {
+      // EHT: Overiride usual code_blob_type guess
+      code_blob_type = CodeBlobType::MethodExtraHot;
+      log_debug(codecache, extrahot)("Method %s on comp level %d is ExtraHot",
+                                       method->name_and_sig_as_C_string(), comp_level);
+    }
+
+    nm = new (nmethod_size, code_blob_type)
     nmethod(method(), compiler->type(), nmethod_size, compile_id, entry_bci, offsets,
             orig_pc_offset, debug_info, dependencies, code_buffer, frame_size,
             oop_maps,
@@ -747,8 +755,8 @@ nmethod::nmethod(
   }
 }
 
-void* nmethod::operator new(size_t size, int nmethod_size, int comp_level) throw () {
-  return CodeCache::allocate(nmethod_size, CodeCache::get_code_blob_type(comp_level));
+void* nmethod::operator new(size_t size, int nmethod_size, int code_blob_type) throw () {
+  return CodeCache::allocate(nmethod_size, code_blob_type);
 }
 
 void* nmethod::operator new(size_t size, int nmethod_size, bool allow_NonNMethod_space) throw () {
