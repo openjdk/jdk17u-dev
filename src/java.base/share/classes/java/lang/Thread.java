@@ -159,9 +159,7 @@ public class Thread implements Runnable {
     private boolean stillborn = false;
 
     /*
-     * Reserved for exclusive use by the JVM. Cannot be moved to the FieldHolder
-     * as it needs to be set by the VM for JNI attaching threads, before executing
-     * the constructor that will create the FieldHolder. The historically named
+     * Reserved for exclusive use by the JVM. The historically named
      * `eetop` holds the address of the underlying VM JavaThread, and is set to
      * non-zero when the thread is started, and reset to zero when the thread terminates.
      * A non-zero value indicates this thread isAlive().
