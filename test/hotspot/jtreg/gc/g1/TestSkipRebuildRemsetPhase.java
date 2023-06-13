@@ -29,8 +29,8 @@ package gc.g1;
  *          Fill up a region to above the set G1MixedGCLiveThresholdPercent.
  * @requires vm.gc.G1
  * @library /test/lib
- * @build sun.hotspot.WhiteBox
- * @run driver jdk.test.lib.helpers.ClassFileInstaller sun.hotspot.WhiteBox
+ * @build jdk.test.whitebox.WhiteBox
+ * @run driver jdk.test.lib.helpers.ClassFileInstaller jdk.test.whitebox.WhiteBox
  * @run driver gc.g1.TestSkipRebuildRemsetPhase
  */
 

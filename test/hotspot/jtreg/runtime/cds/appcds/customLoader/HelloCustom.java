@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,7 +29,7 @@
  * @requires vm.cds.custom.loaders
  * @library /test/lib /test/hotspot/jtreg/runtime/cds/appcds
  * @compile test-classes/HelloUnload.java test-classes/CustomLoadee.java
- * @build sun.hotspot.WhiteBox jdk.test.lib.classloader.ClassUnloadCommon
+ * @build jdk.test.whitebox.WhiteBox jdk.test.lib.classloader.ClassUnloadCommon
  * @run driver jdk.test.lib.helpers.ClassFileInstaller -jar hello.jar HelloUnload
  *                 jdk.test.lib.classloader.ClassUnloadCommon
  *                 jdk.test.lib.classloader.ClassUnloadCommon$1
@@ -41,7 +41,7 @@
 
 import jdk.test.lib.process.OutputAnalyzer;
 import jdk.test.lib.helpers.ClassFileInstaller;
-import sun.hotspot.WhiteBox;
+import jdk.test.whitebox.WhiteBox;
 
 public class HelloCustom {
     public static void main(String[] args) throws Exception {
