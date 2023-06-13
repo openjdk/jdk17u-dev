@@ -39,7 +39,7 @@ package gc.g1;
 
 import java.util.LinkedList;
 
-import sun.hotspot.WhiteBox;
+import jdk.test.whitebox.WhiteBox;
 
 public class TestNoEagerReclaimOfHumongousRegions {
     // Helper class to keep reference to humongous byte[].

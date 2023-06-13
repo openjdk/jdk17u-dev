@@ -40,7 +40,7 @@ package gc.arguments;
 
 import jdk.test.lib.process.ProcessTools;
 import jdk.test.lib.process.OutputAnalyzer;
-import sun.hotspot.WhiteBox;
+import jdk.test.whitebox.WhiteBox;
 import jtreg.SkippedException;
 
 public class TestSmallInitialHeapWithLargePageAndNUMA {
