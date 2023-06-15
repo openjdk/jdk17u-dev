@@ -119,7 +119,7 @@ ShenandoahSTWRootScanner::ShenandoahSTWRootScanner(ShenandoahPhaseTimings::Phase
    ShenandoahRootProcessor(phase),
    _thread_roots(phase, ShenandoahHeap::heap()->workers()->active_workers() > 1),
    _code_roots(phase),
-   _cld_roots(phase, ShenandoahHeap::heap()->workers()->active_workers()),
+   _cld_roots(phase, ShenandoahHeap::heap()->workers()->active_workers(), false /*heap iteration*/),
    _vm_roots(phase),
    _unload_classes(ShenandoahHeap::heap()->unload_classes()) {
 }
@@ -149,7 +149,7 @@ ShenandoahConcurrentRootScanner::ShenandoahConcurrentRootScanner(uint n_workers,
    ShenandoahRootProcessor(phase),
    _java_threads(phase, n_workers),
   _vm_roots(phase),
-  _cld_roots(phase, n_workers),
+  _cld_roots(phase, n_workers, false /*heap iteration*/),
   _codecache_snapshot(NULL),
   _phase(phase) {
   if (!ShenandoahHeap::heap()->unload_classes()) {
@@ -209,7 +209,7 @@ void ShenandoahConcurrentRootScanner::update_tlab_stats() {
 ShenandoahRootUpdater::ShenandoahRootUpdater(uint n_workers, ShenandoahPhaseTimings::Phase phase) :
   ShenandoahRootProcessor(phase),
   _vm_roots(phase),
-  _cld_roots(phase, n_workers),
+  _cld_roots(phase, n_workers, false /*heap iteration*/),
   _thread_roots(phase, n_workers > 1),
   _weak_roots(phase),
   _code_roots(phase) {
@@ -218,7 +218,7 @@ ShenandoahRootUpdater::ShenandoahRootUpdater(uint n_workers, ShenandoahPhaseTimi
 ShenandoahRootAdjuster::ShenandoahRootAdjuster(uint n_workers, ShenandoahPhaseTimings::Phase phase) :
   ShenandoahRootProcessor(phase),
   _vm_roots(phase),
-  _cld_roots(phase, n_workers),
+  _cld_roots(phase, n_workers, false /*heap iteration*/),
   _thread_roots(phase, n_workers > 1),
   _weak_roots(phase),
   _code_roots(phase) {
@@ -244,11 +244,11 @@ void ShenandoahRootAdjuster::roots_do(uint worker_id, OopClosure* oops) {
   _thread_roots.oops_do(oops, NULL, worker_id);
 }
 
-ShenandoahHeapIterationRootScanner::ShenandoahHeapIterationRootScanner() :
+ShenandoahHeapIterationRootScanner::ShenandoahHeapIterationRootScanner(uint n_workers) :
    ShenandoahRootProcessor(ShenandoahPhaseTimings::heap_iteration_roots),
    _thread_roots(ShenandoahPhaseTimings::heap_iteration_roots, false /*is par*/),
    _vm_roots(ShenandoahPhaseTimings::heap_iteration_roots),
-   _cld_roots(ShenandoahPhaseTimings::heap_iteration_roots, 1),
+   _cld_roots(ShenandoahPhaseTimings::heap_iteration_roots, n_workers, true /*heap iteration*/),
    _weak_roots(ShenandoahPhaseTimings::heap_iteration_roots),
    _code_roots(ShenandoahPhaseTimings::heap_iteration_roots) {
  }
@@ -279,7 +279,7 @@ public:
 
 void ShenandoahHeapIterationRootScanner::roots_do(OopClosure* oops) {
   // Must use _claim_none to avoid interfering with concurrent CLDG iteration
-  CLDToOopClosure clds(oops, ClassLoaderData::_claim_none);
+  CLDToOopClosure clds(oops, ClassLoaderData::_claim_other);
   ShenandoahMarkCodeBlobClosure code(oops);
   ShenandoahParallelOopsDoThreadClosure tc_cl(oops, &code, NULL);
 
