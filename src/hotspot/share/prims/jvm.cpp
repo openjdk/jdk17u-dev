@@ -2976,7 +2976,6 @@ JVM_ENTRY(void, JVM_StopThread(JNIEnv* env, jobject jthread, jobject throwable))
 JVM_END
 
 
-
 JVM_ENTRY(void, JVM_SuspendThread(JNIEnv* env, jobject jthread))
   ThreadsListHandle tlh(thread);
   JavaThread* receiver = NULL;
