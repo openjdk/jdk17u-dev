@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,11 +20,25 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package org.openjdk.bench.java.text;
 
-/*
- * @test
- * @summary jpackage unit tests
- * @library ${jtreg.home}/lib/junit.jar ${jtreg.home}/lib/hamcrest.jar
- * @modules jdk.jpackage
- * @run shell run_junit.sh
- */
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
+
+import java.text.DateFormatSymbols;
+import java.util.Locale;
+
+@BenchmarkMode(Mode.SingleShotTime)
+@State(Scope.Thread)
+public class ZoneStrings {
+
+    @Benchmark
+    public void testZoneStrings() {
+        for (Locale l : Locale.getAvailableLocales()) {
+            new DateFormatSymbols(l).getZoneStrings();
+        }
+    }
+}
