@@ -203,7 +203,7 @@ Node *SubINode::Ideal(PhaseGVN *phase, bool can_reshape){
     Node* in21 = in2->in(1);
     Node* in22 = in2->in(2);
     const TypeInt* tcon = phase->type(in22)->isa_int();
-    if (tcon != nullptr && tcon->is_con()) {
+    if (tcon != NULL && tcon->is_con()) {
       Node* sub2 = phase->transform( new SubINode(in1, in21) );
       Node* neg_c0 = phase->intcon(- tcon->get_con());
       return new AddINode(sub2, neg_c0);
@@ -346,7 +346,7 @@ Node *SubLNode::Ideal(PhaseGVN *phase, bool can_reshape) {
     Node* in21 = in2->in(1);
     Node* in22 = in2->in(2);
     const TypeLong* tcon = phase->type(in22)->isa_long();
-    if (tcon != nullptr && tcon->is_con()) {
+    if (tcon != NULL && tcon->is_con()) {
       Node* sub2 = phase->transform( new SubLNode(in1, in21) );
       Node* neg_c0 = phase->longcon(- tcon->get_con());
       return new AddLNode(sub2, neg_c0);
@@ -973,7 +973,7 @@ const Type *CmpPNode::sub( const Type *t1, const Type *t2 ) const {
 static inline Node* isa_java_mirror_load(PhaseGVN* phase, Node* n) {
   // Return the klass node for (indirect load from OopHandle)
   //   LoadBarrier?(LoadP(LoadP(AddP(foo:Klass, #java_mirror))))
-  //   or nullptr if not matching.
+  //   or null if not matching.
   BarrierSetC2* bs = BarrierSet::barrier_set()->barrier_set_c2();
     n = bs->step_over_gc_barrier(n);
 

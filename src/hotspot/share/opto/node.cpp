@@ -782,7 +782,7 @@ void Node::add_req( Node *n ) {
   if( in(_cnt) != nullptr ) {       // Next precedence edge is busy?
     uint i;
     for( i=_cnt; i<_max; i++ )
-      if( in(i) == nullptr )       // Find the nullptr at end of prec edge list
+      if( in(i) == nullptr )    // Find the null at end of prec edge list
         break;                  // There must be one, since we grew the array
     _in[i] = in(_cnt);          // Move prec over, making space for req edge
   }
@@ -1029,11 +1029,11 @@ Node* Node::uncast_helper(const Node* p, bool keep_deps) {
 
 //------------------------------add_prec---------------------------------------
 // Add a new precedence input.  Precedence inputs are unordered, with
-// duplicates removed and nullptrs packed down at the end.
+// duplicates removed and nulls packed down at the end.
 void Node::add_prec( Node *n ) {
   assert( is_not_dead(n), "can not use dead node");
 
-  // Check for nullptr at end
+  // Check for null at end
   if( _cnt >= _max || in(_max-1) )
     grow( _max+1 );
 
@@ -1043,7 +1043,7 @@ void Node::add_prec( Node *n ) {
     if (in(i) == n) return; // Avoid spec violation: duplicated prec edge.
     i++;
   }
-  _in[i] = n;                                // Stuff prec edge over nullptr
+  _in[i] = n;                                // Stuff prec edge over null
   if ( n != nullptr) n->add_out((Node *)this);  // Add mirror edge
 
 #ifdef ASSERT
@@ -1053,7 +1053,7 @@ void Node::add_prec( Node *n ) {
 
 //------------------------------rm_prec----------------------------------------
 // Remove a precedence input.  Precedence inputs are unordered, with
-// duplicates removed and nullptrs packed down at the end.
+// duplicates removed and nulls packed down at the end.
 void Node::rm_prec( uint j ) {
   assert(j < _max, "oob: i=%d, _max=%d", j, _max);
   assert(j >= _cnt, "not a precedence edge");
@@ -1669,7 +1669,7 @@ Node* Node::find(const int idx, bool only_ctrl) {
 
 bool Node::add_to_worklist(Node* n, Node_List* worklist, Arena* old_arena, VectorSet* old_space, VectorSet* new_space) {
   if (not_a_node(n)) {
-    return false; // Gracefully handle nullptr, -1, 0xabababab, etc.
+    return false; // Gracefully handle null, -1, 0xabababab, etc.
   }
 
   // Contained in new_space or old_space? Check old_arena first since it's mostly empty.
@@ -1795,7 +1795,7 @@ void Node::dump(const char* suffix, bool mark, outputStream *st) const {
   if (t != nullptr && (t->isa_instptr() || t->isa_klassptr())) {
     const TypeInstPtr  *toop = t->isa_instptr();
     const TypeKlassPtr *tkls = t->isa_klassptr();
-    ciKlass*           klass = toop ? toop->klass() : (tkls ? tkls->klass() : nullptr );
+    ciKlass*           klass = toop ? toop->klass() : (tkls ? tkls->klass() : NULL );
     if (klass && klass->is_loaded() && klass->is_interface()) {
       st->print("  Interface:");
     } else if (toop) {
@@ -2189,7 +2189,7 @@ void Node::verify_edges(Unique_Node_List &visited) {
   // Walk over all input edges, checking for correspondence
   for( i = 0; i < len(); i++ ) {
     n = in(i);
-    if (n != nullptr && !n->is_top()) {
+    if (n != NULL && !n->is_top()) {
       // Count instances of (Node *)this
       cnt = 0;
       for (idx = 0; idx < n->_outcnt; idx++ ) {
@@ -2202,7 +2202,7 @@ void Node::verify_edges(Unique_Node_List &visited) {
         if( in(j) == n ) cnt--;
       }
       assert( cnt == 0,"Mismatched edge count.");
-    } else if (n == nullptr) {
+    } else if (n == NULL) {
       assert(i >= req() || i == 0 || is_Region() || is_Phi() || is_ArrayCopy() || (is_Unlock() && i == req()-1)
               || (is_MemBar() && i == 5), // the precedence edge to a membar can be removed during macro node expansion
               "only region, phi, arraycopy, unlock or membar nodes have null data edges");
@@ -2214,7 +2214,7 @@ void Node::verify_edges(Unique_Node_List &visited) {
   // Recursive walk over all input edges
   for( i = 0; i < len(); i++ ) {
     n = in(i);
-    if( n != nullptr )
+    if( n != NULL )
       in(i)->verify_edges(visited);
   }
 }

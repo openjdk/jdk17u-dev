@@ -92,7 +92,7 @@ void ConnectionGraph::do_analysis(Compile *C, PhaseIterGVN *igvn) {
   Compile::TracePhase tp("escapeAnalysis", &Phase::timers[Phase::_t_escapeAnalysis]);
   ResourceMark rm;
 
-  // Add ConP#nullptr and ConN#nullptr nodes before ConnectionGraph construction
+  // Add ConP and ConN null oop nodes before ConnectionGraph construction
   // to create space for them in ConnectionGraph::_nodes[].
   Node* oop_null = igvn->zerocon(T_OBJECT);
   Node* noop_null = igvn->zerocon(T_NARROWOOP);
@@ -711,7 +711,7 @@ void ConnectionGraph::add_final_edges(Node *n) {
       for (uint i = CMoveNode::IfFalse; i < n->req(); i++) {
         Node* in = n->in(i);
         if (in == nullptr) {
-          continue;  // ignore nullptr
+          continue;  // ignore null
         }
         Node* uncast_in = in->uncast();
         if (uncast_in->is_top() || uncast_in == n) {
@@ -744,7 +744,7 @@ void ConnectionGraph::add_final_edges(Node *n) {
         for (uint i = 1; i < n->req(); i++) {
           Node* in = n->in(i);
           if (in == nullptr) {
-            continue;  // ignore nullptr
+            continue;  // ignore null
           }
           Node* uncast_in = in->uncast();
           if (uncast_in->is_top() || uncast_in == n) {
@@ -906,7 +906,7 @@ bool ConnectionGraph::add_final_edges_unsafe_access(Node* n, uint opcode) {
 
   if (opcode == Op_GetAndSetP || opcode == Op_GetAndSetN ||
       opcode == Op_CompareAndExchangeN || opcode == Op_CompareAndExchangeP) {
-    add_local_var_and_edge(n, PointsToNode::NoEscape, adr, nullptr);
+    add_local_var_and_edge(n, PointsToNode::NoEscape, adr, NULL);
   }
 
   if (adr_type->isa_oopptr()
@@ -2832,7 +2832,7 @@ Node* ConnectionGraph::step_through_mergemem(MergeMemNode *mmem, int alias_idx, 
   // means an array I have not precisely typed yet.  Do not do any
   // alias stuff with it any time soon.
   if (toop->base() != Type::AnyPtr &&
-      !(toop->klass() != nullptr &&
+      !(toop->klass() != NULL &&
         toop->klass()->is_java_lang_Object() &&
         toop->offset() == Type::OffsetBot)) {
     mem = mmem->memory_at(alias_idx);

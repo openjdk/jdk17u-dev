@@ -1879,7 +1879,7 @@ const Type* LoopLimitNode::Value(PhaseGVN* phase) const {
 
   int stride_con = stride_t->is_int()->get_con();
   if (stride_con == 1)
-    return nullptr;  // Identity
+    return NULL;  // Identity
 
   if (init_t->is_int()->is_con() && limit_t->is_int()->is_con()) {
     // Use jlongs to avoid integer overflow.
@@ -2313,25 +2313,25 @@ void OuterStripMinedLoopNode::adjust_strip_mined_loop(PhaseIterGVN* igvn) {
         }
         Node* last = u;
         for(;;) {
-          Node* next = nullptr;
+          Node* next = NULL;
           for (DUIterator_Fast jmax, j = last->fast_outs(jmax); j < jmax; j++) {
             Node* uu = last->fast_out(j);
             if (uu->is_Store() && uu->in(0) == cle_out) {
-              assert(next == nullptr, "only one in the outer loop");
+              assert(next == NULL, "only one in the outer loop");
               next = uu;
             }
           }
-          if (next == nullptr) {
+          if (next == NULL) {
             break;
           }
           last = next;
         }
-        Node* phi = nullptr;
+        Node* phi = NULL;
         for (DUIterator_Fast jmax, j = fast_outs(jmax); j < jmax; j++) {
           Node* uu = fast_out(j);
           if (uu->is_Phi()) {
             Node* be = uu->in(LoopNode::LoopBackControl);
-            if (be->is_Store() && old_new[be->_idx] != nullptr) {
+            if (be->is_Store() && old_new[be->_idx] != NULL) {
               assert(false, "store on the backedge + sunk stores: unsupported");
               // drop outer loop
               IfNode* outer_le = outer_loop_end();
@@ -2341,7 +2341,7 @@ void OuterStripMinedLoopNode::adjust_strip_mined_loop(PhaseIterGVN* igvn) {
               return;
             }
             if (be == last || be == first->in(MemNode::Memory)) {
-              assert(phi == nullptr, "only one phi");
+              assert(phi == NULL, "only one phi");
               phi = uu;
             }
           }
@@ -2378,7 +2378,7 @@ void OuterStripMinedLoopNode::adjust_strip_mined_loop(PhaseIterGVN* igvn) {
           }
         }
 #endif
-        if (phi == nullptr) {
+        if (phi == NULL) {
           // If the an entire chains was sunk, the
           // inner loop has no phi for that memory
           // slice, create one for the outer loop
@@ -2391,7 +2391,7 @@ void OuterStripMinedLoopNode::adjust_strip_mined_loop(PhaseIterGVN* igvn) {
           // Or fix the outer loop fix to include
           // that chain of stores.
           Node* be = phi->in(LoopNode::LoopBackControl);
-          assert(!(be->is_Store() && old_new[be->_idx] != nullptr), "store on the backedge + sunk stores: unsupported");
+          assert(!(be->is_Store() && old_new[be->_idx] != NULL), "store on the backedge + sunk stores: unsupported");
           if (be == first->in(MemNode::Memory)) {
             if (be == phi->in(LoopNode::LoopBackControl)) {
               igvn->replace_input_of(phi, LoopNode::LoopBackControl, last);
@@ -4376,7 +4376,7 @@ void PhaseIdealLoop::recompute_dom_depth() {
   uint i;
   // Initialize depth to "no depth yet" and realize all lazy updates
   for (i = 0; i < _idom_size; i++) {
-    // Only indices with a _dom_depth has a Node* or nullptr (otherwise uninitalized).
+    // Only indices with a _dom_depth has a Node* or null (otherwise uninitalized).
     if (_dom_depth[i] > 0 && _idom[i] != nullptr) {
       _dom_depth[i] = no_depth_marker;
 

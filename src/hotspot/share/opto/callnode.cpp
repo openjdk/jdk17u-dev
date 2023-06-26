@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -1084,7 +1084,7 @@ Node* CallStaticJavaNode::Ideal(PhaseGVN* phase, bool can_reshape) {
       if (in(TypeFunc::Parms + callee->arg_size() - 1)->Opcode() == Op_ConP /* NEP */
           && in(TypeFunc::Parms + 1)->Opcode() == Op_ConL /* address */) {
         phase->C->prepend_late_inline(cg);
-        set_generator(nullptr);
+        set_generator(NULL);
       }
     } else {
       assert(callee->has_member_arg(), "wrong type of call?");

@@ -412,7 +412,7 @@ protected:
 
 #ifdef ASSERT
   bool is_dead() const;
-#define is_not_dead(n) ((n) == nullptr || !VerifyIterativeGVN || !((n)->is_dead()))
+#define is_not_dead(n) ((n) == NULL || !VerifyIterativeGVN || !((n)->is_dead()))
   bool is_reachable_from_root() const;
 #endif
   // Check whether node has become unreachable
@@ -1227,7 +1227,7 @@ public:
       if (in(i))
         tty->print(" %4d", in(i)->_idx);
       else
-        tty->print(" nullptr");
+        tty->print(" NULL");
     tty->print("\n");
   }
 #endif

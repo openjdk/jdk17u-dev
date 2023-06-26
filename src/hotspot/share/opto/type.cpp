@@ -2269,7 +2269,7 @@ bool TypeAry::interface_vs_oop(const Type *t) const {
   if (t_ary) {
     const TypePtr* this_ptr = _elem->make_ptr(); // In case we have narrow_oops
     const TypePtr*    t_ptr = t_ary->_elem->make_ptr();
-    if(this_ptr != nullptr && t_ptr != nullptr) {
+    if(this_ptr != nullptr && t_ptr != NULL) {
       return this_ptr->interface_vs_oop(t_ptr);
     }
   }
@@ -2315,7 +2315,7 @@ bool TypeAry::ary_must_be_exact() const {
   }
   if (!toop)                return true;   // a primitive type, like int
   ciKlass* tklass = toop->klass();
-  if (tklass == nullptr)       return false;  // unloaded class
+  if (tklass == NULL)       return false;  // unloaded class
   if (!tklass->is_loaded()) return false;  // unloaded class
   const TypeInstPtr* tinst;
   if (_elem->isa_narrowoop())
@@ -2957,19 +2957,19 @@ const TypeRawPtr *TypeRawPtr::NOTNULL;
 //------------------------------make-------------------------------------------
 const TypeRawPtr *TypeRawPtr::make( enum PTR ptr ) {
   assert( ptr != Constant, "what is the constant?" );
-  assert( ptr != Null, "Use TypePtr for nullptr" );
+  assert( ptr != Null, "Use TypePtr for null" );
   return (TypeRawPtr*)(new TypeRawPtr(ptr,0))->hashcons();
 }
 
 const TypeRawPtr *TypeRawPtr::make( address bits ) {
-  assert( bits, "Use TypePtr for nullptr" );
+  assert( bits, "Use TypePtr for null" );
   return (TypeRawPtr*)(new TypeRawPtr(Constant,bits))->hashcons();
 }
 
 //------------------------------cast_to_ptr_type-------------------------------
 const Type *TypeRawPtr::cast_to_ptr_type(PTR ptr) const {
   assert( ptr != Constant, "what is the constant?" );
-  assert( ptr != Null, "Use TypePtr for nullptr" );
+  assert( ptr != Null, "Use TypePtr for null" );
   assert( _bits==0, "Why cast a constant address?");
   if( ptr == _ptr ) return this;
   return make(ptr);
@@ -3114,7 +3114,7 @@ TypeOopPtr::TypeOopPtr(TYPES t, PTR ptr, ciKlass* k, bool xk, ciObject* o, int o
                              _offset != arrayOopDesc::length_offset_in_bytes());
     } else if (klass()->is_instance_klass()) {
       ciInstanceKlass* ik = klass()->as_instance_klass();
-      ciField* field = nullptr;
+      ciField* field = NULL;
       if (this->isa_klassptr()) {
         // Perm objects don't use compressed references
       } else if (_offset == OffsetBot || _offset == OffsetTop) {
@@ -3327,7 +3327,7 @@ const TypeOopPtr* TypeOopPtr::make_from_klass_common(ciKlass *klass, bool klass_
     const TypeAry* arr0 = TypeAry::make(etype, TypeInt::POS);
     // We used to pass NotNull in here, asserting that the sub-arrays
     // are all not-null.  This is not true in generally, as code can
-    // slam nullptrs down in the subarrays.
+    // slam nulls down in the subarrays.
     const TypeAryPtr* arr = TypeAryPtr::make(TypePtr::BotPTR, arr0, klass, xk, 0);
     return arr;
   } else if (klass->is_type_array_klass()) {
@@ -3430,13 +3430,13 @@ const Type *TypeOopPtr::filter_helper(const Type *kills, bool include_speculativ
     // into a Phi which "knows" it's an Interface type we'll have to
     // uplift the type.
     if (!empty()) {
-      if (ktip != nullptr && ktip->is_loaded() && ktip->klass()->is_interface()) {
+      if (ktip != NULL && ktip->is_loaded() && ktip->klass()->is_interface()) {
         return kills;           // Uplift to interface
       }
       // Also check for evil cases of 'this' being a class array
       // and 'kills' expecting an array of interfaces.
-      Type::get_arrays_base_elements(ft, kills, nullptr, &ktip);
-      if (ktip != nullptr && ktip->is_loaded() && ktip->klass()->is_interface()) {
+      Type::get_arrays_base_elements(ft, kills, NULL, &ktip);
+      if (ktip != NULL && ktip->is_loaded() && ktip->klass()->is_interface()) {
         return kills;           // Uplift to array of interface
       }
     }
@@ -3449,7 +3449,7 @@ const Type *TypeOopPtr::filter_helper(const Type *kills, bool include_speculativ
   // class-typed Phi and an interface flows in, it's possible that the meet &
   // join report an interface back out.  This isn't possible but happens
   // because the type system doesn't interact well with interfaces.
-  if (ftip != nullptr && ktip != nullptr &&
+  if (ftip != NULL && ktip != NULL &&
       ftip->is_loaded() &&  ftip->klass()->is_interface() &&
       ktip->is_loaded() && !ktip->klass()->is_interface()) {
     assert(!ftip->klass_is_exact(), "interface could not be exact");
@@ -3985,7 +3985,7 @@ const Type *TypeInstPtr::xmeet_helper(const Type *t) const {
     // Check for classes now being equal
     if (tinst_klass->equals(this_klass)) {
       // If the klasses are equal, the constants may still differ.  Fall to
-      // NotNull if they do (neither constant is nullptr; that is a special case
+      // NotNull if they do (neither constant is null; that is a special case
       // handled elsewhere).
       ciObject* o = nullptr;             // Assume not constant when done
       ciObject* this_oop  = const_oop();
@@ -5052,7 +5052,7 @@ ciKlass* TypeAryPtr::compute_klass(DEBUG_ONLY(bool verify)) const {
              (el->base() == Type::Bottom)) {
     // element type of Bottom occurs from meet of basic type
     // and object; Top occurs when doing join on Bottom.
-    // Leave k_ary at nullptr.
+    // Leave k_ary at null.
   } else {
     // Cannot compute array klass directly from basic type,
     // since subtypes of TypeInt all have basic type T_INT.
@@ -5253,7 +5253,7 @@ const Type    *TypeKlassPtr::xmeet( const Type *t ) const {
     // Check for classes now being equal
     if (tkls_klass->equals(this_klass)) {
       // If the klasses are equal, the constants may still differ.  Fall to
-      // NotNull if they do (neither constant is nullptr; that is a special case
+      // NotNull if they do (neither constant is null; that is a special case
       // handled elsewhere).
       if( ptr == Constant ) {
         if (this->_ptr == Constant && tkls->_ptr == Constant &&

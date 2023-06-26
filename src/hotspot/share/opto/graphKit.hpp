@@ -277,7 +277,7 @@ class GraphKit : public Phase {
   // Others do not take the optional argument.
   // The JVMS must allow the bytecode to be re-executed
   // via an uncommon trap.
-  void builtin_throw(Deoptimization::DeoptReason reason, Node* arg = nullptr);
+  void builtin_throw(Deoptimization::DeoptReason reason, Node* arg = NULL);
 
   // Helper to check the JavaThread::_should_post_on_exceptions flag
   // and branch to an uncommon_trap if it is true (with the specified reason and must_throw)

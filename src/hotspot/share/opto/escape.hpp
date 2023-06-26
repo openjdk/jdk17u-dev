@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -429,7 +429,7 @@ private:
 
   // Set the escape state of an object and its fields.
   void set_escape_state(PointsToNode* ptn, PointsToNode::EscapeState esc) {
-    // Don't change non-escaping state of nullptr pointer.
+    // Don't change non-escaping state of null pointer.
     if (ptn != null_obj) {
       if (ptn->escape_state() < esc) {
         ptn->set_escape_state(esc);
@@ -440,7 +440,7 @@ private:
     }
   }
   void set_fields_escape_state(PointsToNode* ptn, PointsToNode::EscapeState esc) {
-    // Don't change non-escaping state of nullptr pointer.
+    // Don't change non-escaping state of null pointer.
     if (ptn != null_obj) {
       if (ptn->fields_escape_state() < esc) {
         ptn->set_fields_escape_state(esc);

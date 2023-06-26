@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -309,8 +309,8 @@ Node *MulLNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   }
 
   // Now we have a constant Node on the right and the constant in con
-  if (con == CONST64(0)) return nullptr;  // By zero is handled by Value call
-  if (con == CONST64(1)) return nullptr;  // By one  is handled by Identity call
+  if (con == CONST64(0)) return NULL;  // By zero is handled by Value call
+  if (con == CONST64(1)) return NULL;  // By one  is handled by Identity call
 
   // Check for negative constant; if so negate the final result
   bool sign_flip = false;

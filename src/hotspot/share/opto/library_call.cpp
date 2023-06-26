@@ -1895,7 +1895,7 @@ LibraryCallKit::generate_min_max(vmIntrinsics::ID id, Node* x0, Node* y0) {
 
   const TypeInt* txvalue = _gvn.type(xvalue)->isa_int();
   const TypeInt* tyvalue = _gvn.type(yvalue)->isa_int();
-  if (txvalue == nullptr || tyvalue == nullptr)  return top();
+  if (txvalue == NULL || tyvalue == NULL)  return top();
   // This is not really necessary, but it is consistent with a
   // hypothetical MaxINode::Value method:
   int widen = MAX2(txvalue->_widen, tyvalue->_widen);
@@ -1923,12 +1923,12 @@ LibraryCallKit::generate_min_max(vmIntrinsics::ID id, Node* x0, Node* y0) {
 
   // Start by locating any relevant comparisons.
   Node* start_from = (xkey->outcnt() < ykey->outcnt()) ? xkey : ykey;
-  Node* cmpxy = nullptr;
-  Node* cmpyx = nullptr;
+  Node* cmpxy = NULL;
+  Node* cmpyx = NULL;
   for (DUIterator_Fast kmax, k = start_from->fast_outs(kmax); k < kmax; k++) {
     Node* cmp = start_from->fast_out(k);
     if (cmp->outcnt() > 0 &&            // must have prior uses
-        cmp->in(0) == nullptr &&           // must be context-independent
+        cmp->in(0) == NULL &&           // must be context-independent
         cmp->Opcode() == cmp_op) {      // right kind of compare
       if (cmp->in(1) == xkey && cmp->in(2) == ykey)  cmpxy = cmp;
       if (cmp->in(1) == ykey && cmp->in(2) == xkey)  cmpyx = cmp;
@@ -1939,13 +1939,13 @@ LibraryCallKit::generate_min_max(vmIntrinsics::ID id, Node* x0, Node* y0) {
   Node* cmps[NCMPS] = { cmpxy, cmpyx };
   int cmpn;
   for (cmpn = 0; cmpn < NCMPS; cmpn++) {
-    if (cmps[cmpn] != nullptr)  break;     // find a result
+    if (cmps[cmpn] != NULL)  break;     // find a result
   }
   if (cmpn < NCMPS) {
     // Look for a dominating test that tells us the min and max.
     int depth = 0;                // Limit search depth for speed
     Node* dom = control();
-    for (; dom != nullptr; dom = IfNode::up_one_dom(dom, true)) {
+    for (; dom != NULL; dom = IfNode::up_one_dom(dom, true)) {
       if (++depth >= 100)  break;
       Node* ifproj = dom;
       if (!ifproj->is_Proj())  continue;
@@ -1954,7 +1954,7 @@ LibraryCallKit::generate_min_max(vmIntrinsics::ID id, Node* x0, Node* y0) {
       Node* bol = iff->in(1);
       if (!bol->is_Bool())  continue;
       Node* cmp = bol->in(1);
-      if (cmp == nullptr)  continue;
+      if (cmp == NULL)  continue;
       for (cmpn = 0; cmpn < NCMPS; cmpn++)
         if (cmps[cmpn] == cmp)  break;
       if (cmpn == NCMPS)  continue;
@@ -1983,29 +1983,29 @@ LibraryCallKit::generate_min_max(vmIntrinsics::ID id, Node* x0, Node* y0) {
 
   // We failed to find a dominating test.
   // Let's pick a test that might GVN with prior tests.
-  Node*          best_bol   = nullptr;
+  Node*          best_bol   = NULL;
   BoolTest::mask best_btest = BoolTest::illegal;
   for (cmpn = 0; cmpn < NCMPS; cmpn++) {
     Node* cmp = cmps[cmpn];
-    if (cmp == nullptr)  continue;
+    if (cmp == NULL)  continue;
     for (DUIterator_Fast jmax, j = cmp->fast_outs(jmax); j < jmax; j++) {
       Node* bol = cmp->fast_out(j);
       if (!bol->is_Bool())  continue;
       BoolTest::mask btest = bol->as_Bool()->_test._test;
       if (btest == BoolTest::eq || btest == BoolTest::ne)  continue;
       if (cmp->in(1) == ykey)   btest = BoolTest(btest).commute();
-      if (bol->outcnt() > (best_bol == nullptr ? 0 : best_bol->outcnt())) {
+      if (bol->outcnt() > (best_bol == NULL ? 0 : best_bol->outcnt())) {
         best_bol   = bol->as_Bool();
         best_btest = btest;
       }
     }
   }
 
-  Node* answer_if_true  = nullptr;
-  Node* answer_if_false = nullptr;
+  Node* answer_if_true  = NULL;
+  Node* answer_if_false = NULL;
   switch (best_btest) {
   default:
-    if (cmpxy == nullptr)
+    if (cmpxy == NULL)
       cmpxy = ideal_cmpxy;
     best_bol = _gvn.transform(new BoolNode(cmpxy, BoolTest::lt));
     // and fall through:
@@ -2036,7 +2036,7 @@ LibraryCallKit::generate_min_max(vmIntrinsics::ID id, Node* x0, Node* y0) {
   // which could hinder other optimizations.
   // Since Math.min/max is often used with arraycopy, we want
   // tightly_coupled_allocation to be able to see beyond min/max expressions.
-  Node* cmov = CMoveNode::make(nullptr, best_bol,
+  Node* cmov = CMoveNode::make(NULL, best_bol,
                                answer_if_false, answer_if_true,
                                TypeInt::make(lo, hi, widen));
 
@@ -2972,7 +2972,7 @@ Node* LibraryCallKit::load_mirror_from_klass(Node* klass) {
 // and branch to the given path on the region.
 // If never_see_null, take an uncommon trap on null, so we can optimistically
 // compile for the non-null case.
-// If the region is nullptr, force never_see_null = true.
+// If the region is null, force never_see_null = true.
 Node* LibraryCallKit::load_klass_from_mirror_common(Node* mirror,
                                                     bool never_see_null,
                                                     RegionNode* region,
@@ -3218,7 +3218,7 @@ bool LibraryCallKit::inline_Class_cast() {
   // java_mirror_type() returns non-null for compile-time Class constants.
   ciType* tm = mirror_con->java_mirror_type();
   if (tm != nullptr && tm->is_klass() &&
-      tp != nullptr && tp->klass() != nullptr) {
+      tp != NULL && tp->klass() != NULL) {
     if (!tp->klass()->is_loaded()) {
       // Don't use intrinsic when class is not loaded.
       return false;
@@ -4948,8 +4948,8 @@ bool LibraryCallKit::inline_encodeISOArray(bool ascii) {
   const Type* dst_type = dst->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
   const TypeAryPtr* top_dest = dst_type->isa_aryptr();
-  if (top_src  == nullptr || top_src->klass()  == nullptr ||
-      top_dest == nullptr || top_dest->klass() == nullptr) {
+  if (top_src  == NULL || top_src->klass()  == NULL ||
+      top_dest == NULL || top_dest->klass() == NULL) {
     // failed array check
     return false;
   }
@@ -5003,8 +5003,8 @@ bool LibraryCallKit::inline_multiplyToLen() {
   const Type* y_type = y->Value(&_gvn);
   const TypeAryPtr* top_x = x_type->isa_aryptr();
   const TypeAryPtr* top_y = y_type->isa_aryptr();
-  if (top_x  == nullptr || top_x->klass()  == nullptr ||
-      top_y == nullptr || top_y->klass() == nullptr) {
+  if (top_x  == NULL || top_x->klass()  == NULL ||
+      top_y == NULL || top_y->klass() == NULL) {
     // failed array check
     return false;
   }
@@ -5111,8 +5111,8 @@ bool LibraryCallKit::inline_squareToLen() {
   const Type* z_type = z->Value(&_gvn);
   const TypeAryPtr* top_x = x_type->isa_aryptr();
   const TypeAryPtr* top_z = z_type->isa_aryptr();
-  if (top_x  == nullptr || top_x->klass()  == nullptr ||
-      top_z  == nullptr || top_z->klass()  == nullptr) {
+  if (top_x  == NULL || top_x->klass()  == NULL ||
+      top_z  == NULL || top_z->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -5160,8 +5160,8 @@ bool LibraryCallKit::inline_mulAdd() {
   const Type* in_type = in->Value(&_gvn);
   const TypeAryPtr* top_out = out_type->isa_aryptr();
   const TypeAryPtr* top_in = in_type->isa_aryptr();
-  if (top_out  == nullptr || top_out->klass()  == nullptr ||
-      top_in == nullptr || top_in->klass() == nullptr) {
+  if (top_out  == NULL || top_out->klass()  == NULL ||
+      top_in == NULL || top_in->klass() == NULL) {
     // failed array check
     return false;
   }
@@ -5213,10 +5213,10 @@ bool LibraryCallKit::inline_montgomeryMultiply() {
   const TypeAryPtr* top_n = n_type->isa_aryptr();
   const Type* m_type = a->Value(&_gvn);
   const TypeAryPtr* top_m = m_type->isa_aryptr();
-  if (top_a  == nullptr || top_a->klass()  == nullptr ||
-      top_b == nullptr || top_b->klass()  == nullptr ||
-      top_n == nullptr || top_n->klass()  == nullptr ||
-      top_m == nullptr || top_m->klass()  == nullptr) {
+  if (top_a  == NULL || top_a->klass()  == NULL ||
+      top_b == NULL || top_b->klass()  == NULL ||
+      top_n == NULL || top_n->klass()  == NULL ||
+      top_m == NULL || top_m->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -5270,9 +5270,9 @@ bool LibraryCallKit::inline_montgomerySquare() {
   const TypeAryPtr* top_n = n_type->isa_aryptr();
   const Type* m_type = a->Value(&_gvn);
   const TypeAryPtr* top_m = m_type->isa_aryptr();
-  if (top_a  == nullptr || top_a->klass()  == nullptr ||
-      top_n == nullptr || top_n->klass()  == nullptr ||
-      top_m == nullptr || top_m->klass()  == nullptr) {
+  if (top_a  == NULL || top_a->klass()  == NULL ||
+      top_n == NULL || top_n->klass()  == NULL ||
+      top_m == NULL || top_m->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -5324,8 +5324,8 @@ bool LibraryCallKit::inline_bigIntegerShift(bool isRightShift) {
   const TypeAryPtr* top_newArr = newArr_type->isa_aryptr();
   const Type* oldArr_type = oldArr->Value(&_gvn);
   const TypeAryPtr* top_oldArr = oldArr_type->isa_aryptr();
-  if (top_newArr == nullptr || top_newArr->klass() == nullptr || top_oldArr == nullptr
-      || top_oldArr->klass() == nullptr) {
+  if (top_newArr == NULL || top_newArr->klass() == NULL || top_oldArr == NULL
+      || top_oldArr->klass() == NULL) {
     return false;
   }
 
@@ -5369,8 +5369,8 @@ bool LibraryCallKit::inline_vectorizedMismatch() {
 
   const TypeAryPtr* obja_t = _gvn.type(obja)->isa_aryptr();
   const TypeAryPtr* objb_t = _gvn.type(objb)->isa_aryptr();
-  if (obja_t == nullptr || obja_t->klass() == nullptr ||
-      objb_t == nullptr || objb_t->klass() == nullptr ||
+  if (obja_t == NULL || obja_t->klass() == NULL ||
+      objb_t == NULL || objb_t->klass() == NULL ||
       scale == top()) {
     return false; // failed input validation
   }
@@ -5537,7 +5537,7 @@ bool LibraryCallKit::inline_updateBytesCRC32() {
 
   const Type* src_type = src->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
-  if (top_src  == nullptr || top_src->klass()  == nullptr) {
+  if (top_src  == NULL || top_src->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -5626,7 +5626,7 @@ bool LibraryCallKit::inline_updateBytesCRC32C() {
 
   const Type* src_type = src->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
-  if (top_src  == nullptr || top_src->klass()  == nullptr) {
+  if (top_src  == NULL || top_src->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -5719,7 +5719,7 @@ bool LibraryCallKit::inline_updateBytesAdler32() {
 
   const Type* src_type = src->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
-  if (top_src  == nullptr || top_src->klass()  == nullptr) {
+  if (top_src  == NULL || top_src->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -5848,7 +5848,7 @@ bool LibraryCallKit::inline_reference_refersTo0(bool is_phantom) {
 
 Node* LibraryCallKit::load_field_from_object(Node* fromObj, const char* fieldName, const char* fieldTypeString,
                                              DecoratorSet decorators = IN_HEAP, bool is_static = false,
-                                             ciInstanceKlass* fromKls = nullptr) {
+                                             ciInstanceKlass* fromKls = NULL) {
   if (fromKls == nullptr) {
     const TypeInstPtr* tinst = _gvn.type(fromObj)->isa_instptr();
     assert(tinst != nullptr, "obj is null");
@@ -5861,7 +5861,7 @@ Node* LibraryCallKit::load_field_from_object(Node* fromObj, const char* fieldNam
                                               ciSymbol::make(fieldTypeString),
                                               is_static);
 
-  assert (field != nullptr, "undefined field");
+  assert (field != NULL, "undefined field");
   if (field == nullptr) return (Node *) nullptr;
 
   if (is_static) {
@@ -5897,7 +5897,7 @@ Node* LibraryCallKit::load_field_from_object(Node* fromObj, const char* fieldNam
 
 Node * LibraryCallKit::field_address_from_object(Node * fromObj, const char * fieldName, const char * fieldTypeString,
                                                  bool is_exact = true, bool is_static = false,
-                                                 ciInstanceKlass * fromKls = nullptr) {
+                                                 ciInstanceKlass * fromKls = NULL) {
   if (fromKls == nullptr) {
     const TypeInstPtr* tinst = _gvn.type(fromObj)->isa_instptr();
     assert(tinst != nullptr, "obj is null");
@@ -5963,7 +5963,7 @@ bool LibraryCallKit::inline_aescrypt_Block(vmIntrinsics::ID id) {
   const Type* dest_type = dest->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
   const TypeAryPtr* top_dest = dest_type->isa_aryptr();
-  assert (top_src  != nullptr && top_src->klass()  != nullptr &&  top_dest != nullptr && top_dest->klass() != nullptr, "args are strange");
+  assert (top_src  != NULL && top_src->klass()  != NULL &&  top_dest != NULL && top_dest->klass() != NULL, "args are strange");
 
   // for the quick and dirty code we will skip all the checks.
   // we are just trying to get the call to be generated.
@@ -6024,8 +6024,8 @@ bool LibraryCallKit::inline_cipherBlockChaining_AESCrypt(vmIntrinsics::ID id) {
   const Type* dest_type = dest->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
   const TypeAryPtr* top_dest = dest_type->isa_aryptr();
-  assert (top_src  != nullptr && top_src->klass()  != nullptr
-          &&  top_dest != nullptr && top_dest->klass() != nullptr, "args are strange");
+  assert (top_src  != NULL && top_src->klass()  != NULL
+          &&  top_dest != NULL && top_dest->klass() != NULL, "args are strange");
 
   // checks are the responsibility of the caller
   Node* src_start  = src;
@@ -6112,8 +6112,8 @@ bool LibraryCallKit::inline_electronicCodeBook_AESCrypt(vmIntrinsics::ID id) {
   const Type* dest_type = dest->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
   const TypeAryPtr* top_dest = dest_type->isa_aryptr();
-  assert(top_src != nullptr && top_src->klass() != nullptr
-         &&  top_dest != nullptr && top_dest->klass() != nullptr, "args are strange");
+  assert(top_src != NULL && top_src->klass() != NULL
+         &&  top_dest != NULL && top_dest->klass() != NULL, "args are strange");
 
   // checks are the responsibility of the caller
   Node* src_start = src;
@@ -6186,8 +6186,8 @@ bool LibraryCallKit::inline_counterMode_AESCrypt(vmIntrinsics::ID id) {
   const Type* dest_type = dest->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
   const TypeAryPtr* top_dest = dest_type->isa_aryptr();
-  assert(top_src != nullptr && top_src->klass() != nullptr &&
-         top_dest != nullptr && top_dest->klass() != nullptr, "args are strange");
+  assert(top_src != NULL && top_src->klass() != NULL &&
+         top_dest != NULL && top_dest->klass() != NULL, "args are strange");
 
   // checks are the responsibility of the caller
   Node* src_start = src;
@@ -6557,7 +6557,7 @@ bool LibraryCallKit::inline_digestBase_implCompress(vmIntrinsics::ID id) {
 
   const Type* src_type = src->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
-  if (top_src  == nullptr || top_src->klass()  == nullptr) {
+  if (top_src  == NULL || top_src->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -6649,7 +6649,7 @@ bool LibraryCallKit::inline_digestBase_implCompressMB(int predicate) {
 
   const Type* src_type = src->Value(&_gvn);
   const TypeAryPtr* top_src = src_type->isa_aryptr();
-  if (top_src  == nullptr || top_src->klass()  == nullptr) {
+  if (top_src  == NULL || top_src->klass()  == NULL) {
     // failed array check
     return false;
   }
@@ -6792,7 +6792,7 @@ Node* LibraryCallKit::inline_digestBase_implCompressMB_predicate(int predicate) 
          "need MD5/SHA1/SHA256/SHA512/SHA3 instruction support");
   assert((uint)predicate < 5, "sanity");
 
-  // The receiver was checked for nullptr already.
+  // The receiver was checked for null already.
   Node* digestBaseObj = argument(0);
 
   // get DigestBase klass for instanceOf check

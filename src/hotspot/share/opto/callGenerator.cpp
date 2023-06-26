@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -1089,10 +1089,10 @@ JVMState* NativeCallGenerator::generate(JVMState* jvms) {
   GraphKit kit(jvms);
 
   Node* call = kit.make_native_call(_call_addr, tf(), method()->arg_size(), _nep); // -fallback, - nep
-  if (call == nullptr) return nullptr;
+  if (call == NULL) return NULL;
 
   kit.C->print_inlining_update(this);
-  if (kit.C->log() != nullptr) {
+  if (kit.C->log() != NULL) {
     kit.C->log()->elem("l2n_intrinsification_success bci='%d' entry_point='" INTPTR_FORMAT "'", jvms->bci(), p2i(_call_addr));
   }
 

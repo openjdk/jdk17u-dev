@@ -2543,7 +2543,7 @@ Node* GraphKit::make_runtime_call(int flags,
     prev_mem = set_predefined_input_for_runtime_call(call, narrow_mem);
   }
 
-  // Hook each parm in order.  Stop looking at the first nullptr.
+  // Hook each parm in order.  Stop looking at the first null.
   if (parm0 != nullptr) { call->init_req(TypeFunc::Parms+0, parm0);
   if (parm1 != nullptr) { call->init_req(TypeFunc::Parms+1, parm1);
   if (parm2 != nullptr) { call->init_req(TypeFunc::Parms+2, parm2);
@@ -2658,14 +2658,14 @@ Node* GraphKit::make_native_call(address call_addr, const TypeFunc* call_type, u
     RuntimeStub* invoker = SharedRuntime::make_native_invoker(call_addr,
                                                               nep->shadow_space(),
                                                               arg_regs, ret_regs);
-    if (invoker == nullptr) {
+    if (invoker == NULL) {
       C->record_failure("native invoker not implemented on this platform");
-      return nullptr;
+      return NULL;
     }
     C->add_native_invoker(invoker);
     call_addr = invoker->code_begin();
   }
-  assert(call_addr != nullptr, "sanity");
+  assert(call_addr != NULL, "sanity");
 
   CallNativeNode* call = new CallNativeNode(new_call_type, call_addr, nep->name(), TypePtr::BOTTOM,
                                             arg_regs,
@@ -2689,7 +2689,7 @@ Node* GraphKit::make_native_call(address call_addr, const TypeFunc* call_type, u
   set_predefined_output_for_runtime_call(call);
 
   Node* ret;
-  if (method() == nullptr || method()->return_type()->basic_type() == T_VOID) {
+  if (method() == NULL || method()->return_type()->basic_type() == T_VOID) {
     ret = top();
   } else {
     ret =  gvn().transform(new ProjNode(call, TypeFunc::Parms));
@@ -3275,7 +3275,7 @@ Node* GraphKit::gen_instanceof(Node* obj, Node* superklass, bool safe_for_replac
   if (_gvn.type(superklass)->singleton()) {
     ciKlass* superk = _gvn.type(superklass)->is_klassptr()->klass();
     ciKlass* subk = _gvn.type(obj)->is_oopptr()->klass();
-    if (subk != nullptr && subk->is_loaded()) {
+    if (subk != NULL && subk->is_loaded()) {
       int static_res = C->static_subtype_check(superk, subk);
       known_statically = (static_res == Compile::SSC_always_true || static_res == Compile::SSC_always_false);
     }
@@ -3637,7 +3637,7 @@ void GraphKit::shared_unlock(Node* box, Node* obj) {
 //-------------------------------get_layout_helper-----------------------------
 // If the given klass is a constant or known to be an array,
 // fetch the constant layout helper value into constant_value
-// and return (Node*)nullptr.  Otherwise, load the non-constant
+// and return null.  Otherwise, load the non-constant
 // layout helper value, and return the node which represents it.
 // This two-faced routine is useful because allocation sites
 // almost always feature constant types.

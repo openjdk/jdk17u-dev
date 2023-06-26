@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -1904,7 +1904,7 @@ bool Trace::backedge(CFGEdge *e) {
 // ensure that blocks have the correct two-way branch sense
 void Trace::fixup_blocks(PhaseCFG &cfg) {
   Block *last = last_block();
-  for (Block *b = first_block(); b != nullptr; b = next(b)) {
+  for (Block *b = first_block(); b != NULL; b = next(b)) {
     cfg.add_block(b);
     if (!b->is_connector()) {
       int nfallthru = b->num_fall_throughs();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -674,7 +674,7 @@ bool PhaseMacroExpand::can_eliminate_allocation(AllocateNode *alloc, GrowableArr
 bool PhaseMacroExpand::scalar_replacement(AllocateNode *alloc, GrowableArray <SafePointNode *>& safepoints) {
   GrowableArray <SafePointNode *> safepoints_done;
 
-  ciKlass* klass = nullptr;
+  ciKlass* klass = NULL;
   ciInstanceKlass* iklass = nullptr;
   int nfields = 0;
   int array_base = 0;
@@ -685,7 +685,7 @@ bool PhaseMacroExpand::scalar_replacement(AllocateNode *alloc, GrowableArray <Sa
   Node* res = alloc->result_cast();
   assert(res == nullptr || res->is_CheckCastPP(), "unexpected AllocateNode result");
   const TypeOopPtr* res_type = nullptr;
-  if (res != nullptr) { // Could be nullptr when there are no users
+  if (res != nullptr) { // Could be null when there are no users
     res_type = _igvn.type(res)->isa_oopptr();
   }
 
@@ -2238,9 +2238,9 @@ void PhaseMacroExpand::expand_lock_node(LockNode *lock) {
 
     // Special-case a fresh allocation to avoid building nodes:
     Node* klass_node = AllocateNode::Ideal_klass(obj, &_igvn);
-    if (klass_node == nullptr) {
+    if (klass_node == NULL) {
       Node* k_adr = basic_plus_adr(obj, oopDesc::klass_offset_in_bytes());
-      klass_node = transform_later(LoadKlassNode::make(_igvn, nullptr, mem, k_adr, _igvn.type(k_adr)->is_ptr()));
+      klass_node = transform_later(LoadKlassNode::make(_igvn, NULL, mem, k_adr, _igvn.type(k_adr)->is_ptr()));
 #ifdef _LP64
       if (UseCompressedClassPointers && klass_node->is_DecodeNKlass()) {
         assert(klass_node->in(1)->Opcode() == Op_LoadNKlass, "sanity");

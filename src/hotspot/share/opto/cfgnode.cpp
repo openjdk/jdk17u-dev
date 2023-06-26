@@ -605,13 +605,13 @@ Node *RegionNode::Ideal(PhaseGVN *phase, bool can_reshape) {
         for (uint i = 0; i < n->req(); ++i) {
           Node* m = n->in(i);
           assert(m != (Node*)phase->C->root(), "Should be unreachable from root");
-          if (m != nullptr && m->is_CFG() && !visited.test_set(m->_idx)) {
+          if (m != NULL && m->is_CFG() && !visited.test_set(m->_idx)) {
             nstack.push(m);
           }
         }
         if (n->is_Region()) {
           // Eagerly replace phis with top to avoid regionless phis.
-          n->set_req(0, nullptr);
+          n->set_req(0, NULL);
           bool progress = true;
           uint max = n->outcnt();
           DUIterator j;
@@ -632,7 +632,7 @@ Node *RegionNode::Ideal(PhaseGVN *phase, bool can_reshape) {
         }
         igvn->replace_node(n, top);
       }
-      return nullptr;
+      return NULL;
     }
   }
 
@@ -1148,7 +1148,7 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
   // Check for trip-counted loop.  If so, be smarter.
   BaseCountedLoopNode* l = r->is_BaseCountedLoop() ? r->as_BaseCountedLoop() : nullptr;
   if (l && ((const Node*)l->phi() == this)) { // Trip counted loop!
-    // protect against init_trip() or limit() returning nullptr
+    // protect against init_trip() or limit() returning null
     if (l->can_be_counted_loop(phase)) {
       const Node* init = l->init_trip();
       const Node* limit = l->limit();
@@ -1189,15 +1189,15 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
   // lattice, we must tread carefully around phis which implicitly
   // convert the one to the other.
   const TypePtr* ttp = _type->make_ptr();
-  const TypeInstPtr* ttip = (ttp != nullptr) ? ttp->isa_instptr() : nullptr;
-  const TypeKlassPtr* ttkp = (ttp != nullptr) ? ttp->isa_klassptr() : nullptr;
+  const TypeInstPtr* ttip = (ttp != NULL) ? ttp->isa_instptr() : NULL;
+  const TypeKlassPtr* ttkp = (ttp != NULL) ? ttp->isa_klassptr() : NULL;
   bool is_intf = false;
-  if (ttip != nullptr) {
+  if (ttip != NULL) {
     ciKlass* k = ttip->klass();
     if (k->is_loaded() && k->is_interface())
       is_intf = true;
   }
-  if (ttkp != nullptr) {
+  if (ttkp != NULL) {
     ciKlass* k = ttkp->klass();
     if (k->is_loaded() && k->is_interface())
       is_intf = true;
@@ -1215,7 +1215,7 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
       // such cases.  Ward off asserts in type.cpp by refusing to do
       // meets between interfaces and proper classes.
       const TypePtr* tip = ti->make_ptr();
-      const TypeInstPtr* tiip = (tip != nullptr) ? tip->isa_instptr() : nullptr;
+      const TypeInstPtr* tiip = (tip != NULL) ? tip->isa_instptr() : NULL;
       if (tiip) {
         bool ti_is_intf = false;
         ciKlass* k = tiip->klass();
@@ -1263,8 +1263,8 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
       assert(ft == _type, ""); // Uplift to interface
     } else {
       // We also have to handle 'evil cases' of interface- vs. class-arrays
-      Type::get_arrays_base_elements(jt, _type, nullptr, &ttip);
-      if (!t->empty() && ttip != nullptr && ttip->is_loaded() && ttip->klass()->is_interface()) {
+      Type::get_arrays_base_elements(jt, _type, NULL, &ttip);
+      if (!t->empty() && ttip != NULL && ttip->is_loaded() && ttip->klass()->is_interface()) {
           assert(ft == _type, "");   // Uplift to array of interface
       } else {
         // Otherwise it's something stupid like non-overlapping int ranges
@@ -1282,8 +1282,8 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
     // join report an interface back out.  This isn't possible but happens
     // because the type system doesn't interact well with interfaces.
     const TypePtr *jtp = jt->make_ptr();
-    const TypeInstPtr *jtip = (jtp != nullptr) ? jtp->isa_instptr() : nullptr;
-    const TypeKlassPtr *jtkp = (jtp != nullptr) ? jtp->isa_klassptr() : nullptr;
+    const TypeInstPtr *jtip = (jtp != NULL) ? jtp->isa_instptr() : NULL;
+    const TypeKlassPtr *jtkp = (jtp != NULL) ? jtp->isa_klassptr() : NULL;
     if( jtip && ttip ) {
       if( jtip->is_loaded() &&  jtip->klass()->is_interface() &&
           ttip->is_loaded() && !ttip->klass()->is_interface() ) {

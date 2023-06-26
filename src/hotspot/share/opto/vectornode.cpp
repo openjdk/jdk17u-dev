@@ -745,7 +745,7 @@ Node* LoadVectorMaskedNode::Ideal(PhaseGVN* phase, bool can_reshape) {
       }
     }
   }
-  return nullptr;
+  return NULL;
 }
 
 Node* StoreVectorMaskedNode::Ideal(PhaseGVN* phase, bool can_reshape) {
@@ -765,7 +765,7 @@ Node* StoreVectorMaskedNode::Ideal(PhaseGVN* phase, bool can_reshape) {
       }
     }
   }
-  return nullptr;
+  return NULL;
 }
 
 int ExtractNode::opcode(BasicType bt) {

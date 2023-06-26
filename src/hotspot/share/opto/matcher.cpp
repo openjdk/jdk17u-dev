@@ -1312,7 +1312,7 @@ MachNode *Matcher::match_sfpt( SafePointNode *sfpt ) {
   // These are usually backing store for register arguments for varargs.
   if( call != nullptr && call->is_CallRuntime() )
     out_arg_limit_per_call = OptoReg::add(out_arg_limit_per_call,C->varargs_C_out_slots_killed());
-  if( call != nullptr && call->is_CallNative() )
+  if( call != NULL && call->is_CallNative() )
     out_arg_limit_per_call = OptoReg::add(out_arg_limit_per_call, call->as_CallNative()->_shadow_space_bytes);
 
 

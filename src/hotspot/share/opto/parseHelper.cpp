@@ -69,7 +69,7 @@ void Parse::do_checkcast() {
   Node *obj = peek();
 
   // Throw uncommon trap if class is not loaded or the value we are casting
-  // _from_ is not loaded, and value is not null.  If the value _is_ nullptr,
+  // _from_ is not loaded, and value is not null.  If the value _is_ null,
   // then the checkcast does nothing.
   const TypeOopPtr *tp = _gvn.type(obj)->isa_oopptr();
   if (!will_link || (tp && tp->klass() && !tp->klass()->is_loaded())) {

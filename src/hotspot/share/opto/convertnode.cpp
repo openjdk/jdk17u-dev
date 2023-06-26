@@ -361,13 +361,13 @@ bool Compile::push_thru_add(PhaseGVN* phase, Node* z, const TypeInteger* tz, con
 Node *ConvI2LNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   PhaseIterGVN *igvn = phase->is_IterGVN();
   const TypeLong* this_type = this->type()->is_long();
-  Node* this_changed = nullptr;
+  Node* this_changed = NULL;
 
-  if (igvn != nullptr) {
+  if (igvn != NULL) {
     // Do NOT remove this node's type assertion until no more loop ops can happen.
     if (phase->C->post_loop_opts_phase()) {
       const TypeInt* in_type = phase->type(in(1))->isa_int();
-      if (in_type != nullptr && this_type != nullptr &&
+      if (in_type != NULL && this_type != NULL &&
           (in_type->_lo != this_type->_lo ||
            in_type->_hi != this_type->_hi)) {
         // Although this WORSENS the type, it increases GVN opportunities,

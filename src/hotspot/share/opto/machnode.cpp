@@ -430,7 +430,7 @@ int MachNode::operand_index(Node* def) const {
 //------------------------------peephole---------------------------------------
 // Apply peephole rule(s) to this instruction
 MachNode *MachNode::peephole(Block *block, int block_index, PhaseRegAlloc *ra_, int &deleted) {
-  return nullptr;
+  return NULL;
 }
 
 //------------------------------add_case_label---------------------------------

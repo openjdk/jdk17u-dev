@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -214,7 +214,7 @@ class CMoveKit {
   void unmap(Node* key)                  { _dict->Delete(_2p(key)); }
   Node_List* pack(Node* key)      const  { return (Node_List*)_dict->operator[](_2p(key)); }
   Node* is_Bool_candidate(Node* nd) const; // if it is the right candidate return corresponding CMove* ,
-  Node* is_CmpD_candidate(Node* nd) const; // otherwise return nullptr
+  Node* is_CmpD_candidate(Node* nd) const; // otherwise return null
   Node_List* make_cmovevd_pack(Node_List* cmovd_pk);
   bool test_cmpd_pack(Node_List* cmpd_pk, Node_List* cmovd_pk);
 };//class CMoveKit
