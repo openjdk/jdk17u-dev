@@ -177,7 +177,7 @@ bool ConstantTable::emit(CodeBuffer& cb) const {
     default: ShouldNotReachHere();
     }
 
-    if (constant_addr == NULL) {
+    if (constant_addr == nullptr) {
       return false;
     }
     assert((constant_addr - _masm.code()->consts()->start()) == con.offset(),

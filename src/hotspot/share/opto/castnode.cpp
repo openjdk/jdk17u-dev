@@ -36,7 +36,7 @@
 // If input is already higher or equal to cast type, then this is an identity.
 Node* ConstraintCastNode::Identity(PhaseGVN* phase) {
   Node* dom = dominating_cast(phase, phase);
-  if (dom != NULL) {
+  if (dom != nullptr) {
     return dom;
   }
   if (_dependency != RegularDependency) {
@@ -78,7 +78,7 @@ const Type* ConstraintCastNode::Value(PhaseGVN* phase) const {
 // Return a node which is more "ideal" than the current node.  Strip out
 // control copies
 Node *ConstraintCastNode::Ideal(PhaseGVN *phase, bool can_reshape) {
-  return (in(0) && remove_dead_region(phase, can_reshape)) ? this : NULL;
+  return (in(0) && remove_dead_region(phase, can_reshape)) ? this : nullptr;
 }
 
 bool ConstraintCastNode::cmp(const Node &n) const {
@@ -125,7 +125,7 @@ Node* ConstraintCastNode::make_cast(int opcode, Node* c, Node *n, const Type *t,
   default:
     fatal("Bad opcode %d", opcode);
   }
-  return NULL;
+  return nullptr;
 }
 
 Node* ConstraintCastNode::make(Node* c, Node *n, const Type *t, BasicType bt) {
@@ -139,34 +139,34 @@ Node* ConstraintCastNode::make(Node* c, Node *n, const Type *t, BasicType bt) {
   default:
     fatal("Bad basic type %s", type2name(bt));
   }
-  return NULL;
+  return nullptr;
 }
 
 TypeNode* ConstraintCastNode::dominating_cast(PhaseGVN* gvn, PhaseTransform* pt) const {
   if (_dependency == UnconditionalDependency) {
-    return NULL;
+    return nullptr;
   }
   Node* val = in(1);
   Node* ctl = in(0);
   int opc = Opcode();
-  if (ctl == NULL) {
-    return NULL;
+  if (ctl == nullptr) {
+    return nullptr;
   }
   // Range check CastIIs may all end up under a single range check and
   // in that case only the narrower CastII would be kept by the code
   // below which would be incorrect.
   if (is_CastII() && as_CastII()->has_range_check()) {
-    return NULL;
+    return nullptr;
   }
-  if (type()->isa_rawptr() && (gvn->type_or_null(val) == NULL || gvn->type(val)->isa_oopptr())) {
-    return NULL;
+  if (type()->isa_rawptr() && (gvn->type_or_null(val) == nullptr || gvn->type(val)->isa_oopptr())) {
+    return nullptr;
   }
   for (DUIterator_Fast imax, i = val->fast_outs(imax); i < imax; i++) {
     Node* u = val->fast_out(i);
     if (u != this &&
         u->outcnt() > 0 &&
         u->Opcode() == opc &&
-        u->in(0) != NULL &&
+        u->in(0) != nullptr &&
         u->bottom_type()->higher_equal(type())) {
       if (pt->is_dominator(u->in(0), ctl)) {
         return u->as_Type();
@@ -180,7 +180,7 @@ TypeNode* ConstraintCastNode::dominating_cast(PhaseGVN* gvn, PhaseTransform* pt)
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 #ifndef PRODUCT
@@ -262,7 +262,7 @@ static Node* find_or_make_CastII(PhaseIterGVN* igvn, Node* parent, Node* control
   Node* n = new CastIINode(parent, type, dependency);
   n->set_req(0, control);
   Node* existing = igvn->hash_find_insert(n);
-  if (existing != NULL) {
+  if (existing != nullptr) {
     n->destruct(igvn);
     return existing;
   }
@@ -271,7 +271,7 @@ static Node* find_or_make_CastII(PhaseIterGVN* igvn, Node* parent, Node* control
 
 Node *CastIINode::Ideal(PhaseGVN *phase, bool can_reshape) {
   Node* progress = ConstraintCastNode::Ideal(phase, can_reshape);
-  if (progress != NULL) {
+  if (progress != nullptr) {
     return progress;
   }
 
@@ -337,7 +337,7 @@ Node *CastIINode::Ideal(PhaseGVN *phase, bool can_reshape) {
       phase->C->record_for_post_loop_opts_igvn(this);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Node* CastIINode::Identity(PhaseGVN* phase) {
@@ -545,7 +545,7 @@ Node *CastX2PNode::Ideal(PhaseGVN *phase, bool can_reshape) {
     }
     break;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------Identity---------------------------------------
@@ -567,7 +567,7 @@ const Type* CastP2XNode::Value(PhaseGVN* phase) const {
 }
 
 Node *CastP2XNode::Ideal(PhaseGVN *phase, bool can_reshape) {
-  return (in(0) && remove_dead_region(phase, can_reshape)) ? this : NULL;
+  return (in(0) && remove_dead_region(phase, can_reshape)) ? this : nullptr;
 }
 
 //------------------------------Identity---------------------------------------
@@ -577,7 +577,7 @@ Node* CastP2XNode::Identity(PhaseGVN* phase) {
 }
 
 Node* ConstraintCastNode::make_cast_for_type(Node* c, Node* in, const Type* type, DependencyType dependency) {
-  Node* cast= NULL;
+  Node* cast= nullptr;
   if (type->isa_int()) {
     cast = make_cast(Op_CastII, c, in, type, dependency);
   } else if (type->isa_long()) {

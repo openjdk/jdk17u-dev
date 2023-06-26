@@ -528,7 +528,7 @@ VectorNode* VectorNode::make(int vopc, Node* n1, Node* n2, Node* n3, const TypeV
   case Op_FmaVF: return new FmaVFNode(n1, n2, n3, vt);
   default:
     fatal("Missed vector creation for '%s'", NodeClassNames[vopc]);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -563,7 +563,7 @@ VectorNode* VectorNode::scalar2vector(Node* s, uint vlen, const Type* opd_t) {
     return new ReplicateDNode(s, vt);
   default:
     fatal("Type '%s' is not supported for vectors", type2name(bt));
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -583,7 +583,7 @@ VectorNode* VectorNode::shift_count(int opc, Node* cnt, uint vlen, BasicType bt)
     return new RShiftCntVNode(cnt, vt);
   default:
     fatal("Missed vector creation for '%s'", NodeClassNames[opc]);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -745,7 +745,7 @@ Node* LoadVectorMaskedNode::Ideal(PhaseGVN* phase, bool can_reshape) {
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Node* StoreVectorMaskedNode::Ideal(PhaseGVN* phase, bool can_reshape) {
@@ -799,7 +799,7 @@ Node* ExtractNode::make(Node* v, uint position, BasicType bt) {
   case T_DOUBLE:  return new ExtractDNode(v, pos);
   default:
     assert(false, "wrong type: %s", type2name(bt));
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -980,7 +980,7 @@ ReductionNode* ReductionNode::make(int opc, Node *ctrl, Node* n1, Node* n2, Basi
   case Op_XorReductionV:  return new XorReductionVNode(ctrl, n1, n2);
   default:
     assert(false, "unknown node: %s", NodeClassNames[vopc]);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -1219,7 +1219,7 @@ Node* RotateLeftVNode::Ideal(PhaseGVN* phase, bool can_reshape) {
        !Matcher::match_rule_supported_vector(Op_RotateLeftV, vlen, bt)) {
     return VectorNode::degenerate_vector_rotate(in(1), in(2), true, vlen, bt, phase);
   }
-  return NULL;
+  return nullptr;
 }
 
 Node* RotateRightVNode::Ideal(PhaseGVN* phase, bool can_reshape) {
@@ -1345,7 +1345,7 @@ Node* VectorMaskOpNode::make(Node* mask, const Type* ty, int mopc) {
     default:
       assert(false, "Unhandled operation");
   }
-  return NULL;
+  return nullptr;
 }
 
 

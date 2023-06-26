@@ -61,7 +61,7 @@ Node* MulNode::Identity(PhaseGVN* phase) {
 Node *MulNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   Node* in1 = in(1);
   Node* in2 = in(2);
-  Node* progress = NULL;        // Progress flag
+  Node* progress = nullptr;        // Progress flag
 
   // convert "max(a,b) * min(a,b)" into "a*b".
   if ((in(1)->Opcode() == max_opcode() && in(2)->Opcode() == min_opcode())
@@ -111,7 +111,7 @@ Node *MulNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   if( t2->singleton() &&        // Right input is a constant?
       op != Op_MulF &&          // Float & double cannot reassociate
       op != Op_MulD ) {
-    if( t2 == Type::TOP ) return NULL;
+    if( t2 == Type::TOP ) return nullptr;
     Node *mul1 = in(1);
 #ifdef ASSERT
     // Check for dead loop
@@ -1378,7 +1378,7 @@ Node *URShiftLNode::Ideal(PhaseGVN *phase, bool can_reshape) {
       return new URShiftLNode(in11, phase->intcon(63));
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------Value------------------------------------------
@@ -1572,7 +1572,7 @@ Node* RotateLeftNode::Ideal(PhaseGVN *phase, bool can_reshape) {
       return new RotateRightNode(in(1), phase->intcon(64 - (lshift & 63)), TypeLong::LONG);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Node* RotateRightNode::Identity(PhaseGVN* phase) {
