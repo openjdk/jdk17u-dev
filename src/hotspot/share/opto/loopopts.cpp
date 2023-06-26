@@ -293,15 +293,15 @@ void PhaseIdealLoop::dominated_by( Node *prevdom, Node *iff, bool flip, bool exc
   // Loop predicates may have depending checks which should not
   // be skipped. For example, range check predicate has two checks
   // for lower and upper bounds.
-  if (dp == NULL)
+  if (dp == nullptr)
     return;
 
   ProjNode* dp_proj  = dp->as_Proj();
   ProjNode* unc_proj = iff->as_If()->proj_out(1 - dp_proj->_con)->as_Proj();
   if (exclude_loop_predicate &&
-      (unc_proj->is_uncommon_trap_proj(Deoptimization::Reason_predicate) != NULL ||
-       unc_proj->is_uncommon_trap_proj(Deoptimization::Reason_profile_predicate) != NULL ||
-       unc_proj->is_uncommon_trap_proj(Deoptimization::Reason_range_check) != NULL)) {
+      (unc_proj->is_uncommon_trap_proj(Deoptimization::Reason_predicate) != nullptr ||
+       unc_proj->is_uncommon_trap_proj(Deoptimization::Reason_profile_predicate) != nullptr ||
+       unc_proj->is_uncommon_trap_proj(Deoptimization::Reason_range_check) != nullptr)) {
     // If this is a range check (IfNode::is_range_check), do not
     // reorder because Compile::allow_range_check_smearing might have
     // changed the check.
@@ -385,7 +385,7 @@ Node *PhaseIdealLoop::has_local_phi_input( Node *n ) {
 // moved out.  We'd like to do all associative operators, but it's especially
 // important (common) to do address expressions.
 Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
-  if (!has_ctrl(n))  return NULL;
+  if (!has_ctrl(n))  return nullptr;
   Node *n_ctrl = get_ctrl(n);
   IdealLoopTree *n_loop = get_loop(n_ctrl);
 
@@ -393,7 +393,7 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
   // itself is loop-varying.
 
   // Only interested in binary ops (and AddP)
-  if( n->req() < 3 || n->req() > 4 ) return NULL;
+  if( n->req() < 3 || n->req() > 4 ) return nullptr;
 
   Node *n1_ctrl = get_ctrl(n->in(                    1));
   Node *n2_ctrl = get_ctrl(n->in(                    2));
@@ -406,13 +406,13 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
   if( (n_loop->is_member( n1_loop ) && n_loop != n1_loop) ||
       (n_loop->is_member( n2_loop ) && n_loop != n2_loop) ||
       (n_loop->is_member( n3_loop ) && n_loop != n3_loop) )
-    return NULL;                // Leave well enough alone
+    return nullptr;                // Leave well enough alone
 
   // Is at least one of my inputs loop-invariant?
   if( n1_loop == n_loop &&
       n2_loop == n_loop &&
       n3_loop == n_loop )
-    return NULL;                // No loop-invariant inputs
+    return nullptr;                // No loop-invariant inputs
 
 
   int n_op = n->Opcode();
@@ -424,16 +424,16 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
     Node *scale_ctrl = get_ctrl(scale);
     IdealLoopTree *scale_loop = get_loop(scale_ctrl );
     if( n_loop == scale_loop || !scale_loop->is_member( n_loop ) )
-      return NULL;
+      return nullptr;
     const TypeInt *scale_t = scale->bottom_type()->isa_int();
     if( scale_t && scale_t->is_con() && scale_t->get_con() >= 16 )
-      return NULL;              // Dont bother with byte/short masking
+      return nullptr;              // Dont bother with byte/short masking
     // Add must vary with loop (else shift would be loop-invariant)
     Node *add = n->in(1);
     Node *add_ctrl = get_ctrl(add);
     IdealLoopTree *add_loop = get_loop(add_ctrl);
     //assert( n_loop == add_loop, "" );
-    if( n_loop != add_loop ) return NULL;  // happens w/ evil ZKM loops
+    if( n_loop != add_loop ) return nullptr;  // happens w/ evil ZKM loops
 
     // Convert I-V into I+ (0-V); same for V-I
     if( add->Opcode() == Op_SubI &&
@@ -445,7 +445,7 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
       add = new AddINode( add->in(1), neg );
       register_new_node( add, add_ctrl );
     }
-    if( add->Opcode() != Op_AddI ) return NULL;
+    if( add->Opcode() != Op_AddI ) return nullptr;
     // See if one add input is loop invariant
     Node *add_var = add->in(1);
     Node *add_var_ctrl = get_ctrl(add_var);
@@ -463,9 +463,9 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
       Node *add_var_ctrl = get_ctrl(add_var);
       IdealLoopTree *add_var_loop = get_loop(add_var_ctrl );
     } else                      // Else neither input is loop invariant
-      return NULL;
+      return nullptr;
     if( n_loop == add_invar_loop || !add_invar_loop->is_member( n_loop ) )
-      return NULL;              // No invariant part of the add?
+      return nullptr;              // No invariant part of the add?
 
     // Yes!  Reshape address expression!
     Node *inv_scale = new LShiftINode( add_invar, scale );
@@ -540,13 +540,13 @@ Node *PhaseIdealLoop::remix_address_expressions( Node *n ) {
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 // Optimize ((in1[2*i] * in2[2*i]) + (in1[2*i+1] * in2[2*i+1]))
 Node *PhaseIdealLoop::convert_add_to_muladd(Node* n) {
   assert(n->Opcode() == Op_AddI, "sanity");
-  Node * nn = NULL;
+  Node * nn = nullptr;
   Node * in1 = n->in(1);
   Node * in2 = n->in(2);
   if (in1->Opcode() == Op_MulI && in2->Opcode() == Op_MulI) {
@@ -609,20 +609,20 @@ Node *PhaseIdealLoop::convert_add_to_muladd(Node* n) {
 Node *PhaseIdealLoop::conditional_move( Node *region ) {
 
   assert(region->is_Region(), "sanity check");
-  if (region->req() != 3) return NULL;
+  if (region->req() != 3) return nullptr;
 
   // Check for CFG diamond
   Node *lp = region->in(1);
   Node *rp = region->in(2);
-  if (!lp || !rp) return NULL;
+  if (!lp || !rp) return nullptr;
   Node *lp_c = lp->in(0);
-  if (lp_c == NULL || lp_c != rp->in(0) || !lp_c->is_If()) return NULL;
+  if (lp_c == nullptr || lp_c != rp->in(0) || !lp_c->is_If()) return nullptr;
   IfNode *iff = lp_c->as_If();
 
   // Check for ops pinned in an arm of the diamond.
   // Can't remove the control flow in this case
-  if (lp->outcnt() > 1) return NULL;
-  if (rp->outcnt() > 1) return NULL;
+  if (lp->outcnt() > 1) return nullptr;
+  if (rp->outcnt() > 1) return nullptr;
 
   IdealLoopTree* r_loop = get_loop(region);
   assert(r_loop == get_loop(iff), "sanity");
@@ -667,12 +667,12 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
       // manufacturing expensive instructions, generally a bad plan.
       // Just Say No to Conditionally-Moved Derived Pointers.
       if (tp && tp->offset() != 0)
-        return NULL;
+        return nullptr;
       cost++;
       break;
     }
     default:
-      return NULL;              // In particular, can't do memory or I/O
+      return nullptr;              // In particular, can't do memory or I/O
     }
     // Add in cost any speculative ops
     for (uint j = 1; j < region->req(); j++) {
@@ -705,21 +705,21 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
   }//for
   Node* bol = iff->in(1);
   if (bol->Opcode() == Op_Opaque4) {
-    return NULL; // Ignore loop predicate checks (the Opaque4 ensures they will go away)
+    return nullptr; // Ignore loop predicate checks (the Opaque4 ensures they will go away)
   }
   assert(bol->Opcode() == Op_Bool, "Unexpected node");
   int cmp_op = bol->in(1)->Opcode();
   if (cmp_op == Op_SubTypeCheck) { // SubTypeCheck expansion expects an IfNode
-    return NULL;
+    return nullptr;
   }
   // It is expensive to generate flags from a float compare.
   // Avoid duplicated float compare.
-  if (phis > 1 && (cmp_op == Op_CmpF || cmp_op == Op_CmpD)) return NULL;
+  if (phis > 1 && (cmp_op == Op_CmpF || cmp_op == Op_CmpD)) return nullptr;
 
   float infrequent_prob = PROB_UNLIKELY_MAG(3);
   // Ignore cost and blocks frequency if CMOVE can be moved outside the loop.
   if (used_inside_loop) {
-    if (cost >= ConditionalMoveLimit) return NULL; // Too much goo
+    if (cost >= ConditionalMoveLimit) return nullptr; // Too much goo
 
     // BlockLayoutByFrequency optimization moves infrequent branch
     // from hot path. No point in CMOV'ing in such case (110 is used
@@ -734,7 +734,7 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
     //keep going
   } else if (iff->_prob < infrequent_prob ||
       iff->_prob > (1.0f - infrequent_prob))
-    return NULL;
+    return nullptr;
 
   // --------------
   // Now replace all Phis with CMOV's
@@ -742,7 +742,7 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
   uint flip = (lp->Opcode() == Op_IfTrue);
   Node_List wq;
   while (1) {
-    PhiNode* phi = NULL;
+    PhiNode* phi = nullptr;
     for (DUIterator_Fast imax, i = region->fast_outs(imax); i < imax; i++) {
       Node *out = region->fast_out(i);
       if (out->is_Phi()) {
@@ -750,7 +750,7 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
         break;
       }
     }
-    if (phi == NULL || _igvn.type(phi) == Type::TOP) {
+    if (phi == nullptr || _igvn.type(phi) == Type::TOP) {
       break;
     }
     if (PrintOpto && VerifyLoopOptimizations) { tty->print_cr("CMOV"); }
@@ -760,7 +760,7 @@ Node *PhaseIdealLoop::conditional_move( Node *region ) {
       Node *n = wq.pop();
       for (uint j = 1; j < n->req(); j++) {
         Node* m = n->in(j);
-        if (m != NULL && !is_dominator(get_ctrl(m), cmov_ctrl)) {
+        if (m != nullptr && !is_dominator(get_ctrl(m), cmov_ctrl)) {
 #ifndef PRODUCT
           if (PrintOpto && VerifyLoopOptimizations) {
             tty->print("  speculate: ");
@@ -815,7 +815,7 @@ Node* PhaseIdealLoop::try_move_store_before_loop(Node* n, Node *n_ctrl) {
   IdealLoopTree *n_loop = get_loop(n_ctrl);
   if (n->is_Store() && n_loop != _ltree_root &&
       n_loop->is_loop() && n_loop->_head->is_Loop() &&
-      n->in(0) != NULL) {
+      n->in(0) != nullptr) {
     Node* address = n->in(MemNode::Address);
     Node* value = n->in(MemNode::ValueIn);
     Node* mem = n->in(MemNode::Memory);
@@ -845,7 +845,7 @@ Node* PhaseIdealLoop::try_move_store_before_loop(Node* n, Node *n_ctrl) {
         mem->outcnt() == 1 &&
         mem->in(LoopNode::LoopBackControl) == n) {
 
-      assert(n_loop->_tail != NULL, "need a tail");
+      assert(n_loop->_tail != nullptr, "need a tail");
       assert(is_dominator(n_ctrl, n_loop->_tail), "store control must not be in a branch in the loop");
 
       // Verify that there's no early exit of the loop before the store.
@@ -896,7 +896,7 @@ Node* PhaseIdealLoop::try_move_store_before_loop(Node* n, Node *n_ctrl) {
 
 // Try moving a store out of a loop, right after the loop
 void PhaseIdealLoop::try_move_store_after_loop(Node* n) {
-  if (n->is_Store() && n->in(0) != NULL) {
+  if (n->is_Store() && n->in(0) != nullptr) {
     Node *n_ctrl = get_ctrl(n);
     IdealLoopTree *n_loop = get_loop(n_ctrl);
     // Store must be in a loop
@@ -1462,7 +1462,7 @@ void PhaseIdealLoop::split_if_with_blocks_post(Node *n) {
   // Check for Opaque2's who's loop has disappeared - who's input is in the
   // same loop nest as their output.  Remove 'em, they are no longer useful.
   if( n_op == Op_Opaque2 &&
-      n->in(1) != NULL &&
+      n->in(1) != nullptr &&
       get_loop(get_ctrl(n)) == get_loop(get_ctrl(n->in(1))) ) {
     _igvn.replace_node( n, n->in(1) );
   }
@@ -2366,7 +2366,7 @@ void PhaseIdealLoop::clone_loop( IdealLoopTree *loop, Node_List &old_new, int dd
         assert( use->is_Proj(), "" );
         Node* nnn = old_new[old->_idx];
 
-        Node* newuse = NULL;
+        Node* newuse = nullptr;
         if (head->is_strip_mined() && mode != IgnoreStripMined) {
           CountedLoopNode* cl = head->as_CountedLoop();
           CountedLoopEndNode* cle = cl->loopexit();
@@ -2382,7 +2382,7 @@ void PhaseIdealLoop::clone_loop( IdealLoopTree *loop, Node_List &old_new, int dd
             }
           }
         }
-        if (newuse == NULL) {
+        if (newuse == nullptr) {
           newuse = use->clone();
         }
 
@@ -2448,9 +2448,9 @@ void PhaseIdealLoop::clone_loop( IdealLoopTree *loop, Node_List &old_new, int dd
   // Step 4: If loop-invariant use is not control, it must be dominated by a
   // loop exit IfFalse/IfTrue.  Find "proper" loop exit.  Make a Region
   // there if needed.  Make a Phi there merging old and new used values.
-  Node_List *split_if_set = NULL;
-  Node_List *split_bool_set = NULL;
-  Node_List *split_cex_set = NULL;
+  Node_List *split_if_set = nullptr;
+  Node_List *split_bool_set = nullptr;
+  Node_List *split_cex_set = nullptr;
   for( i = 0; i < loop->_body.size(); i++ ) {
     Node* old = loop->_body.at(i);
     clone_loop_handle_data_uses(old, old_new, loop, outer_loop, split_if_set,
@@ -3744,7 +3744,7 @@ void PhaseIdealLoop::reorg_offsets(IdealLoopTree *loop) {
       if (!has_ctrl(use))  continue;
       Node *u_ctrl = get_ctrl(use);
       if (use->is_Phi()) {
-        u_ctrl = NULL;
+        u_ctrl = nullptr;
         for (uint j = 1; j < use->req(); j++)
           if (use->in(j) == phi)
             u_ctrl = dom_lca(u_ctrl, use->in(0)->in(j));

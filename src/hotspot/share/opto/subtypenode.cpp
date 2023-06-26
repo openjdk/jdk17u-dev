@@ -85,7 +85,7 @@ const Type* SubTypeCheckNode::sub(const Type* sub_t, const Type* super_t) const 
   }
 
   if (super_t->singleton()) {
-    if (subk != NULL) {
+    if (subk != nullptr) {
       switch (Compile::current()->static_subtype_check(superk, subk)) {
       case Compile::SSC_always_false:
         return TypeInt::CC_GT;
@@ -203,14 +203,14 @@ bool SubTypeCheckNode::verify(PhaseGVN* phase) {
   const Type* sub_t = phase->type(obj_or_subklass);
   const Type* super_t = phase->type(superklass);
 
-  ciKlass* subk = sub_t->isa_klassptr() ? sub_t->is_klassptr()->klass() : sub_t->is_oopptr()->klass(); // can be NULL for bottom[]
+  ciKlass* subk = sub_t->isa_klassptr() ? sub_t->is_klassptr()->klass() : sub_t->is_oopptr()->klass(); // can be nullptr for bottom[]
   ciKlass* superk = super_t->is_klassptr()->klass();
 
-  if (super_t->singleton() && subk != NULL) {
-    Node* subklass = NULL;
+  if (super_t->singleton() && subk != nullptr) {
+    Node* subklass = nullptr;
     if (sub_t->isa_oopptr()) {
       Node* adr = phase->transform(new AddPNode(obj_or_subklass, obj_or_subklass, phase->MakeConX(oopDesc::klass_offset_in_bytes())));
-      subklass  = phase->transform(LoadKlassNode::make(*phase, NULL, C->immutable_memory(), adr, TypeInstPtr::KLASS));
+      subklass  = phase->transform(LoadKlassNode::make(*phase, nullptr, C->immutable_memory(), adr, TypeInstPtr::KLASS));
       record_for_cleanup(subklass, phase);
     } else {
       subklass = obj_or_subklass;
@@ -234,7 +234,7 @@ bool SubTypeCheckNode::verify(PhaseGVN* phase) {
           chk_off_X = phase->transform(new ConvI2LNode(chk_off_X));
 #endif
           Node* p2 = phase->transform(new AddPNode(subklass, subklass, chk_off_X));
-          Node* nkls = phase->transform(LoadKlassNode::make(*phase, NULL, C->immutable_memory(), p2, phase->type(p2)->is_ptr(), TypeKlassPtr::OBJECT_OR_NULL));
+          Node* nkls = phase->transform(LoadKlassNode::make(*phase, nullptr, C->immutable_memory(), p2, phase->type(p2)->is_ptr(), TypeKlassPtr::OBJECT_OR_NULL));
 
           return verify_helper(phase, nkls, cached_t);
         }

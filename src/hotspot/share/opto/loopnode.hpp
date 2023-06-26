@@ -416,15 +416,15 @@ public:
     // have been optimized out by the IGVN so be cautious with the
     // pattern matching on the graph
     PhiNode* iv_phi = phi();
-    if (iv_phi == NULL) {
-      return NULL;
+    if (iv_phi == nullptr) {
+      return nullptr;
     }
     Node* ln = iv_phi->in(0);
     if (!ln->is_BaseCountedLoop() || ln->as_BaseCountedLoop()->loopexit_or_null() != this) {
-      return NULL;
+      return nullptr;
     }
     if (!ln->operates_on(bt(), true)) {
-      return NULL;
+      return nullptr;
     }
     return ln->as_BaseCountedLoop();
   }
@@ -491,49 +491,49 @@ public:
 
 inline BaseCountedLoopEndNode* BaseCountedLoopNode::loopexit_or_null() const {
   Node* bctrl = back_control();
-  if (bctrl == NULL) return NULL;
+  if (bctrl == nullptr) return nullptr;
 
   Node* lexit = bctrl->in(0);
   if (!lexit->is_BaseCountedLoopEnd()) {
-    return NULL;
+    return nullptr;
   }
   BaseCountedLoopEndNode* result = lexit->as_BaseCountedLoopEnd();
   if (!result->operates_on(bt(), true)) {
-    return NULL;
+    return nullptr;
   }
   return result;
 }
 
 inline BaseCountedLoopEndNode* BaseCountedLoopNode::loopexit() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  assert(cle != NULL, "loopexit is NULL");
+  assert(cle != nullptr, "loopexit is nullptr");
   return cle;
 }
 
 inline Node* BaseCountedLoopNode::init_trip() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  return cle != NULL ? cle->init_trip() : NULL;
+  return cle != nullptr ? cle->init_trip() : nullptr;
 }
 inline Node* BaseCountedLoopNode::stride() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  return cle != NULL ? cle->stride() : NULL;
+  return cle != nullptr ? cle->stride() : nullptr;
 }
 
 inline bool BaseCountedLoopNode::stride_is_con() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  return cle != NULL && cle->stride_is_con();
+  return cle != nullptr && cle->stride_is_con();
 }
 inline Node* BaseCountedLoopNode::limit() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  return cle != NULL ? cle->limit() : NULL;
+  return cle != nullptr ? cle->limit() : nullptr;
 }
 inline Node* BaseCountedLoopNode::incr() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  return cle != NULL ? cle->incr() : NULL;
+  return cle != nullptr ? cle->incr() : nullptr;
 }
 inline Node* BaseCountedLoopNode::phi() const {
   BaseCountedLoopEndNode* cle = loopexit_or_null();
-  return cle != NULL ? cle->phi() : NULL;
+  return cle != nullptr ? cle->phi() : nullptr;
 }
 
 //------------------------------LoopLimitNode-----------------------------
@@ -632,12 +632,12 @@ public:
       _phase(phase),
       _local_loop_unroll_limit(0), _local_loop_unroll_factor(0),
       _nest(0), _irreducible(0), _has_call(0), _has_sfpt(0), _rce_candidate(0),
-      _safepts(NULL),
-      _required_safept(NULL),
+      _safepts(nullptr),
+      _required_safept(nullptr),
       _allow_optimizations(true)
   {
-    precond(_head != NULL);
-    precond(_tail != NULL);
+    precond(_head != nullptr);
+    precond(_tail != nullptr);
   }
 
   // Is 'l' a member of 'this'?

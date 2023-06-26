@@ -267,7 +267,7 @@ static Node *step_through_mergemem(PhaseGVN *phase, MergeMemNode *mmem,  const T
   const TypeOopPtr *toop = tp->isa_oopptr();
   if( tp->base() != Type::AnyPtr &&
       !(toop &&
-        toop->klass() != NULL &&
+        toop->klass() != nullptr &&
         toop->klass()->is_java_lang_Object() &&
         toop->offset() == Type::OffsetBot) ) {
     // compress paths and change unreachable cycles to TOP
@@ -395,7 +395,7 @@ Node *MemNode::Ideal_common(PhaseGVN *phase, bool can_reshape) {
 
   if (mem != old_mem) {
     set_req(MemNode::Memory, mem);
-    if (can_reshape && old_mem->outcnt() == 0 && igvn != NULL) {
+    if (can_reshape && old_mem->outcnt() == 0 && igvn != nullptr) {
       igvn->_worklist.push(old_mem);
     }
     if (phase->type(mem) == Type::TOP) return NodeSentinel;
@@ -1107,14 +1107,14 @@ Node* MemNode::can_see_stored_value(Node* st, PhaseTransform* phase) const {
       }
       // Now prove that we have a LoadQ matched to a StoreQ, for some Q.
       if (store_Opcode() != st->Opcode()) {
-        return NULL;
+        return nullptr;
       }
       // LoadVector/StoreVector needs additional check to ensure the types match.
       if (store_Opcode() == Op_StoreVector) {
         const TypeVect*  in_vt = st->as_StoreVector()->vect_type();
         const TypeVect* out_vt = as_LoadVector()->vect_type();
         if (in_vt != out_vt) {
-          return NULL;
+          return nullptr;
         }
       }
       return st->in(MemNode::ValueIn);
@@ -1494,32 +1494,32 @@ Node* LoadNode::split_through_phi(PhaseGVN* phase) {
   if (req() > 3) {
     assert(is_LoadVector() && Opcode() != Op_LoadVector, "load has too many inputs");
     // LoadVector subclasses such as LoadVectorMasked have extra inputs that the logic below doesn't take into account
-    return NULL;
+    return nullptr;
   }
   Node* mem     = in(Memory);
   Node* address = in(Address);
   const TypeOopPtr *t_oop = phase->type(address)->isa_oopptr();
 
-  assert((t_oop != NULL) &&
+  assert((t_oop != nullptr) &&
          (t_oop->is_known_instance_field() ||
           t_oop->is_ptr_to_boxed_value()), "invalide conditions");
 
   Compile* C = phase->C;
   intptr_t ignore = 0;
   Node*    base = AddPNode::Ideal_base_and_offset(address, phase, ignore);
-  bool base_is_phi = (base != NULL) && base->is_Phi();
+  bool base_is_phi = (base != nullptr) && base->is_Phi();
   bool load_boxed_values = t_oop->is_ptr_to_boxed_value() && C->aggressive_unboxing() &&
-                           (base != NULL) && (base == address->in(AddPNode::Base)) &&
+                           (base != nullptr) && (base == address->in(AddPNode::Base)) &&
                            phase->type(base)->higher_equal(TypePtr::NOTNULL);
 
   if (!((mem->is_Phi() || base_is_phi) &&
         (load_boxed_values || t_oop->is_known_instance_field()))) {
-    return NULL; // memory is not Phi
+    return nullptr; // memory is not Phi
   }
 
   if (mem->is_Phi()) {
     if (!stable_phi(mem->as_Phi(), phase)) {
-      return NULL; // Wait stable graph
+      return nullptr; // Wait stable graph
     }
     uint cnt = mem->req();
     // Check for loop invariant memory.
@@ -1833,7 +1833,7 @@ Node *LoadNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   }
 
   AllocateNode* alloc = is_new_object_mark_load(phase);
-  if (alloc != NULL && alloc->Opcode() == Op_Allocate && UseBiasedLocking) {
+  if (alloc != nullptr && alloc->Opcode() == Op_Allocate && UseBiasedLocking) {
     InitializeNode* init = alloc->initialization();
     Node* control = init->proj_out(0);
     return alloc->make_ideal_mark(phase, address, control, mem);
@@ -1994,7 +1994,7 @@ const Type* LoadNode::Value(PhaseGVN* phase) const {
      */
     Node* adr2 = adr->in(MemNode::Address);
     const TypeKlassPtr* tkls = phase->type(adr2)->isa_klassptr();
-    if (tkls != NULL && !StressReflectiveCode) {
+    if (tkls != nullptr && !StressReflectiveCode) {
       ciKlass* klass = tkls->klass();
       if (klass->is_loaded() && tkls->klass_is_exact() && tkls->offset() == in_bytes(Klass::java_mirror_offset())) {
         assert(adr->Opcode() == Op_LoadP, "must load an oop from _java_mirror");
@@ -2005,7 +2005,7 @@ const Type* LoadNode::Value(PhaseGVN* phase) const {
   }
 
   const TypeKlassPtr *tkls = tp->isa_klassptr();
-  if (tkls != NULL && !StressReflectiveCode) {
+  if (tkls != nullptr && !StressReflectiveCode) {
     ciKlass* klass = tkls->klass();
     if (klass->is_loaded() && tkls->klass_is_exact()) {
       // We are loading a field from a Klass metaobject whose identity
@@ -2028,7 +2028,7 @@ const Type* LoadNode::Value(PhaseGVN* phase) const {
         return ss ? TypeKlassPtr::make(ss) : TypePtr::NULL_PTR;
       }
       const Type* aift = load_array_final_field(tkls, klass);
-      if (aift != NULL)  return aift;
+      if (aift != nullptr)  return aift;
     }
 
     // We can still check if we are loading from the primary_supers array at a
@@ -2101,7 +2101,7 @@ const Type* LoadNode::Value(PhaseGVN* phase) const {
   }
 
   Node* alloc = is_new_object_mark_load(phase);
-  if (alloc != NULL && !(alloc->Opcode() == Op_Allocate && UseBiasedLocking)) {
+  if (alloc != nullptr && !(alloc->Opcode() == Op_Allocate && UseBiasedLocking)) {
     return TypeX::make(markWord::prototype().value());
   }
 
@@ -2292,7 +2292,7 @@ const Type* LoadNode::klass_value_common(PhaseGVN* phase) const {
 
   // Return a more precise klass, if possible
   const TypeInstPtr *tinst = tp->isa_instptr();
-  if (tinst != NULL) {
+  if (tinst != nullptr) {
     ciInstanceKlass* ik = tinst->klass()->as_instance_klass();
     int offset = tinst->offset();
     if (ik == phase->C->env()->Class_klass()
@@ -2346,9 +2346,9 @@ const Type* LoadNode::klass_value_common(PhaseGVN* phase) const {
 
   // Check for loading klass from an array
   const TypeAryPtr *tary = tp->isa_aryptr();
-  if( tary != NULL ) {
+  if( tary != nullptr ) {
     ciKlass *tary_klass = tary->klass();
-    if (tary_klass != NULL   // can be NULL when at BOTTOM or TOP
+    if (tary_klass != nullptr   // can be nullptr when at BOTTOM or TOP
         && tary->offset() == oopDesc::klass_offset_in_bytes()) {
       if (tary->klass_is_exact()) {
         return TypeKlassPtr::make(tary_klass);
@@ -2381,7 +2381,7 @@ const Type* LoadNode::klass_value_common(PhaseGVN* phase) const {
 
   // Check for loading klass from an array klass
   const TypeKlassPtr *tkls = tp->isa_klassptr();
-  if (tkls != NULL && !StressReflectiveCode) {
+  if (tkls != nullptr && !StressReflectiveCode) {
     ciKlass* klass = tkls->klass();
     if( !klass->is_loaded() )
       return _type;             // Bail out if not loaded
@@ -2460,7 +2460,7 @@ Node* LoadNode::klass_identity_common(PhaseGVN* phase) {
       if (base2->is_Load()) { /* direct load of a load which is the OopHandle */
         Node* adr2 = base2->in(MemNode::Address);
         const TypeKlassPtr* tkls = phase->type(adr2)->isa_klassptr();
-        if (tkls != NULL && !tkls->empty()
+        if (tkls != nullptr && !tkls->empty()
             && (tkls->klass()->is_instance_klass() ||
               tkls->klass()->is_array_klass())
             && adr2->is_AddP()
@@ -2520,22 +2520,22 @@ const Type* LoadRangeNode::Value(PhaseGVN* phase) const {
 // Feed through the length in AllocateArray(...length...)._length.
 Node *LoadRangeNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   Node* p = MemNode::Ideal_common(phase, can_reshape);
-  if (p)  return (p == NodeSentinel) ? NULL : p;
+  if (p)  return (p == NodeSentinel) ? nullptr : p;
 
   // Take apart the address into an oop and and offset.
   // Return 'this' if we cannot.
   Node*    adr    = in(MemNode::Address);
   intptr_t offset = 0;
   Node*    base   = AddPNode::Ideal_base_and_offset(adr, phase,  offset);
-  if (base == NULL)     return NULL;
+  if (base == nullptr)     return nullptr;
   const TypeAryPtr* tary = phase->type(adr)->isa_aryptr();
-  if (tary == NULL)     return NULL;
+  if (tary == nullptr)     return nullptr;
 
   // We can fetch the length directly through an AllocateArrayNode.
   // This works even if the length is not constant (clone or newArray).
   if (offset == arrayOopDesc::length_offset_in_bytes()) {
     AllocateArrayNode* alloc = AllocateArrayNode::Ideal_array_allocation(base, phase);
-    if (alloc != NULL) {
+    if (alloc != nullptr) {
       Node* allocated_length = alloc->Ideal_length();
       Node* len = alloc->make_ideal_length(tary, phase);
       if (allocated_length != len) {
@@ -4726,21 +4726,21 @@ Node *MergeMemNode::Ideal(PhaseGVN *phase, bool can_reshape) {
 
   // Look carefully at the base node if it is a phi.
   PhiNode* phi_base;
-  if (new_base != NULL && new_base->is_Phi())
+  if (new_base != nullptr && new_base->is_Phi())
     phi_base = new_base->as_Phi();
   else
-    phi_base = NULL;
+    phi_base = nullptr;
 
-  Node*    phi_reg = NULL;
+  Node*    phi_reg = nullptr;
   uint     phi_len = (uint)-1;
-  if (phi_base != NULL) {
+  if (phi_base != nullptr) {
     phi_reg = phi_base->region();
     phi_len = phi_base->req();
     // see if the phi is unfinished
     for (uint i = 1; i < phi_len; i++) {
-      if (phi_base->in(i) == NULL) {
+      if (phi_base->in(i) == nullptr) {
         // incomplete phi; do not look at it yet!
-        phi_reg = NULL;
+        phi_reg = nullptr;
         phi_len = (uint)-1;
         break;
       }

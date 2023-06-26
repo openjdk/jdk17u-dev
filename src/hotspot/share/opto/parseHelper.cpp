@@ -69,11 +69,11 @@ void Parse::do_checkcast() {
   Node *obj = peek();
 
   // Throw uncommon trap if class is not loaded or the value we are casting
-  // _from_ is not loaded, and value is not null.  If the value _is_ NULL,
+  // _from_ is not loaded, and value is not null.  If the value _is_ nullptr,
   // then the checkcast does nothing.
   const TypeOopPtr *tp = _gvn.type(obj)->isa_oopptr();
   if (!will_link || (tp && tp->klass() && !tp->klass()->is_loaded())) {
-    if (C->log() != NULL) {
+    if (C->log() != nullptr) {
       if (!will_link) {
         C->log()->elem("assert_null reason='checkcast' klass='%d'",
                        C->log()->identify(klass));
@@ -210,7 +210,7 @@ void Parse::array_store_check() {
       // Use the exact constant value we know it is.
       replace_in_map(array_klass,con);
       CompileLog* log = C->log();
-      if (log != NULL) {
+      if (log != nullptr) {
         log->elem("cast_up reason='monomorphic_array' from='%d' to='(exact)'",
                   log->identify(tak->klass()));
       }

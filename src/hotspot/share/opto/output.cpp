@@ -237,7 +237,7 @@ void C2SafepointPollStubTable::emit(CodeBuffer& cb) {
   MacroAssembler masm(&cb);
   for (int i = _safepoints.length() - 1; i >= 0; i--) {
     // Make sure there is enough space in the code buffer
-    if (cb.insts()->maybe_expand_to_ensure_remaining(PhaseOutput::MAX_inst_size) && cb.blob() == NULL) {
+    if (cb.insts()->maybe_expand_to_ensure_remaining(PhaseOutput::MAX_inst_size) && cb.blob() == nullptr) {
       ciEnv::current()->record_failure("CodeCache is full");
       return;
     }
@@ -298,29 +298,29 @@ PhaseOutput::PhaseOutput()
     _first_block_size(0),
     _handler_table(),
     _inc_table(),
-    _oop_map_set(NULL),
-    _scratch_buffer_blob(NULL),
-    _scratch_locs_memory(NULL),
+    _oop_map_set(nullptr),
+    _scratch_buffer_blob(nullptr),
+    _scratch_locs_memory(nullptr),
     _scratch_const_size(-1),
     _in_scratch_emit_size(false),
     _frame_slots(0),
     _code_offsets(),
     _node_bundling_limit(0),
-    _node_bundling_base(NULL),
+    _node_bundling_base(nullptr),
     _orig_pc_slot(0),
     _orig_pc_slot_offset_in_bytes(0),
     _buf_sizes(),
-    _block(NULL),
+    _block(nullptr),
     _index(0) {
   C->set_output(this);
-  if (C->stub_name() == NULL) {
+  if (C->stub_name() == nullptr) {
     _orig_pc_slot = C->fixed_slots() - (sizeof(address) / VMRegImpl::stack_slot_size);
   }
 }
 
 PhaseOutput::~PhaseOutput() {
-  C->set_output(NULL);
-  if (_scratch_buffer_blob != NULL) {
+  C->set_output(nullptr);
+  if (_scratch_buffer_blob != nullptr) {
     BufferBlob::free(_scratch_buffer_blob);
   }
 }
@@ -440,7 +440,7 @@ bool PhaseOutput::need_stack_bang(int frame_size_in_bytes) const {
   // unexpected stack overflow (compiled method stack banging should
   // guarantee it doesn't happen) so we always need the stack bang in
   // a debug VM.
-  return (C->stub_function() == NULL &&
+  return (C->stub_function() == nullptr &&
           (C->has_java_calls() || frame_size_in_bytes > os::vm_page_size()>>3
            DEBUG_ONLY(|| true)));
 }
@@ -821,7 +821,7 @@ void PhaseOutput::FillLocArray( int idx, MachSafePointNode* sfpt, Node *local,
     SafePointScalarObjectNode* spobj = local->as_SafePointScalarObject();
 
     ObjectValue* sv = sv_for_node_id(objs, spobj->_idx);
-    if (sv == NULL) {
+    if (sv == nullptr) {
       ciKlass* cik = t->is_oopptr()->klass();
       assert(cik->is_instance_klass() ||
              cik->is_array_klass(), "Not supported allocation.");
@@ -1873,21 +1873,21 @@ void PhaseOutput::fill_buffer(CodeBuffer* cb, uint* blk_starts) {
       // This output goes directly to the tty, not the compiler log.
       // To enable tools to match it up with the compilation activity,
       // be sure to tag this tty output with the compile ID.
-      if (xtty != NULL) {
+      if (xtty != nullptr) {
         xtty->head("opto_assembly compile_id='%d'%s", C->compile_id(),
                    C->is_osr_compilation() ? " compile_kind='osr'" : "");
       }
-      if (C->method() != NULL) {
+      if (C->method() != nullptr) {
         tty->print_cr("----------------------- MetaData before Compile_id = %d ------------------------", C->compile_id());
         C->method()->print_metadata();
-      } else if (C->stub_name() != NULL) {
+      } else if (C->stub_name() != nullptr) {
         tty->print_cr("----------------------------- RuntimeStub %s -------------------------------", C->stub_name());
       }
       tty->cr();
       tty->print_cr("------------------------ OptoAssembly for Compile_id = %d -----------------------", C->compile_id());
       dump_asm(node_offsets, node_offset_limit);
       tty->print_cr("--------------------------------------------------------------------------------");
-      if (xtty != NULL) {
+      if (xtty != nullptr) {
         // print_metadata and dump_asm above may safepoint which makes us loose the ttylock.
         // Retake lock too make sure the end tag is coherent, and that xmlStream->pop_tag is done
         // thread safe

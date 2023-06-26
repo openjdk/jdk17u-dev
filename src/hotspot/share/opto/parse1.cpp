@@ -152,7 +152,7 @@ Node* Parse::check_interpreter_type(Node* l, const Type* type,
 
   // TypeFlow may assert null-ness if a type appears unloaded.
   if (type == TypePtr::NULL_PTR ||
-      (tp != NULL && !tp->klass()->is_loaded())) {
+      (tp != nullptr && !tp->klass()->is_loaded())) {
     // Value must be null, not a real oop.
     Node* chk = _gvn.transform( new CmpPNode(l, null()) );
     Node* tst = _gvn.transform( new BoolNode(chk, BoolTest::eq) );
@@ -168,9 +168,9 @@ Node* Parse::check_interpreter_type(Node* l, const Type* type,
   // When paths are cut off, values at later merge points can rise
   // toward more specific classes.  Make sure these specific classes
   // are still in effect.
-  if (tp != NULL && tp->klass() != C->env()->Object_klass()) {
+  if (tp != nullptr && tp->klass() != C->env()->Object_klass()) {
     // TypeFlow asserted a specific object type.  Value must have that type.
-    Node* bad_type_ctrl = NULL;
+    Node* bad_type_ctrl = nullptr;
     l = gen_checkcast(l, makecon(TypeKlassPtr::make(tp->klass())), &bad_type_ctrl);
     bad_type_exit->control()->add_req(bad_type_ctrl);
   }
@@ -2058,11 +2058,11 @@ PhiNode *Parse::ensure_memory_phi(int idx, bool nocreate) {
 // class need finalization.
 void Parse::call_register_finalizer() {
   Node* receiver = local(0);
-  assert(receiver != NULL && receiver->bottom_type()->isa_instptr() != NULL,
+  assert(receiver != nullptr && receiver->bottom_type()->isa_instptr() != nullptr,
          "must have non-null instance type");
 
   const TypeInstPtr *tinst = receiver->bottom_type()->isa_instptr();
-  if (tinst != NULL && tinst->klass()->is_loaded() && !tinst->klass_is_exact()) {
+  if (tinst != nullptr && tinst->klass()->is_loaded() && !tinst->klass_is_exact()) {
     // The type isn't known exactly so see if CHA tells us anything.
     ciInstanceKlass* ik = tinst->klass()->as_instance_klass();
     if (!Dependencies::has_finalizable_subclass(ik)) {
@@ -2174,7 +2174,7 @@ void Parse::rtm_deopt() {
 
 void Parse::decrement_age() {
   MethodCounters* mc = method()->ensure_method_counters();
-  if (mc == NULL) {
+  if (mc == nullptr) {
     C->record_failure("Must have MCs");
     return;
   }
@@ -2252,8 +2252,8 @@ void Parse::return_current(Node* value) {
       const TypeInstPtr* phi_tip;
       const TypeInstPtr* val_tip;
       Type::get_arrays_base_elements(phi->bottom_type(), value->bottom_type(), &phi_tip, &val_tip);
-      if (phi_tip != NULL && phi_tip->is_loaded() && phi_tip->klass()->is_interface() &&
-          val_tip != NULL && val_tip->is_loaded() && !val_tip->klass()->is_interface()) {
+      if (phi_tip != nullptr && phi_tip->is_loaded() && phi_tip->klass()->is_interface() &&
+          val_tip != nullptr && val_tip->is_loaded() && !val_tip->klass()->is_interface()) {
         value = _gvn.transform(new CheckCastPPNode(0, value, phi->bottom_type()));
       }
     }

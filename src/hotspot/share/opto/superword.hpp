@@ -210,11 +210,11 @@ class CMoveKit {
   CMoveKit(Arena* a, SuperWord* sw) : _sw(sw)  {_dict = new Dict(cmpkey, hashkey, a);}
   void*     _2p(Node* key)        const  { return (void*)(intptr_t)key; } // 2 conversion functions to make gcc happy
   Dict*     dict()                const  { return _dict; }
-  void map(Node* key, Node_List* val)    { assert(_dict->operator[](_2p(key)) == NULL, "key existed"); _dict->Insert(_2p(key), (void*)val); }
+  void map(Node* key, Node_List* val)    { assert(_dict->operator[](_2p(key)) == nullptr, "key existed"); _dict->Insert(_2p(key), (void*)val); }
   void unmap(Node* key)                  { _dict->Delete(_2p(key)); }
   Node_List* pack(Node* key)      const  { return (Node_List*)_dict->operator[](_2p(key)); }
   Node* is_Bool_candidate(Node* nd) const; // if it is the right candidate return corresponding CMove* ,
-  Node* is_CmpD_candidate(Node* nd) const; // otherwise return NULL
+  Node* is_CmpD_candidate(Node* nd) const; // otherwise return nullptr
   Node_List* make_cmovevd_pack(Node_List* cmovd_pk);
   bool test_cmpd_pack(Node_List* cmpd_pk, Node_List* cmovd_pk);
 };//class CMoveKit

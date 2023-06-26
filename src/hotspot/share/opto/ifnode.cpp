@@ -741,23 +741,23 @@ bool IfNode::is_ctrl_folds(Node* ctrl, PhaseIterGVN* igvn) {
 bool IfNode::has_shared_region(ProjNode* proj, ProjNode*& success, ProjNode*& fail) {
   ProjNode* otherproj = proj->other_if_proj();
   Node* otherproj_ctrl_use = otherproj->unique_ctrl_out();
-  RegionNode* region = (otherproj_ctrl_use != NULL && otherproj_ctrl_use->is_Region()) ? otherproj_ctrl_use->as_Region() : NULL;
-  success = NULL;
-  fail = NULL;
+  RegionNode* region = (otherproj_ctrl_use != nullptr && otherproj_ctrl_use->is_Region()) ? otherproj_ctrl_use->as_Region() : nullptr;
+  success = nullptr;
+  fail = nullptr;
 
-  if (otherproj->outcnt() == 1 && region != NULL && !region->has_phi()) {
+  if (otherproj->outcnt() == 1 && region != nullptr && !region->has_phi()) {
     for (int i = 0; i < 2; i++) {
       ProjNode* proj = proj_out(i);
-      if (success == NULL && proj->outcnt() == 1 && proj->unique_out() == region) {
+      if (success == nullptr && proj->outcnt() == 1 && proj->unique_out() == region) {
         success = proj;
-      } else if (fail == NULL) {
+      } else if (fail == nullptr) {
         fail = proj;
       } else {
-        success = fail = NULL;
+        success = fail = nullptr;
       }
     }
   }
-  return success != NULL && fail != NULL;
+  return success != nullptr && fail != nullptr;
 }
 
 bool IfNode::is_dominator_unc(CallStaticJavaNode* dom_unc, CallStaticJavaNode* unc) {
@@ -1726,7 +1726,7 @@ Node* IfProjNode::Identity(PhaseGVN* phase) {
       // CountedLoopEndNode may be eliminated by if subsuming, replace CountedLoopNode with LoopNode to
       // avoid mismatching between CountedLoopNode and CountedLoopEndNode in the following optimization.
       Node* head = unique_ctrl_out();
-      if (head != NULL && head->is_BaseCountedLoop() && head->in(LoopNode::LoopBackControl) == this) {
+      if (head != nullptr && head->is_BaseCountedLoop() && head->in(LoopNode::LoopBackControl) == this) {
         Node* new_head = new LoopNode(head->in(LoopNode::EntryControl), this);
         phase->is_IterGVN()->register_new_node_with_optimizer(new_head);
         phase->is_IterGVN()->replace_node(head, new_head);
@@ -1781,27 +1781,27 @@ void IfNode::related(GrowableArray <Node *> *in_rel, GrowableArray <Node *> *out
 // converted to 'ne', 'le' and 'lt' forms.  IfTrue/IfFalse get swapped as
 // needed.
 static IfNode* idealize_test(PhaseGVN* phase, IfNode* iff) {
-  assert(iff->in(0) != NULL, "If must be live");
+  assert(iff->in(0) != nullptr, "If must be live");
 
-  if (iff->outcnt() != 2)  return NULL; // Malformed projections.
+  if (iff->outcnt() != 2)  return nullptr; // Malformed projections.
   Node* old_if_f = iff->proj_out(false);
   Node* old_if_t = iff->proj_out(true);
 
   // CountedLoopEnds want the back-control test to be TRUE, irregardless of
   // whether they are testing a 'gt' or 'lt' condition.  The 'gt' condition
   // happens in count-down loops
-  if (iff->is_BaseCountedLoopEnd())  return NULL;
-  if (!iff->in(1)->is_Bool())  return NULL; // Happens for partially optimized IF tests
+  if (iff->is_BaseCountedLoopEnd())  return nullptr;
+  if (!iff->in(1)->is_Bool())  return nullptr; // Happens for partially optimized IF tests
   BoolNode *b = iff->in(1)->as_Bool();
   BoolTest bt = b->_test;
   // Test already in good order?
   if( bt.is_canonical() )
-    return NULL;
+    return nullptr;
 
   // Flip test to be canonical.  Requires flipping the IfFalse/IfTrue and
   // cloning the IfNode.
   Node* new_b = phase->transform( new BoolNode(b->in(1), bt.negate()) );
-  if( !new_b->is_Bool() ) return NULL;
+  if( !new_b->is_Bool() ) return nullptr;
   b = new_b->as_Bool();
 
   PhaseIterGVN *igvn = phase->is_IterGVN();

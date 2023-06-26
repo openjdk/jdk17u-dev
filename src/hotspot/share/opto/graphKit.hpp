@@ -277,7 +277,7 @@ class GraphKit : public Phase {
   // Others do not take the optional argument.
   // The JVMS must allow the bytecode to be re-executed
   // via an uncommon trap.
-  void builtin_throw(Deoptimization::DeoptReason reason, Node* arg = NULL);
+  void builtin_throw(Deoptimization::DeoptReason reason, Node* arg = nullptr);
 
   // Helper to check the JavaThread::_should_post_on_exceptions flag
   // and branch to an uncommon_trap if it is true (with the specified reason and must_throw)
@@ -739,13 +739,13 @@ class GraphKit : public Phase {
   // The optional reason is debug information written to the compile log.
   // Optional must_throw is the same as with add_safepoint_edges.
   void uncommon_trap(int trap_request,
-                     ciKlass* klass = NULL, const char* reason_string = NULL,
+                     ciKlass* klass = nullptr, const char* reason_string = nullptr,
                      bool must_throw = false, bool keep_exact_action = false);
 
   // Shorthand, to avoid saying "Deoptimization::" so many times.
   void uncommon_trap(Deoptimization::DeoptReason reason,
                      Deoptimization::DeoptAction action,
-                     ciKlass* klass = NULL, const char* reason_string = NULL,
+                     ciKlass* klass = nullptr, const char* reason_string = nullptr,
                      bool must_throw = false, bool keep_exact_action = false) {
     uncommon_trap(Deoptimization::make_trap_request(reason, action),
                   klass, reason_string, must_throw, keep_exact_action);

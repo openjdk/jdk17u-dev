@@ -605,13 +605,13 @@ Node *RegionNode::Ideal(PhaseGVN *phase, bool can_reshape) {
         for (uint i = 0; i < n->req(); ++i) {
           Node* m = n->in(i);
           assert(m != (Node*)phase->C->root(), "Should be unreachable from root");
-          if (m != NULL && m->is_CFG() && !visited.test_set(m->_idx)) {
+          if (m != nullptr && m->is_CFG() && !visited.test_set(m->_idx)) {
             nstack.push(m);
           }
         }
         if (n->is_Region()) {
           // Eagerly replace phis with top to avoid regionless phis.
-          n->set_req(0, NULL);
+          n->set_req(0, nullptr);
           bool progress = true;
           uint max = n->outcnt();
           DUIterator j;
@@ -632,7 +632,7 @@ Node *RegionNode::Ideal(PhaseGVN *phase, bool can_reshape) {
         }
         igvn->replace_node(n, top);
       }
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -1022,7 +1022,7 @@ PhiNode* PhiNode::slice_memory(const TypePtr* adr_type) const {
 // Split out an instance type from a bottom phi.
 PhiNode* PhiNode::split_out_instance(const TypePtr* at, PhaseIterGVN *igvn) const {
   const TypeOopPtr *t_oop = at->isa_oopptr();
-  assert(t_oop != NULL && t_oop->is_known_instance(), "expecting instance oopptr");
+  assert(t_oop != nullptr && t_oop->is_known_instance(), "expecting instance oopptr");
   const TypePtr *t = adr_type();
   assert(type() == Type::MEMORY &&
          (t == TypePtr::BOTTOM || t == TypeRawPtr::BOTTOM ||
@@ -1146,18 +1146,18 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
     return Type::TOP;
 
   // Check for trip-counted loop.  If so, be smarter.
-  BaseCountedLoopNode* l = r->is_BaseCountedLoop() ? r->as_BaseCountedLoop() : NULL;
+  BaseCountedLoopNode* l = r->is_BaseCountedLoop() ? r->as_BaseCountedLoop() : nullptr;
   if (l && ((const Node*)l->phi() == this)) { // Trip counted loop!
-    // protect against init_trip() or limit() returning NULL
+    // protect against init_trip() or limit() returning nullptr
     if (l->can_be_counted_loop(phase)) {
       const Node* init = l->init_trip();
       const Node* limit = l->limit();
       const Node* stride = l->stride();
-      if (init != NULL && limit != NULL && stride != NULL) {
+      if (init != nullptr && limit != nullptr && stride != nullptr) {
         const TypeInteger* lo = phase->type(init)->isa_integer(l->bt());
         const TypeInteger* hi = phase->type(limit)->isa_integer(l->bt());
         const TypeInteger* stride_t = phase->type(stride)->isa_integer(l->bt());
-        if (lo != NULL && hi != NULL && stride_t != NULL) { // Dying loops might have TOP here
+        if (lo != nullptr && hi != nullptr && stride_t != nullptr) { // Dying loops might have TOP here
           assert(stride_t->hi_as_long() >= stride_t->lo_as_long(), "bad stride type");
           BoolTest::mask bt = l->loopexit()->test_trip();
           // If the loop exit condition is "not equal", the condition
@@ -1189,15 +1189,15 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
   // lattice, we must tread carefully around phis which implicitly
   // convert the one to the other.
   const TypePtr* ttp = _type->make_ptr();
-  const TypeInstPtr* ttip = (ttp != NULL) ? ttp->isa_instptr() : NULL;
-  const TypeKlassPtr* ttkp = (ttp != NULL) ? ttp->isa_klassptr() : NULL;
+  const TypeInstPtr* ttip = (ttp != nullptr) ? ttp->isa_instptr() : nullptr;
+  const TypeKlassPtr* ttkp = (ttp != nullptr) ? ttp->isa_klassptr() : nullptr;
   bool is_intf = false;
-  if (ttip != NULL) {
+  if (ttip != nullptr) {
     ciKlass* k = ttip->klass();
     if (k->is_loaded() && k->is_interface())
       is_intf = true;
   }
-  if (ttkp != NULL) {
+  if (ttkp != nullptr) {
     ciKlass* k = ttkp->klass();
     if (k->is_loaded() && k->is_interface())
       is_intf = true;
@@ -1215,7 +1215,7 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
       // such cases.  Ward off asserts in type.cpp by refusing to do
       // meets between interfaces and proper classes.
       const TypePtr* tip = ti->make_ptr();
-      const TypeInstPtr* tiip = (tip != NULL) ? tip->isa_instptr() : NULL;
+      const TypeInstPtr* tiip = (tip != nullptr) ? tip->isa_instptr() : nullptr;
       if (tiip) {
         bool ti_is_intf = false;
         ciKlass* k = tiip->klass();
@@ -1263,8 +1263,8 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
       assert(ft == _type, ""); // Uplift to interface
     } else {
       // We also have to handle 'evil cases' of interface- vs. class-arrays
-      Type::get_arrays_base_elements(jt, _type, NULL, &ttip);
-      if (!t->empty() && ttip != NULL && ttip->is_loaded() && ttip->klass()->is_interface()) {
+      Type::get_arrays_base_elements(jt, _type, nullptr, &ttip);
+      if (!t->empty() && ttip != nullptr && ttip->is_loaded() && ttip->klass()->is_interface()) {
           assert(ft == _type, "");   // Uplift to array of interface
       } else {
         // Otherwise it's something stupid like non-overlapping int ranges
@@ -1282,8 +1282,8 @@ const Type* PhiNode::Value(PhaseGVN* phase) const {
     // join report an interface back out.  This isn't possible but happens
     // because the type system doesn't interact well with interfaces.
     const TypePtr *jtp = jt->make_ptr();
-    const TypeInstPtr *jtip = (jtp != NULL) ? jtp->isa_instptr() : NULL;
-    const TypeKlassPtr *jtkp = (jtp != NULL) ? jtp->isa_klassptr() : NULL;
+    const TypeInstPtr *jtip = (jtp != nullptr) ? jtp->isa_instptr() : nullptr;
+    const TypeKlassPtr *jtkp = (jtp != nullptr) ? jtp->isa_klassptr() : nullptr;
     if( jtip && ttip ) {
       if( jtip->is_loaded() &&  jtip->klass()->is_interface() &&
           ttip->is_loaded() && !ttip->klass()->is_interface() ) {
@@ -2091,10 +2091,10 @@ Node *PhiNode::Ideal(PhaseGVN *phase, bool can_reshape) {
     }
 #endif
     assert(ident == uin || ident->is_top(), "Identity must clean this up");
-    return NULL;
+    return nullptr;
   }
 
-  Node* opt = NULL;
+  Node* opt = nullptr;
   int true_path = is_diamond_phi();
   if (true_path != 0 &&
       // If one of the diamond's branch is in the process of dying then, the Phi's input for that branch might transform
@@ -2453,7 +2453,7 @@ Node *PhiNode::Ideal(PhaseGVN *phase, bool can_reshape) {
 #endif
 
   // Phi (VB ... VB) => VB (Phi ...) (Phi ...)
-  if (EnableVectorReboxing && can_reshape && progress == NULL) {
+  if (EnableVectorReboxing && can_reshape && progress == nullptr) {
     PhaseIterGVN* igvn = phase->is_IterGVN();
 
     bool all_inputs_are_equiv_vboxes = true;
@@ -2514,7 +2514,7 @@ bool PhiNode::is_data_loop(RegionNode* r, Node* uin, const PhaseGVN* phase) {
 
 //------------------------------is_tripcount-----------------------------------
 bool PhiNode::is_tripcount(BasicType bt) const {
-  return (in(0) != NULL && in(0)->is_BaseCountedLoop() &&
+  return (in(0) != nullptr && in(0)->is_BaseCountedLoop() &&
           in(0)->as_BaseCountedLoop()->operates_on(bt, true) &&
           in(0)->as_BaseCountedLoop()->phi() == this);
 }

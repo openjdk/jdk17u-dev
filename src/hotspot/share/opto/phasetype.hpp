@@ -122,7 +122,7 @@ class CompilerPhaseTypeHelper {
       case PHASE_DEBUG:                      return "Debug";
       default:
         ShouldNotReachHere();
-        return NULL;
+        return nullptr;
     }
   }
 };

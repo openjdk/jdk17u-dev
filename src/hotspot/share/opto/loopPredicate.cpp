@@ -145,13 +145,13 @@ ProjNode* PhaseIdealLoop::create_new_if_for_predicate(ProjNode* cont_proj, Node*
   }
 
   Node* entry = iff->in(0);
-  if (new_entry != NULL) {
+  if (new_entry != nullptr) {
     // Clonning the predicate to new location.
     entry = new_entry;
   }
   // Create new_iff
   IdealLoopTree* lp = get_loop(entry);
-  IfNode* new_iff = NULL;
+  IfNode* new_iff = nullptr;
   if (opcode == Op_If) {
     new_iff = new IfNode(entry, iff->in(1), iff->_prob, iff->_fcnt);
   } else {
@@ -507,20 +507,20 @@ Node* PhaseIdealLoop::skip_loop_predicates(Node* entry) {
 }
 
 Node* PhaseIdealLoop::skip_all_loop_predicates(Node* entry) {
-  Node* predicate = NULL;
+  Node* predicate = nullptr;
   predicate = find_predicate_insertion_point(entry, Deoptimization::Reason_loop_limit_check);
-  if (predicate != NULL) {
+  if (predicate != nullptr) {
     entry = skip_loop_predicates(entry);
   }
   if (UseProfiledLoopPredicate) {
     predicate = find_predicate_insertion_point(entry, Deoptimization::Reason_profile_predicate);
-    if (predicate != NULL) { // right pattern that can be used by loop predication
+    if (predicate != nullptr) { // right pattern that can be used by loop predication
       entry = skip_loop_predicates(entry);
     }
   }
   if (UseLoopPredicate) {
     predicate = find_predicate_insertion_point(entry, Deoptimization::Reason_predicate);
-    if (predicate != NULL) { // right pattern that can be used by loop predication
+    if (predicate != nullptr) { // right pattern that can be used by loop predication
       entry = skip_loop_predicates(entry);
     }
   }
@@ -762,7 +762,7 @@ bool IdealLoopTree::is_range_check_if(IfNode *iff, PhaseIdealLoop *phase, Invari
   Node* range = cmp->in(2);
   if (range->Opcode() != Op_LoadRange && !iff->is_RangeCheck()) {
     const TypeInt* tint = phase->_igvn.type(range)->isa_int();
-    if (tint == NULL || tint->empty() || tint->_lo < 0) {
+    if (tint == nullptr || tint->empty() || tint->_lo < 0) {
       // Allow predication on positive values that aren't LoadRanges.
       // This allows optimization of loops where the length of the
       // array is a known value and doesn't need to be loaded back
@@ -778,16 +778,16 @@ bool IdealLoopTree::is_range_check_if(IfNode *iff, PhaseIdealLoop *phase, Invari
   uint old_unique_idx = C->unique();
   Node *iv     = _head->as_CountedLoop()->phi();
   int   scale  = 0;
-  Node *offset = NULL;
+  Node *offset = nullptr;
   if (!phase->is_scaled_iv_plus_offset(cmp->in(1), iv, &scale, &offset)) {
     return false;
   }
-  if (offset != NULL) {
+  if (offset != nullptr) {
     if (!invar.is_invariant(offset)) { // offset must be invariant
       return false;
     }
     Node* data_dependency_on = invar.data_dependency_on();
-    if (data_dependency_on != NULL && old_unique_idx < C->unique()) {
+    if (data_dependency_on != nullptr && old_unique_idx < C->unique()) {
       // 'offset' node was newly created by is_scaled_iv_plus_offset(). Check that it does not depend on the entry projection
       // into the loop. If it does, we cannot perform loop predication (see Invariant::Invariant()).
       assert(!offset->is_CFG(), "offset must be a data node");
@@ -833,21 +833,21 @@ BoolNode* PhaseIdealLoop::rc_predicate(IdealLoopTree *loop, Node* ctrl,
                                        int scale, Node* offset,
                                        Node* init, Node* limit, jint stride,
                                        Node* range, bool upper, bool &overflow, bool negate) {
-  jint con_limit  = (limit != NULL && limit->is_Con())  ? limit->get_int()  : 0;
+  jint con_limit  = (limit != nullptr && limit->is_Con())  ? limit->get_int()  : 0;
   jint con_init   = init->is_Con()   ? init->get_int()   : 0;
   jint con_offset = offset->is_Con() ? offset->get_int() : 0;
 
-  stringStream* predString = NULL;
+  stringStream* predString = nullptr;
   if (TraceLoopPredicate) {
     predString = new stringStream();
     predString->print("rc_predicate ");
   }
 
   overflow = false;
-  Node* max_idx_expr = NULL;
+  Node* max_idx_expr = nullptr;
   const TypeInt* idx_type = TypeInt::INT;
   if ((stride > 0) == (scale > 0) == upper) {
-    guarantee(limit != NULL, "sanity");
+    guarantee(limit != nullptr, "sanity");
     if (TraceLoopPredicate) {
       if (limit->is_Con()) {
         predString->print("(%d ", con_limit);
@@ -1193,7 +1193,7 @@ public:
             assert(con >= CatchProjNode::catch_all_index, "what else?");
             _freqs.at_put_grow(c->_idx, 0, -1);
           }
-        } else if (c->unique_ctrl_out() == NULL && !c->is_If() && !c->is_Jump()) {
+        } else if (c->unique_ctrl_out() == nullptr && !c->is_If() && !c->is_Jump()) {
           ShouldNotReachHere();
         } else {
           c = c->in(0);

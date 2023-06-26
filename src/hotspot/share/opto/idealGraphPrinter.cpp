@@ -474,10 +474,10 @@ void IdealGraphPrinter::visit_node(Node *n, bool edges, VectorSet* temp_set) {
     stringStream s2(buffer, sizeof(buffer) - 1);
 
     node->dump_spec(&s2);
-    if (t != NULL && (t->isa_instptr() || t->isa_klassptr())) {
+    if (t != nullptr && (t->isa_instptr() || t->isa_klassptr())) {
       const TypeInstPtr  *toop = t->isa_instptr();
       const TypeKlassPtr *tkls = t->isa_klassptr();
-      ciKlass*           klass = toop ? toop->klass() : (tkls ? tkls->klass() : NULL );
+      ciKlass*           klass = toop ? toop->klass() : (tkls ? tkls->klass() : nullptr );
       if( klass && klass->is_loaded() && klass->is_interface() ) {
         s2.print("  Interface:");
       } else if( toop ) {
@@ -586,13 +586,13 @@ void IdealGraphPrinter::visit_node(Node *n, bool edges, VectorSet* temp_set) {
         caller = caller->caller();
       }
       print_prop("bci", bciStream.as_string());
-      if (last != NULL && last->has_linenumber_table() && last_bci >= 0) {
+      if (last != nullptr && last->has_linenumber_table() && last_bci >= 0) {
         print_prop("line", last->line_number_from_bci(last_bci));
       }
     }
 
 #ifdef ASSERT
-    if (node->debug_orig() != NULL) {
+    if (node->debug_orig() != nullptr) {
       stringStream dorigStream;
       node->dump_orig(&dorigStream, false);
       print_prop("debug_orig", dorigStream.as_string());
@@ -622,10 +622,10 @@ void IdealGraphPrinter::walk_nodes(Node *start, bool edges, VectorSet* temp_set)
 
 
   VectorSet visited;
-  GrowableArray<Node *> nodeStack(Thread::current()->resource_area(), 0, 0, NULL);
+  GrowableArray<Node *> nodeStack(Thread::current()->resource_area(), 0, 0, nullptr);
   nodeStack.push(start);
   visited.test_set(start->_idx);
-  if (C->cfg() != NULL) {
+  if (C->cfg() != nullptr) {
     // once we have a CFG there are some nodes that aren't really
     // reachable but are in the CFG so add them here.
     for (uint i = 0; i < C->cfg()->number_of_blocks(); i++) {

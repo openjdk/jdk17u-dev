@@ -82,10 +82,10 @@ Node* GraphKit::unbox_vector(Node* v, const TypeInstPtr* vbox_type, BasicType el
   assert(EnableVectorSupport, "");
   const TypeInstPtr* vbox_type_v = gvn().type(v)->is_instptr();
   if (vbox_type->klass() != vbox_type_v->klass()) {
-    return NULL; // arguments don't agree on vector shapes
+    return nullptr; // arguments don't agree on vector shapes
   }
   if (vbox_type_v->maybe_null()) {
-    return NULL; // no nulls are allowed
+    return nullptr; // no nulls are allowed
   }
   assert(check_vbox(vbox_type), "");
   const TypeVect* vt = TypeVect::make(elem_bt, num_elem);
@@ -307,11 +307,11 @@ bool LibraryCallKit::inline_vector_nary_operation(int n) {
     return false; // not supported
   }
 
-  Node* opd1 = NULL; Node* opd2 = NULL; Node* opd3 = NULL;
+  Node* opd1 = nullptr; Node* opd2 = nullptr; Node* opd3 = nullptr;
   switch (n) {
     case 3: {
       opd3 = unbox_vector(argument(6), vbox_type, elem_bt, num_elem);
-      if (opd3 == NULL) {
+      if (opd3 == nullptr) {
         if (C->print_intrinsics()) {
           tty->print_cr("  ** unbox failed v3=%s",
                         NodeClassNames[argument(6)->Opcode()]);
@@ -322,7 +322,7 @@ bool LibraryCallKit::inline_vector_nary_operation(int n) {
     }
     case 2: {
       opd2 = unbox_vector(argument(5), vbox_type, elem_bt, num_elem);
-      if (opd2 == NULL) {
+      if (opd2 == nullptr) {
         if (C->print_intrinsics()) {
           tty->print_cr("  ** unbox failed v2=%s",
                         NodeClassNames[argument(5)->Opcode()]);
@@ -333,7 +333,7 @@ bool LibraryCallKit::inline_vector_nary_operation(int n) {
     }
     case 1: {
       opd1 = unbox_vector(argument(4), vbox_type, elem_bt, num_elem);
-      if (opd1 == NULL) {
+      if (opd1 == nullptr) {
         if (C->print_intrinsics()) {
           tty->print_cr("  ** unbox failed v1=%s",
                         NodeClassNames[argument(4)->Opcode()]);
@@ -600,8 +600,8 @@ bool LibraryCallKit::inline_vector_broadcast_coerced() {
   const TypeInstPtr* elem_klass   = gvn().type(argument(1))->isa_instptr();
   const TypeInt*     vlen         = gvn().type(argument(2))->isa_int();
 
-  if (vector_klass == NULL || elem_klass == NULL || vlen == NULL ||
-      vector_klass->const_oop() == NULL || elem_klass->const_oop() == NULL || !vlen->is_con()) {
+  if (vector_klass == nullptr || elem_klass == nullptr || vlen == nullptr ||
+      vector_klass->const_oop() == nullptr || elem_klass->const_oop() == nullptr || !vlen->is_con()) {
     if (C->print_intrinsics()) {
       tty->print_cr("  ** missing constant: vclass=%s etype=%s vlen=%s",
                     NodeClassNames[argument(0)->Opcode()],
@@ -642,7 +642,7 @@ bool LibraryCallKit::inline_vector_broadcast_coerced() {
 
   Node* bits = argument(3); // long
 
-  Node* elem = NULL;
+  Node* elem = nullptr;
   switch (elem_bt) {
     case T_BOOLEAN: // fall-through
     case T_BYTE:    // fall-through
@@ -760,17 +760,17 @@ bool LibraryCallKit::inline_vector_mem_operation(bool is_store) {
   SafePointNode* old_map = clone_map();
 
   Node* addr = make_unsafe_address(base, offset, (is_mask ? T_BOOLEAN : elem_bt), true);
-  // Can base be NULL? Otherwise, always on-heap access.
+  // Can base be nullptr? Otherwise, always on-heap access.
   bool can_access_non_heap = TypePtr::NULL_PTR->higher_equal(gvn().type(base));
 
   const TypePtr *addr_type = gvn().type(addr)->isa_ptr();
   const TypeAryPtr* arr_type = addr_type->isa_aryptr();
 
   // Now handle special case where load/store happens from/to byte array but element type is not byte.
-  bool using_byte_array = arr_type != NULL && arr_type->elem()->array_element_basic_type() == T_BYTE && elem_bt != T_BYTE;
+  bool using_byte_array = arr_type != nullptr && arr_type->elem()->array_element_basic_type() == T_BYTE && elem_bt != T_BYTE;
   // Handle loading masks.
   // If there is no consistency between array and vector element types, it must be special byte array case or loading masks
-  if (arr_type != NULL && !using_byte_array && !is_mask && !elem_consistent_with_arr(elem_bt, arr_type)) {
+  if (arr_type != nullptr && !using_byte_array && !is_mask && !elem_consistent_with_arr(elem_bt, arr_type)) {
     if (C->print_intrinsics()) {
       tty->print_cr("  ** not supported: arity=%d op=%s vlen=%d etype=%s atype=%s ismask=no",
                     is_store, is_store ? "store" : "load",
@@ -973,7 +973,7 @@ bool LibraryCallKit::inline_vector_gather_scatter(bool is_scatter) {
 
   ciKlass* vbox_idx_klass = vector_idx_klass->const_oop()->as_instance()->java_lang_Class_klass();
 
-  if (vbox_idx_klass == NULL) {
+  if (vbox_idx_klass == nullptr) {
     set_map(old_map);
     set_sp(old_sp);
     return false;
@@ -982,7 +982,7 @@ bool LibraryCallKit::inline_vector_gather_scatter(bool is_scatter) {
   const TypeInstPtr* vbox_idx_type = TypeInstPtr::make_exact(TypePtr::NotNull, vbox_idx_klass);
 
   Node* index_vect = unbox_vector(argument(7), vbox_idx_type, T_INT, num_elem);
-  if (index_vect == NULL) {
+  if (index_vect == nullptr) {
     set_map(old_map);
     set_sp(old_sp);
     return false;
@@ -990,7 +990,7 @@ bool LibraryCallKit::inline_vector_gather_scatter(bool is_scatter) {
   const TypeVect* vector_type = TypeVect::make(elem_bt, num_elem);
   if (is_scatter) {
     Node* val = unbox_vector(argument(8), vbox_type, elem_bt, num_elem);
-    if (val == NULL) {
+    if (val == nullptr) {
       set_map(old_map);
       set_sp(old_sp);
       return false; // operand unboxing failed
@@ -1066,14 +1066,14 @@ bool LibraryCallKit::inline_vector_reduction() {
   const TypeInstPtr* vbox_type = TypeInstPtr::make_exact(TypePtr::NotNull, vbox_klass);
 
   Node* opd = unbox_vector(argument(4), vbox_type, elem_bt, num_elem);
-  if (opd == NULL) {
+  if (opd == nullptr) {
     return false; // operand unboxing failed
   }
 
   Node* init = ReductionNode::make_reduction_input(gvn(), opc, elem_bt);
-  Node* rn = gvn().transform(ReductionNode::make(opc, NULL, init, opd, elem_bt));
+  Node* rn = gvn().transform(ReductionNode::make(opc, nullptr, init, opd, elem_bt));
 
-  Node* bits = NULL;
+  Node* bits = nullptr;
   switch (elem_bt) {
     case T_BYTE:
     case T_SHORT:
@@ -1152,7 +1152,7 @@ bool LibraryCallKit::inline_vector_test() {
 
   Node* opd1 = unbox_vector(argument(4), vbox_type, elem_bt, num_elem);
   Node* opd2 = unbox_vector(argument(5), vbox_type, elem_bt, num_elem);
-  if (opd1 == NULL || opd2 == NULL) {
+  if (opd1 == nullptr || opd2 == nullptr) {
     return false; // operand unboxing failed
   }
   Node* test = new VectorTestNode(opd1, opd2, booltest);
@@ -1336,11 +1336,11 @@ bool LibraryCallKit::inline_vector_rearrange() {
   const TypeInstPtr* elem_klass    = gvn().type(argument(2))->isa_instptr();
   const TypeInt*     vlen          = gvn().type(argument(3))->isa_int();
 
-  if (vector_klass == NULL || shuffle_klass == NULL || elem_klass == NULL || vlen == NULL) {
+  if (vector_klass == nullptr || shuffle_klass == nullptr || elem_klass == nullptr || vlen == nullptr) {
     return false; // dead code
   }
-  if (shuffle_klass->const_oop() == NULL || vector_klass->const_oop() == NULL ||
-    elem_klass->const_oop() == NULL || !vlen->is_con()) {
+  if (shuffle_klass->const_oop() == nullptr || vector_klass->const_oop() == nullptr ||
+    elem_klass->const_oop() == nullptr || !vlen->is_con()) {
     if (C->print_intrinsics()) {
       tty->print_cr("  ** missing constant: vclass=%s sclass=%s etype=%s vlen=%s",
                     NodeClassNames[argument(0)->Opcode()],
@@ -1390,7 +1390,7 @@ bool LibraryCallKit::inline_vector_rearrange() {
   Node* v1 = unbox_vector(argument(4), vbox_type, elem_bt, num_elem);
   Node* shuffle = unbox_vector(argument(5), shbox_type, shuffle_bt, num_elem);
 
-  if (v1 == NULL || shuffle == NULL) {
+  if (v1 == nullptr || shuffle == nullptr) {
     return false; // operand unboxing failed
   }
 
@@ -1525,7 +1525,7 @@ bool LibraryCallKit::inline_vector_broadcast_int() {
   }
   Node* opd1 = unbox_vector(argument(4), vbox_type, elem_bt, num_elem);
   Node* opd2 = vector_shift_count(argument(5), opc, elem_bt, num_elem);
-  if (opd1 == NULL || opd2 == NULL) {
+  if (opd1 == nullptr || opd2 == nullptr) {
     return false;
   }
   Node* operation = gvn().transform(VectorNode::make(opc, opd1, opd2, num_elem, elem_bt));
@@ -1874,13 +1874,13 @@ bool LibraryCallKit::inline_vector_extract() {
   const TypeInstPtr* vbox_type = TypeInstPtr::make_exact(TypePtr::NotNull, vbox_klass);
 
   Node* opd = unbox_vector(argument(3), vbox_type, elem_bt, num_elem);
-  if (opd == NULL) {
+  if (opd == nullptr) {
     return false;
   }
 
   Node* operation = gvn().transform(ExtractNode::make(opd, idx->get_con(), elem_bt));
 
-  Node* bits = NULL;
+  Node* bits = nullptr;
   switch (elem_bt) {
     case T_BYTE:
     case T_SHORT:

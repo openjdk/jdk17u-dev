@@ -338,7 +338,7 @@ public:
   // Caller guarantees that old_type and new_type are no higher than limit_type.
   virtual const Type* saturate(const Type* new_type, const Type* old_type,
                                const Type* limit_type) const
-  { ShouldNotCallThis(); return NULL; }
+  { ShouldNotCallThis(); return nullptr; }
 
   // true if CFG node d dominates CFG node n
   virtual bool is_dominator(Node *d, Node *n) { fatal("unimplemented for this pass"); return false; };

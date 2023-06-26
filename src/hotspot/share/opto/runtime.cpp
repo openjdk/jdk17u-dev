@@ -1395,7 +1395,7 @@ address OptoRuntime::handle_exception_C(JavaThread* current) {
   // Now check to see if the handler we are returning is in a now
   // deoptimized frame
 
-  if (nm != NULL) {
+  if (nm != nullptr) {
     RegisterMap map(current, false);
     frame caller = current->last_frame().sender(&map);
 #ifdef ASSERT

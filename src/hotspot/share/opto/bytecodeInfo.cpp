@@ -43,30 +43,30 @@ InlineTree::InlineTree(Compile* c,
                        JVMState* caller_jvms, int caller_bci,
                        int max_inline_level) :
   C(c),
-  _caller_jvms(NULL),
+  _caller_jvms(nullptr),
   _method(callee),
   _caller_tree((InlineTree*) caller_tree),
   _count_inline_bcs(method()->code_size_for_inlining()),
   _max_inline_level(max_inline_level),
-  _subtrees(c->comp_arena(), 2, 0, NULL),
-  _msg(NULL)
+  _subtrees(c->comp_arena(), 2, 0, nullptr),
+  _msg(nullptr)
 {
 #ifndef PRODUCT
   _count_inlines = 0;
   _forced_inline = false;
 #endif
-  if (caller_jvms != NULL) {
+  if (caller_jvms != nullptr) {
     // Keep a private copy of the caller_jvms:
     _caller_jvms = new (C) JVMState(caller_jvms->method(), caller_tree->caller_jvms());
     _caller_jvms->set_bci(caller_jvms->bci());
     assert(!caller_jvms->should_reexecute(), "there should be no reexecute bytecode with inlining");
     assert(_caller_jvms->same_calls_as(caller_jvms), "consistent JVMS");
   }
-  assert((caller_tree == NULL ? 0 : caller_tree->stack_depth() + 1) == stack_depth(), "correct (redundant) depth parameter");
+  assert((caller_tree == nullptr ? 0 : caller_tree->stack_depth() + 1) == stack_depth(), "correct (redundant) depth parameter");
   assert(caller_bci == this->caller_bci(), "correct (redundant) bci parameter");
   // Update hierarchical counts, count_inline_bcs() and count_inlines()
   InlineTree *caller = (InlineTree *)caller_tree;
-  for( ; caller != NULL; caller = ((InlineTree *)(caller->caller_tree())) ) {
+  for( ; caller != nullptr; caller = ((InlineTree *)(caller->caller_tree())) ) {
     caller->_count_inline_bcs += count_inline_bcs();
     NOT_PRODUCT(caller->_count_inlines++;)
   }
@@ -197,7 +197,7 @@ bool InlineTree::should_not_inline(ciMethod *callee_method,
                                    ciMethod* caller_method,
                                    JVMState* jvms) {
 
-  const char* fail_msg = NULL;
+  const char* fail_msg = nullptr;
 
   // First check all inlining restrictions which are required for correctness
   if (callee_method->is_abstract()) {
@@ -553,13 +553,13 @@ void InlineTree::print_inlining(ciMethod* callee_method, int caller_bci,
 //------------------------------ok_to_inline-----------------------------------
 bool InlineTree::ok_to_inline(ciMethod* callee_method, JVMState* jvms, ciCallProfile& profile,
                               bool& should_delay) {
-  assert(callee_method != NULL, "caller checks for optimized virtual!");
+  assert(callee_method != nullptr, "caller checks for optimized virtual!");
   assert(!should_delay, "should be initialized to false");
 #ifdef ASSERT
   // Make sure the incoming jvms has the same information content as me.
   // This means that we can eventually make this whole class AllStatic.
-  if (jvms->caller() == NULL) {
-    assert(_caller_jvms == NULL, "redundant instance state");
+  if (jvms->caller() == nullptr) {
+    assert(_caller_jvms == nullptr, "redundant instance state");
   } else {
     assert(_caller_jvms->same_calls_as(jvms->caller()), "redundant instance state");
   }

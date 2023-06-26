@@ -203,7 +203,7 @@ Node *SubINode::Ideal(PhaseGVN *phase, bool can_reshape){
     Node* in21 = in2->in(1);
     Node* in22 = in2->in(2);
     const TypeInt* tcon = phase->type(in22)->isa_int();
-    if (tcon != NULL && tcon->is_con()) {
+    if (tcon != nullptr && tcon->is_con()) {
       Node* sub2 = phase->transform( new SubINode(in1, in21) );
       Node* neg_c0 = phase->intcon(- tcon->get_con());
       return new AddINode(sub2, neg_c0);
@@ -346,7 +346,7 @@ Node *SubLNode::Ideal(PhaseGVN *phase, bool can_reshape) {
     Node* in21 = in2->in(1);
     Node* in22 = in2->in(2);
     const TypeLong* tcon = phase->type(in22)->isa_long();
-    if (tcon != NULL && tcon->is_con()) {
+    if (tcon != nullptr && tcon->is_con()) {
       Node* sub2 = phase->transform( new SubLNode(in1, in21) );
       Node* neg_c0 = phase->longcon(- tcon->get_con());
       return new AddLNode(sub2, neg_c0);
@@ -887,9 +887,9 @@ const Type *CmpPNode::sub( const Type *t1, const Type *t2 ) const {
   if (both_oop_ptr) {
     Node* in1 = in(1)->uncast();
     Node* in2 = in(2)->uncast();
-    AllocateNode* alloc1 = AllocateNode::Ideal_allocation(in1, NULL);
-    AllocateNode* alloc2 = AllocateNode::Ideal_allocation(in2, NULL);
-    if (MemNode::detect_ptr_independence(in1, alloc1, in2, alloc2, NULL)) {
+    AllocateNode* alloc1 = AllocateNode::Ideal_allocation(in1, nullptr);
+    AllocateNode* alloc2 = AllocateNode::Ideal_allocation(in2, nullptr);
+    if (MemNode::detect_ptr_independence(in1, alloc1, in2, alloc2, nullptr)) {
       return TypeInt::CC_GT;  // different pointers
     }
   }
@@ -898,9 +898,9 @@ const Type *CmpPNode::sub( const Type *t1, const Type *t2 ) const {
   const TypeKlassPtr* klass_p1 = r1->isa_klassptr();
 
   if (both_oop_ptr || (klass_p0 && klass_p1)) { // both or neither are klass pointers
-    ciKlass* klass0 = NULL;
+    ciKlass* klass0 = nullptr;
     bool    xklass0 = false;
-    ciKlass* klass1 = NULL;
+    ciKlass* klass1 = nullptr;
     bool    xklass1 = false;
 
     if (oop_p0) {
@@ -973,25 +973,25 @@ const Type *CmpPNode::sub( const Type *t1, const Type *t2 ) const {
 static inline Node* isa_java_mirror_load(PhaseGVN* phase, Node* n) {
   // Return the klass node for (indirect load from OopHandle)
   //   LoadBarrier?(LoadP(LoadP(AddP(foo:Klass, #java_mirror))))
-  //   or NULL if not matching.
+  //   or nullptr if not matching.
   BarrierSetC2* bs = BarrierSet::barrier_set()->barrier_set_c2();
     n = bs->step_over_gc_barrier(n);
 
-  if (n->Opcode() != Op_LoadP) return NULL;
+  if (n->Opcode() != Op_LoadP) return nullptr;
 
   const TypeInstPtr* tp = phase->type(n)->isa_instptr();
-  if (!tp || tp->klass() != phase->C->env()->Class_klass()) return NULL;
+  if (!tp || tp->klass() != phase->C->env()->Class_klass()) return nullptr;
 
   Node* adr = n->in(MemNode::Address);
   // First load from OopHandle: ((OopHandle)mirror)->resolve(); may need barrier.
-  if (adr->Opcode() != Op_LoadP || !phase->type(adr)->isa_rawptr()) return NULL;
+  if (adr->Opcode() != Op_LoadP || !phase->type(adr)->isa_rawptr()) return nullptr;
   adr = adr->in(MemNode::Address);
 
   intptr_t off = 0;
   Node* k = AddPNode::Ideal_base_and_offset(adr, phase, off);
-  if (k == NULL)  return NULL;
+  if (k == nullptr)  return nullptr;
   const TypeKlassPtr* tkp = phase->type(k)->isa_klassptr();
-  if (!tkp || off != in_bytes(Klass::java_mirror_offset())) return NULL;
+  if (!tkp || off != in_bytes(Klass::java_mirror_offset())) return nullptr;
 
   // We've found the klass node of a Java mirror load.
   return k;
@@ -1405,15 +1405,15 @@ Node *BoolNode::Ideal(PhaseGVN *phase, bool can_reshape) {
   // Change "bool tst (cmp con x)" into "bool ~tst (cmp x con)".
   // This moves the constant to the right.  Helps value-numbering.
   Node *cmp = in(1);
-  if( !cmp->is_Sub() ) return NULL;
+  if( !cmp->is_Sub() ) return nullptr;
   int cop = cmp->Opcode();
-  if( cop == Op_FastLock || cop == Op_FastUnlock || cmp->is_SubTypeCheck()) return NULL;
+  if( cop == Op_FastLock || cop == Op_FastUnlock || cmp->is_SubTypeCheck()) return nullptr;
   Node *cmp1 = cmp->in(1);
   Node *cmp2 = cmp->in(2);
-  if( !cmp1 ) return NULL;
+  if( !cmp1 ) return nullptr;
 
   if (_test._test == BoolTest::overflow || _test._test == BoolTest::no_overflow) {
-    return NULL;
+    return nullptr;
   }
 
   // Constant on left?

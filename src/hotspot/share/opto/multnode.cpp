@@ -183,14 +183,14 @@ uint ProjNode::ideal_reg() const {
 
 //-------------------------------is_uncommon_trap_proj----------------------------
 // Return uncommon trap call node if proj is for "proj->[region->..]call_uct"
-// NULL otherwise
+// nullptr otherwise
 CallStaticJavaNode* ProjNode::is_uncommon_trap_proj(Deoptimization::DeoptReason reason) {
   int path_limit = 10;
   Node* out = this;
   for (int ct = 0; ct < path_limit; ct++) {
     out = out->unique_ctrl_out();
-    if (out == NULL)
-      return NULL;
+    if (out == nullptr)
+      return nullptr;
     if (out->is_CallStaticJava()) {
       CallStaticJavaNode* call = out->as_CallStaticJava();
       int req = call->uncommon_trap_request();

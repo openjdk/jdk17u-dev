@@ -1227,7 +1227,7 @@ class VectorTestNode : public Node {
   uint size_of() const { return sizeof(*this); }
 
  public:
-  VectorTestNode(Node* in1, Node* in2, BoolTest::mask predicate) : Node(NULL, in1, in2), _predicate(predicate) {
+  VectorTestNode(Node* in1, Node* in2, BoolTest::mask predicate) : Node(nullptr, in1, in2), _predicate(predicate) {
     assert(in2->bottom_type()->is_vect() == in2->bottom_type()->is_vect(), "same vector type");
   }
   virtual int Opcode() const;

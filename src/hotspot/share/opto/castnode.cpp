@@ -198,7 +198,7 @@ const Type* CastIINode::Value(PhaseGVN* phase) const {
   // Try to improve the type of the CastII if we recognize a CmpI/If
   // pattern.
   if (_dependency != RegularDependency) {
-    if (in(0) != NULL && in(0)->in(0) != NULL && in(0)->in(0)->is_If()) {
+    if (in(0) != nullptr && in(0)->in(0) != nullptr && in(0)->in(0)->is_If()) {
       assert(in(0)->is_IfFalse() || in(0)->is_IfTrue(), "should be If proj");
       Node* proj = in(0);
       if (proj->in(0)->in(1)->is_Bool()) {
@@ -278,15 +278,15 @@ Node *CastIINode::Ideal(PhaseGVN *phase, bool can_reshape) {
   PhaseIterGVN *igvn = phase->is_IterGVN();
   const TypeInt* this_type = this->type()->is_int();
   Node* z = in(1);
-  const TypeInteger* rx = NULL;
-  const TypeInteger* ry = NULL;
+  const TypeInteger* rx = nullptr;
+  const TypeInteger* ry = nullptr;
   // Similar to ConvI2LNode::Ideal() for the same reasons
   if (!_range_check_dependency && Compile::push_thru_add(phase, z, this_type, rx, ry, T_INT)) {
-    if (igvn == NULL) {
+    if (igvn == nullptr) {
       // Postpone this optimization to iterative GVN, where we can handle deep
       // AddI chains without an exponential number of recursive Ideal() calls.
       phase->record_for_igvn(this);
-      return NULL;
+      return nullptr;
     }
     int op = z->Opcode();
     Node* x = z->in(1);
@@ -309,7 +309,7 @@ Node *CastIINode::Ideal(PhaseGVN *phase, bool can_reshape) {
     if (phase->C->post_loop_opts_phase()) {
       const TypeInt* this_type = this->type()->is_int();
       const TypeInt* in_type = phase->type(in(1))->isa_int();
-      if (in_type != NULL && this_type != NULL &&
+      if (in_type != nullptr && this_type != nullptr &&
           (in_type->_lo != this_type->_lo ||
            in_type->_hi != this_type->_hi)) {
         jint lo1 = this_type->_lo;
@@ -377,7 +377,7 @@ void CastIINode::dump_spec(outputStream* st) const {
 // If input is already higher or equal to cast type, then this is an identity.
 Node* CheckCastPPNode::Identity(PhaseGVN* phase) {
   Node* dom = dominating_cast(phase, phase);
-  if (dom != NULL) {
+  if (dom != nullptr) {
     return dom;
   }
   if (_dependency != RegularDependency) {
@@ -407,7 +407,7 @@ const Type* CheckCastPPNode::Value(PhaseGVN* phase) const {
   const TypePtr *in_type   = inn->isa_ptr();
   const TypePtr *my_type   = _type->isa_ptr();
   const Type *result = _type;
-  if( in_type != NULL && my_type != NULL ) {
+  if( in_type != nullptr && my_type != nullptr ) {
     TypePtr::PTR   in_ptr    = in_type->ptr();
     if (in_ptr == TypePtr::Null) {
       result = in_type;
@@ -447,8 +447,8 @@ const Type* CheckCastPPNode::Value(PhaseGVN* phase) const {
   // const TypeInstPtr *in_oop = in->isa_instptr();
   // const TypeInstPtr *my_oop = _type->isa_instptr();
   // // If either input is an 'interface', return destination type
-  // assert (in_oop == NULL || in_oop->klass() != NULL, "");
-  // assert (my_oop == NULL || my_oop->klass() != NULL, "");
+  // assert (in_oop == nullptr || in_oop->klass() != nullptr, "");
+  // assert (my_oop == nullptr || my_oop->klass() != nullptr, "");
   // if( (in_oop && in_oop->klass()->is_interface())
   //   ||(my_oop && my_oop->klass()->is_interface()) ) {
   //   TypePtr::PTR  in_ptr = in->isa_ptr() ? in->is_ptr()->_ptr : TypePtr::BotPTR;

@@ -253,10 +253,10 @@ public:
   // Dump formatted assembly
 #if defined(SUPPORT_OPTO_ASSEMBLY)
   void dump_asm_on(outputStream* ost, int* pcs, uint pc_limit);
-  void dump_asm(int* pcs = NULL, uint pc_limit = 0) { dump_asm_on(tty, pcs, pc_limit); }
+  void dump_asm(int* pcs = nullptr, uint pc_limit = 0) { dump_asm_on(tty, pcs, pc_limit); }
 #else
   void dump_asm_on(outputStream* ost, int* pcs, uint pc_limit) { return; }
-  void dump_asm(int* pcs = NULL, uint pc_limit = 0) { return; }
+  void dump_asm(int* pcs = nullptr, uint pc_limit = 0) { return; }
 #endif
 
   // Build OopMaps for each GC point

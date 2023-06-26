@@ -674,22 +674,22 @@ bool PhaseMacroExpand::can_eliminate_allocation(AllocateNode *alloc, GrowableArr
 bool PhaseMacroExpand::scalar_replacement(AllocateNode *alloc, GrowableArray <SafePointNode *>& safepoints) {
   GrowableArray <SafePointNode *> safepoints_done;
 
-  ciKlass* klass = NULL;
-  ciInstanceKlass* iklass = NULL;
+  ciKlass* klass = nullptr;
+  ciInstanceKlass* iklass = nullptr;
   int nfields = 0;
   int array_base = 0;
   int element_size = 0;
   BasicType basic_elem_type = T_ILLEGAL;
-  ciType* elem_type = NULL;
+  ciType* elem_type = nullptr;
 
   Node* res = alloc->result_cast();
-  assert(res == NULL || res->is_CheckCastPP(), "unexpected AllocateNode result");
-  const TypeOopPtr* res_type = NULL;
-  if (res != NULL) { // Could be NULL when there are no users
+  assert(res == nullptr || res->is_CheckCastPP(), "unexpected AllocateNode result");
+  const TypeOopPtr* res_type = nullptr;
+  if (res != nullptr) { // Could be nullptr when there are no users
     res_type = _igvn.type(res)->isa_oopptr();
   }
 
-  if (res != NULL) {
+  if (res != nullptr) {
     klass = res_type->klass();
     if (res_type->isa_instptr()) {
       // find the fields of the class which will be needed for safepoint debug information
@@ -744,13 +744,13 @@ bool PhaseMacroExpand::scalar_replacement(AllocateNode *alloc, GrowableArray <Sa
       if (is_reference_type(basic_elem_type)) {
         if (!elem_type->is_loaded()) {
           field_type = TypeInstPtr::BOTTOM;
-        } else if (field != NULL && field->is_static_constant()) {
+        } else if (field != nullptr && field->is_static_constant()) {
           // This can happen if the constant oop is non-perm.
           ciObject* con = field->constant_value().as_object();
           // Do not "join" in the previous type; it doesn't add value,
           // and may yield a vacuous result if the field is of interface type.
           field_type = TypeOopPtr::make_from_constant(con)->isa_oopptr();
-          assert(field_type != NULL, "field singleton type must be consistent");
+          assert(field_type != nullptr, "field singleton type must be consistent");
         } else {
           field_type = TypeOopPtr::make_from_klass(elem_type->as_klass());
         }
@@ -1022,7 +1022,7 @@ bool PhaseMacroExpand::eliminate_allocate_node(AllocateNode *alloc) {
   bool boxing_alloc = C->eliminate_boxing() &&
                       tklass->klass()->is_instance_klass()  &&
                       tklass->klass()->as_instance_klass()->is_box_klass();
-  if (!alloc->_is_scalar_replaceable && (!boxing_alloc || (res != NULL))) {
+  if (!alloc->_is_scalar_replaceable && (!boxing_alloc || (res != nullptr))) {
     return false;
   }
 
@@ -1048,11 +1048,11 @@ bool PhaseMacroExpand::eliminate_allocate_node(AllocateNode *alloc) {
   }
 
   CompileLog* log = C->log();
-  if (log != NULL) {
+  if (log != nullptr) {
     log->head("eliminate_allocation type='%d'",
               log->identify(tklass->klass()));
     JVMState* p = alloc->jvms();
-    while (p != NULL) {
+    while (p != nullptr) {
       log->elem("jvms bci='%d' method='%d'", p->bci(), log->identify(p->method()));
       p = p->caller();
     }
@@ -1075,25 +1075,25 @@ bool PhaseMacroExpand::eliminate_allocate_node(AllocateNode *alloc) {
 
 bool PhaseMacroExpand::eliminate_boxing_node(CallStaticJavaNode *boxing) {
   // EA should remove all uses of non-escaping boxing node.
-  if (!C->eliminate_boxing() || boxing->proj_out_or_null(TypeFunc::Parms) != NULL) {
+  if (!C->eliminate_boxing() || boxing->proj_out_or_null(TypeFunc::Parms) != nullptr) {
     return false;
   }
 
-  assert(boxing->result_cast() == NULL, "unexpected boxing node result");
+  assert(boxing->result_cast() == nullptr, "unexpected boxing node result");
 
   boxing->extract_projections(&_callprojs, false /*separate_io_proj*/, false /*do_asserts*/);
 
   const TypeTuple* r = boxing->tf()->range();
   assert(r->cnt() > TypeFunc::Parms, "sanity");
   const TypeInstPtr* t = r->field_at(TypeFunc::Parms)->isa_instptr();
-  assert(t != NULL, "sanity");
+  assert(t != nullptr, "sanity");
 
   CompileLog* log = C->log();
-  if (log != NULL) {
+  if (log != nullptr) {
     log->head("eliminate_boxing type='%d'",
               log->identify(t->klass()));
     JVMState* p = boxing->jvms();
-    while (p != NULL) {
+    while (p != nullptr) {
       log->elem("jvms bci='%d' method='%d'", p->bci(), log->identify(p->method()));
       p = p->caller();
     }
@@ -1889,7 +1889,7 @@ void PhaseMacroExpand::expand_allocate_array(AllocateArrayNode *alloc) {
   Node* klass_node = alloc->in(AllocateNode::KlassNode);
   ciKlass* k = _igvn.type(klass_node)->is_klassptr()->klass();
   address slow_call_address;  // Address of slow call
-  if (init != NULL && init->is_complete_with_arraycopy() &&
+  if (init != nullptr && init->is_complete_with_arraycopy() &&
       k->is_type_array_klass()) {
     // Don't zero type array during slow allocation in VM since
     // it will be initialized later by arraycopy in compiled code.
@@ -2238,9 +2238,9 @@ void PhaseMacroExpand::expand_lock_node(LockNode *lock) {
 
     // Special-case a fresh allocation to avoid building nodes:
     Node* klass_node = AllocateNode::Ideal_klass(obj, &_igvn);
-    if (klass_node == NULL) {
+    if (klass_node == nullptr) {
       Node* k_adr = basic_plus_adr(obj, oopDesc::klass_offset_in_bytes());
-      klass_node = transform_later(LoadKlassNode::make(_igvn, NULL, mem, k_adr, _igvn.type(k_adr)->is_ptr()));
+      klass_node = transform_later(LoadKlassNode::make(_igvn, nullptr, mem, k_adr, _igvn.type(k_adr)->is_ptr()));
 #ifdef _LP64
       if (UseCompressedClassPointers && klass_node->is_DecodeNKlass()) {
         assert(klass_node->in(1)->Opcode() == Op_LoadNKlass, "sanity");

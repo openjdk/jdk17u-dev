@@ -284,42 +284,42 @@ public:
   double getd() const;
 
   const TypeInt    *is_int() const;
-  const TypeInt    *isa_int() const;             // Returns NULL if not an Int
+  const TypeInt    *isa_int() const;             // Returns nullptr if not an Int
   const TypeInteger* is_integer(BasicType bt) const;
   const TypeInteger* isa_integer(BasicType bt) const;
   const TypeLong   *is_long() const;
-  const TypeLong   *isa_long() const;            // Returns NULL if not a Long
-  const TypeD      *isa_double() const;          // Returns NULL if not a Double{Top,Con,Bot}
+  const TypeLong   *isa_long() const;            // Returns nullptr if not a Long
+  const TypeD      *isa_double() const;          // Returns nullptr if not a Double{Top,Con,Bot}
   const TypeD      *is_double_constant() const;  // Asserts it is a DoubleCon
-  const TypeD      *isa_double_constant() const; // Returns NULL if not a DoubleCon
-  const TypeF      *isa_float() const;           // Returns NULL if not a Float{Top,Con,Bot}
+  const TypeD      *isa_double_constant() const; // Returns nullptr if not a DoubleCon
+  const TypeF      *isa_float() const;           // Returns nullptr if not a Float{Top,Con,Bot}
   const TypeF      *is_float_constant() const;   // Asserts it is a FloatCon
-  const TypeF      *isa_float_constant() const;  // Returns NULL if not a FloatCon
+  const TypeF      *isa_float_constant() const;  // Returns nullptr if not a FloatCon
   const TypeTuple  *is_tuple() const;            // Collection of fields, NOT a pointer
   const TypeAry    *is_ary() const;              // Array, NOT array pointer
-  const TypeAry    *isa_ary() const;             // Returns NULL of not ary
+  const TypeAry    *isa_ary() const;             // Returns nullptr of not ary
   const TypeVect   *is_vect() const;             // Vector
-  const TypeVect   *isa_vect() const;            // Returns NULL if not a Vector
+  const TypeVect   *isa_vect() const;            // Returns nullptr if not a Vector
   const TypeVectMask *is_vectmask() const;       // Predicate/Mask Vector
-  const TypeVectMask *isa_vectmask() const;      // Returns NULL if not a Vector Predicate/Mask
+  const TypeVectMask *isa_vectmask() const;      // Returns nullptr if not a Vector Predicate/Mask
   const TypePtr    *is_ptr() const;              // Asserts it is a ptr type
-  const TypePtr    *isa_ptr() const;             // Returns NULL if not ptr type
+  const TypePtr    *isa_ptr() const;             // Returns nullptr if not ptr type
   const TypeRawPtr *isa_rawptr() const;          // NOT Java oop
   const TypeRawPtr *is_rawptr() const;           // Asserts is rawptr
   const TypeNarrowOop  *is_narrowoop() const;    // Java-style GC'd pointer
-  const TypeNarrowOop  *isa_narrowoop() const;   // Returns NULL if not oop ptr type
+  const TypeNarrowOop  *isa_narrowoop() const;   // Returns nullptr if not oop ptr type
   const TypeNarrowKlass *is_narrowklass() const; // compressed klass pointer
-  const TypeNarrowKlass *isa_narrowklass() const;// Returns NULL if not oop ptr type
-  const TypeOopPtr   *isa_oopptr() const;        // Returns NULL if not oop ptr type
+  const TypeNarrowKlass *isa_narrowklass() const;// Returns nullptr if not oop ptr type
+  const TypeOopPtr   *isa_oopptr() const;        // Returns nullptr if not oop ptr type
   const TypeOopPtr   *is_oopptr() const;         // Java-style GC'd pointer
-  const TypeInstPtr  *isa_instptr() const;       // Returns NULL if not InstPtr
+  const TypeInstPtr  *isa_instptr() const;       // Returns nullptr if not InstPtr
   const TypeInstPtr  *is_instptr() const;        // Instance
-  const TypeAryPtr   *isa_aryptr() const;        // Returns NULL if not AryPtr
+  const TypeAryPtr   *isa_aryptr() const;        // Returns nullptr if not AryPtr
   const TypeAryPtr   *is_aryptr() const;         // Array oop
 
-  const TypeMetadataPtr   *isa_metadataptr() const;   // Returns NULL if not oop ptr type
+  const TypeMetadataPtr   *isa_metadataptr() const;   // Returns nullptr if not oop ptr type
   const TypeMetadataPtr   *is_metadataptr() const;    // Java-style GC'd pointer
-  const TypeKlassPtr      *isa_klassptr() const;      // Returns NULL if not KlassPtr
+  const TypeKlassPtr      *isa_klassptr() const;      // Returns nullptr if not KlassPtr
   const TypeKlassPtr      *is_klassptr() const;       // assert if not KlassPtr
 
   virtual bool      is_finite() const;           // Has a finite value
@@ -1073,13 +1073,13 @@ public:
   // Creates a singleton type given an object.
   // If the object cannot be rendered as a constant,
   // may return a non-singleton type.
-  // If require_constant, produce a NULL if a singleton is not possible.
+  // If require_constant, produce a nullptr if a singleton is not possible.
   static const TypeOopPtr* make_from_constant(ciObject* o,
                                               bool require_constant = false);
 
   // Make a generic (unclassed) pointer to an oop.
   static const TypeOopPtr* make(PTR ptr, int offset, int instance_id,
-                                const TypePtr* speculative = NULL,
+                                const TypePtr* speculative = nullptr,
                                 int inline_depth = InlineDepthBottom);
 
   ciObject* const_oop()    const { return _const_oop; }
@@ -1154,23 +1154,23 @@ class TypeInstPtr : public TypeOopPtr {
 
   // Make a pointer to some value of type klass.
   static const TypeInstPtr *make(PTR ptr, ciKlass* klass) {
-    return make(ptr, klass, false, NULL, 0, InstanceBot);
+    return make(ptr, klass, false, nullptr, 0, InstanceBot);
   }
 
   // Make a pointer to some non-polymorphic value of exactly type klass.
   static const TypeInstPtr *make_exact(PTR ptr, ciKlass* klass) {
-    return make(ptr, klass, true, NULL, 0, InstanceBot);
+    return make(ptr, klass, true, nullptr, 0, InstanceBot);
   }
 
   // Make a pointer to some value of type klass with offset.
   static const TypeInstPtr *make(PTR ptr, ciKlass* klass, int offset) {
-    return make(ptr, klass, false, NULL, offset, InstanceBot);
+    return make(ptr, klass, false, nullptr, offset, InstanceBot);
   }
 
   // Make a pointer to an oop.
   static const TypeInstPtr *make(PTR ptr, ciKlass* k, bool xk, ciObject* o, int offset,
                                  int instance_id = InstanceBot,
-                                 const TypePtr* speculative = NULL,
+                                 const TypePtr* speculative = nullptr,
                                  int inline_depth = InlineDepthBottom);
 
   /** Create constant type for a constant boxed value */
@@ -1221,7 +1221,7 @@ class TypeAryPtr : public TypeOopPtr {
     _is_autobox_cache(is_autobox_cache)
  {
 #ifdef ASSERT
-    if (k != NULL) {
+    if (k != nullptr) {
       // Verify that specified klass and TypeAryPtr::klass() follow the same rules.
       ciKlass* ck = compute_klass(true);
       if (k != ck) {
@@ -1229,8 +1229,8 @@ class TypeAryPtr : public TypeOopPtr {
         tty->print(" k: ");
         k->print(); tty->cr();
         tty->print("ck: ");
-        if (ck != NULL) ck->print();
-        else tty->print("<NULL>");
+        if (ck != nullptr) ck->print();
+        else tty->print("<nullptr>");
         tty->cr();
         assert(false, "unexpected TypeAryPtr::_klass");
       }
@@ -1727,7 +1727,7 @@ inline const TypePtr *Type::is_ptr() const {
 
 inline const TypePtr *Type::isa_ptr() const {
   // AnyPtr is the first Ptr and KlassPtr the last, with no non-ptrs between.
-  return (_base >= AnyPtr && _base <= KlassPtr) ? (TypePtr*)this : NULL;
+  return (_base >= AnyPtr && _base <= KlassPtr) ? (TypePtr*)this : nullptr;
 }
 
 inline const TypeOopPtr *Type::is_oopptr() const {
@@ -1795,11 +1795,11 @@ inline const TypeMetadataPtr *Type::is_metadataptr() const {
 }
 
 inline const TypeMetadataPtr *Type::isa_metadataptr() const {
-  return (_base == MetadataPtr) ? (TypeMetadataPtr*)this : NULL;
+  return (_base == MetadataPtr) ? (TypeMetadataPtr*)this : nullptr;
 }
 
 inline const TypeKlassPtr *Type::isa_klassptr() const {
-  return (_base == KlassPtr) ? (TypeKlassPtr*)this : NULL;
+  return (_base == KlassPtr) ? (TypeKlassPtr*)this : nullptr;
 }
 
 inline const TypeKlassPtr *Type::is_klassptr() const {
@@ -1836,7 +1836,7 @@ inline bool Type::is_floatingpoint() const {
 
 inline bool Type::is_ptr_to_boxing_obj() const {
   const TypeInstPtr* tp = isa_instptr();
-  return (tp != NULL) && (tp->offset() == 0) &&
+  return (tp != nullptr) && (tp->offset() == 0) &&
          tp->klass()->is_instance_klass()  &&
          tp->klass()->as_instance_klass()->is_box_klass();
 }

@@ -824,7 +824,7 @@ void PhaseChaitin::gather_lrg_masks( bool after_aggressive ) {
             lrg.set_scalable_reg_slots(Matcher::scalable_vector_reg_size(T_FLOAT));
           }
         }
-        assert(n_type->isa_vect() == NULL || lrg._is_vector ||
+        assert(n_type->isa_vect() == nullptr || lrg._is_vector ||
                ireg == Op_RegD || ireg == Op_RegL  || ireg == Op_RegVectMask,
                "vector must be in vector registers");
 
