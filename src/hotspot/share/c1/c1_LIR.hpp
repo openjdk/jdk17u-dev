@@ -1746,7 +1746,6 @@ class LIR_OpBranch: public LIR_Op {
   virtual void emit_code(LIR_Assembler* masm);
   virtual LIR_OpBranch* as_OpBranch() { return this; }
   virtual void print_instr(outputStream* out) const PRODUCT_RETURN;
-
 };
 
 class LIR_OpAllocArray : public LIR_Op {
