@@ -1749,7 +1749,6 @@ const char * LIR_Op::name() const {
      case lir_cmp_l2i:               s = "cmp_l2i";       break;
      case lir_ucmp_fd2i:             s = "ucomp_fd2i";    break;
      case lir_cmp_fd2i:              s = "comp_fd2i";     break;
-     // cmove is a LIR_Op4 on RISCV
      case lir_cmove:                 s = "cmove";         break;
      case lir_add:                   s = "add";           break;
      case lir_sub:                   s = "sub";           break;
