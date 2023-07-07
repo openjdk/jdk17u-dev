@@ -789,13 +789,6 @@ class os: AllStatic {
   // Like strdup, but exit VM when strdup() returns NULL
   static char* strdup_check_oom(const char*, MEMFLAGS flags = mtInternal);
 
-#ifndef PRODUCT
-  static julong num_mallocs;         // # of calls to malloc/realloc
-  static julong alloc_bytes;         // # of bytes allocated
-  static julong num_frees;           // # of calls to free
-  static julong free_bytes;          // # of bytes freed
-#endif
-
   // SocketInterface (ex HPI SocketInterface )
   static int socket(int domain, int type, int protocol);
   static int socket_close(int fd);
@@ -893,7 +886,7 @@ class os: AllStatic {
 #ifndef PLATFORM_PRINT_NATIVE_STACK
   // No platform-specific code for printing the native stack.
   static bool platform_print_native_stack(outputStream* st, const void* context,
-                                          char *buf, int buf_size) {
+                                          char *buf, int buf_size, address& lastpc) {
     return false;
   }
 #endif
