@@ -38,6 +38,7 @@
 #include "utilities/align.hpp"
 #include "utilities/debug.hpp"
 #include "utilities/growableArray.hpp"
+#include "runtime/globals.hpp"
 
 #include <fcntl.h>
 #include <stdio.h>
