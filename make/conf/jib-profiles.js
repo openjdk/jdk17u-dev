@@ -1048,10 +1048,10 @@ var getJibProfilesProfiles = function (input, common, data) {
 var getJibProfilesDependencies = function (input, common) {
 
     var devkit_platform_revisions = {
-        linux_x64: "gcc10.3.0-OL6.4+1.0",
+        linux_x64: "gcc11.2.0-OL6.4+1.0",
         macosx: "Xcode12.4+1.0",
         windows_x64: "VS2022-17.1.0+1.0",
-        linux_aarch64: "gcc10.3.0-OL7.6+1.0",
+        linux_aarch64: "gcc11.2.0-OL7.6+1.0",
         linux_arm: "gcc8.2.0-Fedora27+1.0",
         linux_ppc64le: "gcc8.2.0-Fedora27+1.0",
         linux_s390x: "gcc8.2.0-Fedora27+1.0"
@@ -1477,7 +1477,7 @@ var getVersionNumbers = function () {
 var isWsl = function (input) {
     return ( input.build_osenv == "wsl"
              || (input.build_os == "linux"
-                 && java.lang.System.getProperty("os.version").contains("Microsoft")));
+                 && java.lang.System.getProperty("os.version").toLowerCase().contains("microsoft")));
 }
 
 var error = function (s) {
