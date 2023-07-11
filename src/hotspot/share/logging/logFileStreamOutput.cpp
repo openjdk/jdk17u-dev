@@ -119,9 +119,9 @@ bool LogFileStreamOutput::flush() {
 }
 
 int LogFileStreamOutput::write_internal(const LogDecorations& decorations, const char* msg) {
+  int written = 0;
   const bool use_decorations = !_decorators.is_empty();
 
-  int written = 0;
   if (use_decorations) {
     WRITE_LOG_WITH_RESULT_CHECK(write_decorations(decorations), written);
     WRITE_LOG_WITH_RESULT_CHECK(jio_fprintf(_stream, " "), written);
