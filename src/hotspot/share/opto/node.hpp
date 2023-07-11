@@ -70,6 +70,7 @@ class CmpNode;
 class CodeBuffer;
 class ConstraintCastNode;
 class ConNode;
+class ConINode;
 class CompareAndSwapNode;
 class CompareAndExchangeNode;
 class CountedLoopNode;
@@ -573,8 +574,7 @@ public:
     // Def-Use info is unchanged
     Node* n1 = in(i1);
     Node* n2 = in(i2);
-    _in[i1] = n2;
-    _in[i2] = n1;
+    _in[i1] = n2;    _in[i2] = n1;
     // If this node is in the hash table, make sure it doesn't need a rehash.
     assert(check_hash == NO_HASH || check_hash == hash(), "edge swap must preserve hash code");
   }
@@ -707,6 +707,8 @@ public:
         DEFINE_CLASS_ID(EncodePKlass, EncodeNarrowPtr, 1)
       DEFINE_CLASS_ID(Vector, Type, 7)
         DEFINE_CLASS_ID(VectorMaskCmp, Vector, 0)
+      DEFINE_CLASS_ID(Con, Type, 8)
+          DEFINE_CLASS_ID(ConI, Con, 0)
 
     DEFINE_CLASS_ID(Proj,  Node, 3)
       DEFINE_CLASS_ID(CatchProj, Proj, 0)
@@ -854,6 +856,7 @@ public:
   DEFINE_CLASS_QUERY(CheckCastPP)
   DEFINE_CLASS_QUERY(CastII)
   DEFINE_CLASS_QUERY(CastLL)
+  DEFINE_CLASS_QUERY(ConI)
   DEFINE_CLASS_QUERY(ConstraintCast)
   DEFINE_CLASS_QUERY(ClearArray)
   DEFINE_CLASS_QUERY(CMove)
