@@ -574,7 +574,8 @@ public:
     // Def-Use info is unchanged
     Node* n1 = in(i1);
     Node* n2 = in(i2);
-    _in[i1] = n2;    _in[i2] = n1;
+    _in[i1] = n2;
+    _in[i2] = n1;
     // If this node is in the hash table, make sure it doesn't need a rehash.
     assert(check_hash == NO_HASH || check_hash == hash(), "edge swap must preserve hash code");
   }
