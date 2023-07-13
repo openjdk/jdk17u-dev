@@ -1,6 +1,6 @@
-
 /*
- * Copyright (c) 2002, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, 2022, Huawei Technologies Co., Ltd. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,22 +20,27 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
+ *
  */
 
-package gc;
+#ifndef CPU_RISCV_VM_VMREG_RISCV_INLINE_HPP
+#define CPU_RISCV_VM_VMREG_RISCV_INLINE_HPP
 
-/*
- * @test TestMemoryInitializationWithSerial
- * @bug 4668531
- * @library /
- * @requires vm.debug & vm.gc.Serial
- * @summary Simple test for -XX:+CheckMemoryInitialization doesn't crash VM
- * @run main/othervm -XX:+UseSerialGC -XX:+CheckMemoryInitialization gc.TestMemoryInitializationWithSerial
- */
-
-public class TestMemoryInitializationWithSerial {
-
-    public static void main(String args[]) {
-        TestMemoryInitialization.main(args);
-    }
+inline VMReg RegisterImpl::as_VMReg() {
+  if (this == noreg) {
+    return VMRegImpl::Bad();
+  }
+  return VMRegImpl::as_VMReg(encoding() * RegisterImpl::max_slots_per_register);
 }
+
+inline VMReg FloatRegisterImpl::as_VMReg() {
+  return VMRegImpl::as_VMReg((encoding() * FloatRegisterImpl::max_slots_per_register) +
+                             ConcreteRegisterImpl::max_gpr);
+}
+
+inline VMReg VectorRegisterImpl::as_VMReg() {
+  return VMRegImpl::as_VMReg((encoding() * VectorRegisterImpl::max_slots_per_register) +
+                             ConcreteRegisterImpl::max_fpr);
+}
+
+#endif // CPU_RISCV_VM_VMREG_RISCV_INLINE_HPP
