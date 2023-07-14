@@ -1,6 +1,6 @@
-
 /*
- * Copyright (c) 2002, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, 2022, Huawei Technologies Co., Ltd. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,29 +20,12 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
+ *
  */
 
-package gc;
+#ifndef OS_CPU_LINUX_RISCV_VM_COPY_LINUX_RISCV_HPP
+#define OS_CPU_LINUX_RISCV_VM_COPY_LINUX_RISCV_HPP
 
-/*
- * test TestMemoryInitialization
- * bug 4668531
- * Simple test for -XX:+CheckMemoryInitialization doesn't crash VM
- */
+// Empty for build system
 
-public class TestMemoryInitialization {
-    final static int LOOP_LENGTH = 10;
-    final static int CHUNK_SIZE = 1500000;
-
-    public static byte[] buffer;
-
-    public static void main(String args[]) {
-
-        for (int i = 0; i < LOOP_LENGTH; i++) {
-            for (int j = 0; j < LOOP_LENGTH; j++) {
-                buffer = new byte[CHUNK_SIZE];
-                buffer = null;
-            }
-        }
-    }
-}
+#endif // OS_CPU_LINUX_RISCV_VM_COPY_LINUX_RISCV_HPP
