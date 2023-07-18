@@ -206,7 +206,7 @@ var getJibProfiles = function (input) {
 
     // Exclude list to use when Jib creates a source bundle
     data.src_bundle_excludes = [
-        "build", "{,**/}webrev*", "{,**/}.hg", "{,**/}JTwork*", "{,**/}JTreport*",
+        "build", "{,**/}webrev*", "{,**/}.hg", "{,**/}JTwork*", "{,**/}JTeport*",
         "{,**/}.git"
     ];
     // Include list to use when creating a minimal jib source bundle which
@@ -1156,9 +1156,9 @@ var getJibProfilesDependencies = function (input, common) {
         jtreg: {
             server: "jpg",
             product: "jtreg",
-            version: "6",
+            version: "7",
             build_number: "1",
-            file: "bundles/jtreg-6+1.zip",
+            file: "bundles/jtreg-7+1.zip",
             environment_name: "JT_HOME",
             environment_path: input.get("jtreg", "home_path") + "/bin",
             configure_args: "--with-jtreg=" + input.get("jtreg", "home_path"),
