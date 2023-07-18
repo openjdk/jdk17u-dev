@@ -1,6 +1,6 @@
-
 /*
- * Copyright (c) 2002, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022 SAP SE. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,22 +20,34 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
+ *
  */
 
-package gc;
+#ifndef OS_WINDOWS_SAFEFETCH_WINDOWS_HPP
+#define OS_WINDOWS_SAFEFETCH_WINDOWS_HPP
 
-/*
- * @test TestMemoryInitializationWithSerial
- * @bug 4668531
- * @library /
- * @requires vm.debug & vm.gc.Serial
- * @summary Simple test for -XX:+CheckMemoryInitialization doesn't crash VM
- * @run main/othervm -XX:+UseSerialGC -XX:+CheckMemoryInitialization gc.TestMemoryInitializationWithSerial
- */
+#include "utilities/globalDefinitions.hpp"
 
-public class TestMemoryInitializationWithSerial {
+// On windows, we use structured exception handling to implement SafeFetch
 
-    public static void main(String args[]) {
-        TestMemoryInitialization.main(args);
-    }
+template <class T>
+inline T SafeFetchXX(const T* adr, T errValue) {
+  T v = 0;
+  __try {
+    v = *adr;
+  }
+  __except(EXCEPTION_EXECUTE_HANDLER) {
+    v = errValue;
+  }
+  return v;
 }
+
+inline int SafeFetch32_impl(const int* adr, int errValue) {
+  return SafeFetchXX<int>(adr, errValue);
+}
+
+inline intptr_t SafeFetchN_impl(const intptr_t* adr, intptr_t errValue) {
+  return SafeFetchXX<intptr_t>(adr, errValue);
+}
+
+#endif

@@ -3265,19 +3265,19 @@ class StubGenerator: public StubCodeGenerator {
     __ addw(rscratch4, r1, rscratch2);           \
     __ ldrw(rscratch1, Address(buf, k*4));       \
     __ eorw(rscratch3, rscratch3, r4);           \
-    __ addw(rscratch3, rscratch3, rscratch1);    \
+    __ addw(rscratch4, rscratch4, rscratch1);    \
     __ addw(rscratch3, rscratch3, rscratch4);    \
     __ rorw(rscratch2, rscratch3, 32 - s);       \
     __ addw(r1, rscratch2, r2);
 
 #define GG(r1, r2, r3, r4, k, s, t)              \
-    __ eorw(rscratch2, r2, r3);                  \
+    __ andw(rscratch3, r2, r4);                  \
+    __ bicw(rscratch4, r3, r4);                  \
     __ ldrw(rscratch1, Address(buf, k*4));       \
-    __ andw(rscratch3, rscratch2, r4);           \
     __ movw(rscratch2, t);                       \
-    __ eorw(rscratch3, rscratch3, r3);           \
+    __ orrw(rscratch3, rscratch3, rscratch4);    \
     __ addw(rscratch4, r1, rscratch2);           \
-    __ addw(rscratch3, rscratch3, rscratch1);    \
+    __ addw(rscratch4, rscratch4, rscratch1);    \
     __ addw(rscratch3, rscratch3, rscratch4);    \
     __ rorw(rscratch2, rscratch3, 32 - s);       \
     __ addw(r1, rscratch2, r2);
@@ -3288,7 +3288,7 @@ class StubGenerator: public StubCodeGenerator {
     __ addw(rscratch4, r1, rscratch2);           \
     __ ldrw(rscratch1, Address(buf, k*4));       \
     __ eorw(rscratch3, rscratch3, r2);           \
-    __ addw(rscratch3, rscratch3, rscratch1);    \
+    __ addw(rscratch4, rscratch4, rscratch1);    \
     __ addw(rscratch3, rscratch3, rscratch4);    \
     __ rorw(rscratch2, rscratch3, 32 - s);       \
     __ addw(r1, rscratch2, r2);
@@ -3299,7 +3299,7 @@ class StubGenerator: public StubCodeGenerator {
     __ addw(rscratch4, r1, rscratch3);           \
     __ ldrw(rscratch1, Address(buf, k*4));       \
     __ eorw(rscratch3, rscratch2, r3);           \
-    __ addw(rscratch3, rscratch3, rscratch1);    \
+    __ addw(rscratch4, rscratch4, rscratch1);    \
     __ addw(rscratch3, rscratch3, rscratch4);    \
     __ rorw(rscratch2, rscratch3, 32 - s);       \
     __ addw(r1, rscratch2, r2);
@@ -4000,46 +4000,6 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 
     return start;
-  }
-
-  // Safefetch stubs.
-  void generate_safefetch(const char* name, int size, address* entry,
-                          address* fault_pc, address* continuation_pc) {
-    // safefetch signatures:
-    //   int      SafeFetch32(int*      adr, int      errValue);
-    //   intptr_t SafeFetchN (intptr_t* adr, intptr_t errValue);
-    //
-    // arguments:
-    //   c_rarg0 = adr
-    //   c_rarg1 = errValue
-    //
-    // result:
-    //   PPC_RET  = *adr or errValue
-
-    StubCodeMark mark(this, "StubRoutines", name);
-
-    // Entry point, pc or function descriptor.
-    *entry = __ pc();
-
-    // Load *adr into c_rarg1, may fault.
-    *fault_pc = __ pc();
-    switch (size) {
-      case 4:
-        // int32_t
-        __ ldrw(c_rarg1, Address(c_rarg0, 0));
-        break;
-      case 8:
-        // int64_t
-        __ ldr(c_rarg1, Address(c_rarg0, 0));
-        break;
-      default:
-        ShouldNotReachHere();
-    }
-
-    // return errValue or *adr
-    *continuation_pc = __ pc();
-    __ mov(r0, c_rarg1);
-    __ ret(lr);
   }
 
   /**
@@ -7563,14 +7523,6 @@ class StubGenerator: public StubCodeGenerator {
     if (vmIntrinsics::is_intrinsic_available(vmIntrinsics::_dcos)) {
       StubRoutines::_dcos = generate_dsin_dcos(/* isCos = */ true);
     }
-
-    // Safefetch stubs.
-    generate_safefetch("SafeFetch32", sizeof(int),     &StubRoutines::_safefetch32_entry,
-                                                       &StubRoutines::_safefetch32_fault_pc,
-                                                       &StubRoutines::_safefetch32_continuation_pc);
-    generate_safefetch("SafeFetchN", sizeof(intptr_t), &StubRoutines::_safefetchN_entry,
-                                                       &StubRoutines::_safefetchN_fault_pc,
-                                                       &StubRoutines::_safefetchN_continuation_pc);
   }
 
   void generate_all() {
