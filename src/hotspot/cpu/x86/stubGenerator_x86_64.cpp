@@ -3829,46 +3829,6 @@ class StubGenerator: public StubCodeGenerator {
     return start;
   }
 
-  // Safefetch stubs.
-  void generate_safefetch(const char* name, int size, address* entry,
-                          address* fault_pc, address* continuation_pc) {
-    // safefetch signatures:
-    //   int      SafeFetch32(int*      adr, int      errValue);
-    //   intptr_t SafeFetchN (intptr_t* adr, intptr_t errValue);
-    //
-    // arguments:
-    //   c_rarg0 = adr
-    //   c_rarg1 = errValue
-    //
-    // result:
-    //   PPC_RET  = *adr or errValue
-
-    StubCodeMark mark(this, "StubRoutines", name);
-
-    // Entry point, pc or function descriptor.
-    *entry = __ pc();
-
-    // Load *adr into c_rarg1, may fault.
-    *fault_pc = __ pc();
-    switch (size) {
-      case 4:
-        // int32_t
-        __ movl(c_rarg1, Address(c_rarg0, 0));
-        break;
-      case 8:
-        // int64_t
-        __ movq(c_rarg1, Address(c_rarg0, 0));
-        break;
-      default:
-        ShouldNotReachHere();
-    }
-
-    // return errValue or *adr
-    *continuation_pc = __ pc();
-    __ movq(rax, c_rarg1);
-    __ ret(0);
-  }
-
   // This is a version of CBC/AES Decrypt which does 4 blocks in a loop at a time
   // to hide instruction latency
   //
@@ -4424,7 +4384,19 @@ class StubGenerator: public StubCodeGenerator {
     return start;
   }
 
- // Vector AES Counter implementation
+  // Vector AES Counter implementation
+
+  address counter_mask_ones_addr() {
+    __ align64();
+    StubCodeMark mark(this, "StubRoutines", "counter_mask_addr");
+    address start = __ pc();
+    for (int i = 0; i < 4; i ++) {
+      __ emit_data64(0x0000000000000000, relocInfo::none);
+      __ emit_data64(0x0000000000000001, relocInfo::none);
+    }
+    return start;
+  }
+
   address generate_counterMode_VectorAESCrypt()  {
     __ align(CodeEntryAlignment);
     StubCodeMark mark(this, "StubRoutines", "counterMode_AESCrypt");
@@ -7569,14 +7541,6 @@ address generate_avx_ghash_processBlocks() {
         StubRoutines::_dtan = generate_libmTan();
       }
     }
-
-    // Safefetch stubs.
-    generate_safefetch("SafeFetch32", sizeof(int),     &StubRoutines::_safefetch32_entry,
-                                                       &StubRoutines::_safefetch32_fault_pc,
-                                                       &StubRoutines::_safefetch32_continuation_pc);
-    generate_safefetch("SafeFetchN", sizeof(intptr_t), &StubRoutines::_safefetchN_entry,
-                                                       &StubRoutines::_safefetchN_fault_pc,
-                                                       &StubRoutines::_safefetchN_continuation_pc);
   }
 
   void generate_all() {
@@ -7653,6 +7617,7 @@ address generate_avx_ghash_processBlocks() {
     if (UseAESCTRIntrinsics) {
       if (VM_Version::supports_avx512_vaes() && VM_Version::supports_avx512bw() && VM_Version::supports_avx512vl()) {
         StubRoutines::x86::_counter_mask_addr = counter_mask_addr();
+        StubRoutines::x86::_counter_mask_ones_addr = counter_mask_ones_addr();
         StubRoutines::_counterMode_AESCrypt = generate_counterMode_VectorAESCrypt();
       } else {
         StubRoutines::x86::_counter_shuffle_mask_addr = generate_counter_shuffle_mask();
