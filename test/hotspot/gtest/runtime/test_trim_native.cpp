@@ -44,7 +44,7 @@ static int check_trim_state() {
     EXPECT_THAT(buf, HasSubstr("Periodic native trim enabled"));
 
     const char* s = ::strstr(buf, "Trims performed");
-    EXPECT_NOT_NULL(s);
+    EXPECT_NE(p2i(s), 0);
 
     uint64_t num_trims = 0;
     int suspend_count = 0;
