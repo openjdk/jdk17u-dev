@@ -3238,6 +3238,6 @@ public final class Const {
     }
 
     private Const() {
-    } // not instantiable 
+    } // not instantiable
 
 }
