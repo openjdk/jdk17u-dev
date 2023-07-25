@@ -77,8 +77,7 @@ public final class ConstantDynamic extends ConstantCP {
     /**
      * @return Reference (index) to bootstrap method this constant refers to.
      *
-     * Note that this method is a functional duplicate of getClassIndex
-     * for use by ConstantInvokeDynamic.
+     *         Note that this method is a functional duplicate of getClassIndex for use by ConstantInvokeDynamic.
      * @since 6.0
      */
     public int getBootstrapMethodAttrIndex() {
