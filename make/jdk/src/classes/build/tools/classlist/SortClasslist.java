@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021,2023 Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -51,10 +51,8 @@ public class SortClasslist {
 
         FileInputStream fis = new FileInputStream(args[0]);
         Scanner scanner = new Scanner(fis);
-        Pattern p = Pattern.compile("^(.*)[ ]+id:[ ]+([0-9]+)$");
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            Matcher m = p.matcher(line);
             if (line.startsWith("#")) {
                 // Comments -- print them first without sorting. These appear only at the top
                 // of the file.
@@ -62,27 +60,9 @@ public class SortClasslist {
             } else if (line.startsWith("@")) {
                 // @lambda-form-invoker, @lambda-proxy, etc.
                 lambdas.add(line);
-            } else if (m.find()) {
-                // We found a pattern like this:
-                //
-                //    <beginning of line>java/lang/Object id: 0<end of line>
-                //
-                // This is a class used by one of the three builtin class loaders
-                // (boot/platform/app). Since the default classlist does not support unregistered
-                // classes, the ID is unused. Let's omit the ID, as it may be non-deterministic.
-                String className = m.group(1); // matches the (.*) part of the pattern.
-                classes.add(className);
             } else {
-                // HelloClasslist should not load classes in custom class loaders, or else
-                // we might end up with output like this:
-                //
-                //     SomeClass id: 123 super: 0 source: foo.jar
-                //
-                // Such classes won't be usable for common applications, so they should
-                // not be included in the JDK's default classlist.
-                System.err.println("Unexpected line: " + line);
-                System.err.println("The default classlist should not contain unregistered classes");
-                System.exit(1);
+		// Class name line
+                classes.add(line);
             }
         }
 
