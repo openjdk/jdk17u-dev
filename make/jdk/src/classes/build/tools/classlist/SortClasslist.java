@@ -61,7 +61,7 @@ public class SortClasslist {
                 // @lambda-form-invoker, @lambda-proxy, etc.
                 lambdas.add(line);
             } else {
-		// Class name line
+                // Class name line
                 classes.add(line);
             }
         }
