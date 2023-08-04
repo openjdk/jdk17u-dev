@@ -400,7 +400,17 @@ int NET_Connect(int s, struct sockaddr *addr, int addrlen) {
 }
 
 int NET_Poll(struct pollfd *ufds, unsigned int nfds, int timeout) {
-    BLOCKING_IO_RETURN_INT( ufds[0].fd, poll(ufds, nfds, timeout) );
+    int ret;
+    threadEntry_t self;
+    fdEntry_t *fdEntry = getFdEntry(ufds[0].fd);
+    if (fdEntry == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+    startOp(fdEntry, &self);
+    ret = poll(ufds, nfds, timeout);
+    endOp(fdEntry, &self);
+    return ret;
 }
 
 /*
