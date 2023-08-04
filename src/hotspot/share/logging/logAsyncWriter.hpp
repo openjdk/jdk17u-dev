@@ -58,9 +58,13 @@ class AsyncLogWriter : public NonJavaThread {
   friend class AsyncLogTest;
   friend class AsyncLogTest_logBuffer_vm_Test;
   class AsyncLogLocker;
-  using AsyncLogMap = ResourceHashtable<LogFileStreamOutput*, uint32_t, primitive_hash<LogFileStreamOutput*>,
-                                        primitive_equals<LogFileStreamOutput*>, 17,
-                                        ResourceObj::C_HEAP, mtLogging>;
+  using AsyncLogMap = ResourceHashtable<
+    LogFileStreamOutput*,
+    uint32_t,
+    primitive_hash<LogFileStreamOutput*>,
+    primitive_equals<LogFileStreamOutput*>,
+    17/*table_size*/,
+    ResourceObj::C_HEAP, mtLogging>;
 
   // Messsage is the envelop of a log line and its associative data.
   // Its length is variable because of the zero-terminated c-str. It is only valid when we create it using placement new

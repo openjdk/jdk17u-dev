@@ -114,14 +114,50 @@ AsyncLogWriter::AsyncLogWriter()
   }
 }
 
+typedef ResourceHashtable<
+  LogFileStreamOutput*,
+  uint32_t,
+  primitive_hash<LogFileStreamOutput*>,
+  primitive_equals<LogFileStreamOutput*>,
+  17/*table_size*/,
+  ResourceObj::RESOURCE_AREA,
+  mtLogging>  ResourceAsyncLogMap;
+
+class CopyIterator {
+ private:
+  ResourceAsyncLogMap& _dst;
+
+ public:
+  CopyIterator(ResourceAsyncLogMap& dst): _dst(dst) {}
+
+  bool do_entry(LogFileStreamOutput* output, uint32_t& counter) {
+    if (counter > 0) {
+      bool created = _dst.put(output, counter);
+      assert(created == true, "sanity check");
+      counter = 0;
+    }
+    return true;
+  }
+};
+
+class OutputIterator {
+ private:
+  const LogDecorations _decorations {LogLevel::Warning, LogTagSetMapping<LogTag::__NO_TAG>::tagset(),
+                                     LogDecorators::All};
+ public:
+  bool do_entry(LogFileStreamOutput* output, uint32_t counter) {
+    if (counter > 0) {
+      stringStream ss;
+      ss.print(UINT32_FORMAT_W(6) " messages dropped due to async logging", counter);
+      output->write_blocking(_decorations, ss.as_string(false));
+    }
+    return true;
+  }
+};
 void AsyncLogWriter::write() {
   ResourceMark rm;
   // Similar to AsyncLogMap but on resource_area
-  ResourceHashtable<LogFileStreamOutput*, uint32_t,
-                    primitive_hash<LogFileStreamOutput*>,
-                    primitive_equals<LogFileStreamOutput*>,
-                    17/*table_size*/, ResourceObj::RESOURCE_AREA,
-                    mtLogging> snapshot;
+  ResourceAsyncLogMap snapshot;
 
   // lock protection. This guarantees I/O jobs don't block logsites.
   {
@@ -131,14 +167,8 @@ void AsyncLogWriter::write() {
     swap(_buffer, _buffer_staging);
 
     // move counters to snapshot and reset them.
-    _stats.iterate([&] (LogFileStreamOutput* output, uint32_t& counter) {
-      if (counter > 0) {
-        bool created = snapshot.put(output, counter);
-        assert(created == true, "sanity check");
-        counter = 0;
-      }
-      return true;
-    });
+    CopyIterator cp_iter(snapshot);
+    _stats.iterate(&cp_iter);
     _data_available = false;
   }
 
@@ -156,16 +186,9 @@ void AsyncLogWriter::write() {
     }
   }
 
-  LogDecorations decorations(LogLevel::Warning, LogTagSetMapping<LogTag::__NO_TAG>::tagset(),
-                             LogDecorators::All);
-  snapshot.iterate([&](LogFileStreamOutput* output, uint32_t& counter) {
-    if (counter > 0) {
-      stringStream ss;
-      ss.print(UINT32_FORMAT_W(6) " messages dropped due to async logging", counter);
-      output->write_blocking(decorations, ss.as_string(false));
-    }
-    return true;
-  });
+
+  OutputIterator output_iter;
+  snapshot.iterate(&output_iter);
 
   if (req > 0) {
     assert(req == 1, "Only one token is allowed in queue. AsyncLogWriter::flush() is NOT MT-safe!");

@@ -184,20 +184,11 @@ class ResourceHashtable : public ResourceObj {
   // the iteration is cancelled.
   template<class ITER>
   void iterate(ITER* iter) const {
-    auto function = [&] (K& k, V& v) {
-      return iter->do_entry(k, v);
-    };
-    iterate(function);
-  }
-
-  template<typename Function>
-  void iterate(Function function) const { // lambda enabled API
     Node* const* bucket = _table;
-
     while (bucket < &_table[SIZE]) {
       Node* node = *bucket;
       while (node != NULL) {
-        bool cont = function(node->_key, node->_value);
+        bool cont = iter->do_entry(node->_key, node->_value);
         if (!cont) { return; }
         node = node->_next;
       }
