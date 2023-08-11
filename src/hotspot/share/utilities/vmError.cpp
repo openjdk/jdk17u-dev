@@ -45,7 +45,7 @@
 #include "runtime/init.hpp"
 #include "runtime/os.hpp"
 #include "runtime/osThread.hpp"
-#include "runtime/safefetch.inline.hpp"
+#include "runtime/safefetch.hpp"
 #include "runtime/safepointMechanism.hpp"
 #include "runtime/stackFrameStream.inline.hpp"
 #include "runtime/thread.inline.hpp"
@@ -95,6 +95,8 @@ static const char* env_list[] = {
   // All platforms
   "JAVA_HOME", "JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH",
   "PATH", "USERNAME",
+
+  "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "FC_LANG", "FONTCONFIG_USE_MMAP",
 
   // Env variables that are defined on Linux/BSD
   "LD_LIBRARY_PATH", "LD_PRELOAD", "SHELL", "DISPLAY",
@@ -610,18 +612,14 @@ void VMError::report(outputStream* st, bool _verbose) {
     // to test that resetting the signal handler works correctly.
     if (_verbose && TestSafeFetchInErrorHandler) {
       st->print_cr("Will test SafeFetch...");
-      if (CanUseSafeFetch32()) {
-        int* const invalid_pointer = (int*)segfault_address;
-        const int x = 0x76543210;
-        int i1 = SafeFetch32(invalid_pointer, x);
-        int i2 = SafeFetch32(invalid_pointer, x);
-        if (i1 == x && i2 == x) {
-          st->print_cr("SafeFetch OK."); // Correctly deflected and returned default pattern
-        } else {
-          st->print_cr("??");
-        }
+      int* const invalid_pointer = (int*)segfault_address;
+      const int x = 0x76543210;
+      int i1 = SafeFetch32(invalid_pointer, x);
+      int i2 = SafeFetch32(invalid_pointer, x);
+      if (i1 == x && i2 == x) {
+        st->print_cr("SafeFetch OK."); // Correctly deflected and returned default pattern
       } else {
-        st->print_cr("not possible; skipped.");
+        st->print_cr("??");
       }
     }
 #endif // ASSERT

@@ -416,6 +416,7 @@ else
     LIBFREETYPE_LIBS := -lfreetype
   endif
 
+  # gcc_ftobjs.c := maybe-uninitialized required for GCC 7 builds.
   $(eval $(call SetupJdkLibrary, BUILD_LIBFREETYPE, \
       NAME := freetype, \
       OPTIMIZATION := HIGHEST, \
@@ -424,6 +425,7 @@ else
       EXTRA_HEADER_DIRS := $(BUILD_LIBFREETYPE_HEADER_DIRS), \
       DISABLED_WARNINGS_microsoft := 4018 4267 4244 4312 4819, \
       DISABLED_WARNINGS_gcc := implicit-fallthrough cast-function-type bad-function-cast dangling-pointer stringop-overflow, \
+      DISABLED_WARNINGS_gcc_ftobjs.c := maybe-uninitialized, \
       LDFLAGS := $(LDFLAGS_JDKLIB) \
           $(call SET_SHARED_LIBRARY_ORIGIN), \
   ))
@@ -464,7 +466,7 @@ else
    # expansion-to-defined required for GCC 9 builds. Not required for GCC 10+.
    HARFBUZZ_DISABLED_WARNINGS_CXX_gcc := reorder delete-non-virtual-dtor strict-overflow \
         maybe-uninitialized class-memaccess unused-result extra use-after-free noexcept-type \
-        expansion-to-defined
+        expansion-to-defined dangling-reference
    HARFBUZZ_DISABLED_WARNINGS_clang := unused-value incompatible-pointer-types \
         tautological-constant-out-of-range-compare int-to-pointer-cast \
         undef missing-field-initializers range-loop-analysis \
