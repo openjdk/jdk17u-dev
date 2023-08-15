@@ -108,6 +108,7 @@
 # include <inttypes.h>
 # include <sys/ioctl.h>
 # include <linux/elf-em.h>
+# include <sys/prctl.h>
 #ifdef __GLIBC__
 # include <malloc.h>
 #endif
@@ -913,6 +914,16 @@ bool os::create_thread(Thread* thread, ThreadType thr_type,
     if (ret == 0) {
       log_info(os, thread)("Thread \"%s\" started (pthread id: " UINTX_FORMAT ", attributes: %s). ",
                            thread->name(), (uintx) tid, os::Posix::describe_pthread_attr(buf, sizeof(buf), &attr));
+
+      // Print current timer slack if override is enabled and timer slack value is available.
+      // Avoid calling prctl otherwise for extra safety.
+      if (TimerSlack >= 0) {
+        int slack = prctl(PR_GET_TIMERSLACK);
+        if (slack >= 0) {
+          log_info(os, thread)("Thread \"%s\" (pthread id: " UINTX_FORMAT ") timer slack: %dns",
+                               thread->name(), (uintx) tid, slack);
+        }
+      }
     } else {
       log_warning(os, thread)("Failed to start thread \"%s\" - pthread_create failed (%s) for attributes: %s.",
                               thread->name(), os::errno_name(ret), os::Posix::describe_pthread_attr(buf, sizeof(buf), &attr));
@@ -4684,6 +4695,15 @@ jint os::init_2(void) {
     FLAG_SET_DEFAULT(UseCodeCacheFlushing, false);
   }
 
+  // Override the timer slack value if needed. The adjustment for the main
+  // thread will establish the setting for child threads, which would be
+  // most threads in JDK/JVM.
+  if (TimerSlack >= 0) {
+    if (prctl(PR_SET_TIMERSLACK, TimerSlack) < 0) {
+      vm_exit_during_initialization("Setting timer slack failed: %s", os::strerror(errno));
+    }
+  }
+
   return JNI_OK;
 }
 
@@ -5508,4 +5528,33 @@ void os::print_memory_mappings(char* addr, size_t bytes, outputStream* st) {
     }
     st->cr();
   }
+}
+
+bool os::trim_native_heap(os::size_change_t* rss_change) {
+#ifdef __GLIBC__
+  os::Linux::meminfo_t info1;
+  os::Linux::meminfo_t info2;
+
+  bool have_info1 = rss_change != nullptr &&
+                    os::Linux::query_process_memory_info(&info1);
+  ::malloc_trim(0);
+  bool have_info2 = rss_change != nullptr && have_info1 &&
+                    os::Linux::query_process_memory_info(&info2);
+  ssize_t delta = (ssize_t) -1;
+  if (rss_change != nullptr) {
+    if (have_info1 && have_info2 &&
+        info1.vmrss != -1 && info2.vmrss != -1 &&
+        info1.vmswap != -1 && info2.vmswap != -1) {
+      // Note: query_process_memory_info returns values in K
+      rss_change->before = (info1.vmrss + info1.vmswap) * K;
+      rss_change->after = (info2.vmrss + info2.vmswap) * K;
+    } else {
+      rss_change->after = rss_change->before = SIZE_MAX;
+    }
+  }
+
+  return true;
+#else
+  return false; // musl
+#endif
 }
