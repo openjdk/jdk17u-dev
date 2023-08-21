@@ -85,6 +85,15 @@
   product(bool, UseCpuAllocPath, false, DIAGNOSTIC,                     \
           "Use CPU_ALLOC code path in os::active_processor_count ")     \
                                                                         \
+  product(bool, THPStackMitigation, true, DIAGNOSTIC,                   \
+          "If THPs are unconditionally enabled on the system (mode "    \
+          "\"always\"), the JVM will prevent THP from forming in "      \
+          "thread stacks. When disabled, the absence of this mitigation"\
+          "allows THPs to form in thread stacks.")                      \
+                                                                        \
+  develop(bool, DelayThreadStartALot, false,                            \
+          "Artificially delay thread starts randomly for testing.")     \
+                                                                        \
   product(bool, DumpPerfMapAtExit, false, DIAGNOSTIC,                   \
           "Write map file for Linux perf tool at exit")                 \
                                                                         \
