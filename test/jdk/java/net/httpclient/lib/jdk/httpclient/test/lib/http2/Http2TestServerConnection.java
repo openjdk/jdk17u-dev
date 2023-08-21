@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,6 +21,35 @@
  * questions.
  */
 
+package jdk.httpclient.test.lib.http2;
+
+import jdk.internal.net.http.common.HttpHeadersBuilder;
+import jdk.internal.net.http.frame.DataFrame;
+import jdk.internal.net.http.frame.ErrorFrame;
+import jdk.internal.net.http.frame.FramesDecoder;
+import jdk.internal.net.http.frame.FramesEncoder;
+import jdk.internal.net.http.frame.GoAwayFrame;
+import jdk.internal.net.http.frame.HeaderFrame;
+import jdk.internal.net.http.frame.HeadersFrame;
+import jdk.internal.net.http.frame.Http2Frame;
+import jdk.internal.net.http.frame.PingFrame;
+import jdk.internal.net.http.frame.PushPromiseFrame;
+import jdk.internal.net.http.frame.ResetFrame;
+import jdk.internal.net.http.frame.SettingsFrame;
+import jdk.internal.net.http.frame.WindowUpdateFrame;
+import jdk.internal.net.http.hpack.Decoder;
+import jdk.internal.net.http.hpack.DecodingCallback;
+import jdk.internal.net.http.hpack.Encoder;
+import sun.net.www.http.ChunkedInputStream;
+import sun.net.www.http.HttpClient;
+
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIMatcher;
+import javax.net.ssl.SNIServerName;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.StandardConstants;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -242,6 +271,10 @@ public class Http2TestServerConnection {
             ping.setFlag(PingFrame.ACK);
             outputQ.put(ping);
         }
+    }
+
+    public void addToOutputQ(final Http2Frame frame) throws IOException {
+        outputQ.put(frame);
     }
 
     private static boolean compareIPAddrs(InetAddress addr1, String host) {
@@ -769,7 +802,7 @@ public class Http2TestServerConnection {
                                 q.orderlyClose();
                                 BodyOutputStream oq = outStreams.get(stream);
                                 if (oq != null)
-                                    oq.closeInternal();
+                                    oq.markClosed();
                             } else if (pushStreams.contains(stream)) {
                                 // we could interrupt the pushStream's output
                                 // but the continuation, even after a reset
@@ -814,7 +847,7 @@ public class Http2TestServerConnection {
     }
 
     /** Encodes an group of headers, without any ordering guarantees. */
-    List<ByteBuffer> encodeHeaders(HttpHeaders headers) {
+    public List<ByteBuffer> encodeHeaders(HttpHeaders headers) {
         List<ByteBuffer> buffers = new LinkedList<>();
 
         ByteBuffer buf = getBuffer();
@@ -840,7 +873,7 @@ public class Http2TestServerConnection {
     }
 
     /** Encodes an ordered list of headers. */
-    List<ByteBuffer> encodeHeadersOrdered(List<Map.Entry<String,String>> headers) {
+    public List<ByteBuffer> encodeHeadersOrdered(List<Map.Entry<String,String>> headers) {
         List<ByteBuffer> buffers = new LinkedList<>();
 
         ByteBuffer buf = getBuffer();
