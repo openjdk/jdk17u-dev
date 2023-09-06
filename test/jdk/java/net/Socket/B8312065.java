@@ -35,7 +35,6 @@ import sun.misc.Signal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.CountDownLatch;
 
 public class B8312065 {
     public static void main(String[] args) throws Exception {
@@ -46,10 +45,7 @@ public class B8312065 {
 
         long osThreadId = NativeThread.getID();
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         Thread t = new Thread(() -> {
-            latch.countDown();
             try {
                 // Send SIGPIPE to the thread every second
                 for (int i = 0; i < 10; i++) {
@@ -68,8 +64,6 @@ public class B8312065 {
         });
         t.setDaemon(true);
         t.start();
-
-        latch.await();
 
         try {
             Socket socket = new Socket();
