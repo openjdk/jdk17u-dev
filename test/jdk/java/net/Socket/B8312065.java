@@ -67,7 +67,7 @@ public class B8312065 {
 
         try {
             Socket socket = new Socket();
-            // There is no good way to mock SocketTimeoutException, just assume 192.168.255.255 is not in use.
+            // There is no good way to mock SocketTimeoutException, just assume 192.168.255.255 is not in use
             socket.connect(new InetSocketAddress("192.168.255.255", 8080), 2000);
         } catch (SocketTimeoutException e) {
             System.out.println("Test passed");
