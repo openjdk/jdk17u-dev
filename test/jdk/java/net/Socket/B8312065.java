@@ -45,32 +45,43 @@ public class B8312065 {
 
         long osThreadId = NativeThread.getID();
 
+        int timeout = 2000;
+        int n = 10;
         Thread t = new Thread(() -> {
-            try {
-                // Send SIGPIPE to the thread every second
-                for (int i = 0; i < 10; i++) {
-                    if (NativeThread.signal(osThreadId, NativeThread.SIGPIPE) != 0) {
-                        System.out.println("Failed to send signal");
-                        System.exit(1);
-                    }
-                    Thread.sleep(1000);
+            // Send SIGPIPE to the thread every second
+            for (int i = 0; i < n; i++) {
+                if (NativeThread.signal(osThreadId, NativeThread.SIGPIPE) != 0) {
+                    System.out.println("Test FAILED: failed to send signal");
+                    System.exit(1);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                System.out.println("Test FAILED");
-                System.exit(1);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("Test FAILED: unexpected interrupt");
+                    System.exit(1);
+                }
             }
+            System.out.println("Test FAILED: Socket.connect blocked " + n + " seconds, " +
+                    "expected around " + timeout / 1000 + " seconds");
+            System.exit(1);
         });
         t.setDaemon(true);
         t.start();
 
+        long startMillis = System.currentTimeMillis();
+
         try {
             Socket socket = new Socket();
             // There is no good way to mock SocketTimeoutException, just assume 192.168.255.255 is not in use
-            socket.connect(new InetSocketAddress("192.168.255.255", 8080), 2000);
+            socket.connect(new InetSocketAddress("192.168.255.255", 8080), timeout);
         } catch (SocketTimeoutException e) {
-            System.out.println("Test passed");
+            long duration = System.currentTimeMillis() - startMillis;
+            if (duration >= timeout) {
+                System.out.println("Test passed");
+            } else {
+                System.out.println("Test FAILED: duration " + duration + " ms, expected >= " + timeout + " ms");
+                System.exit(1);
+            }
         }
     }
 }
