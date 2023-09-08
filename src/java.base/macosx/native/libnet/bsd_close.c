@@ -42,13 +42,6 @@
 #include "jvm.h"
 #include "net_util.h"
 
-#if (__STDC_VERSION__ >= 199901L)
-#include <stdbool.h>
-#else
-#define true 1
-#define false 0
-#endif
-
 /*
  * Stack allocated by thread when doing blocking operation
  */
@@ -377,37 +370,37 @@ int NET_SocketClose(int fd) {
 }
 
 int NET_Read(int s, void* buf, size_t len) {
-    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, 0), true );
+    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, 0), JNI_TRUE );
 }
 
 int NET_NonBlockingRead(int s, void* buf, size_t len) {
-    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, MSG_DONTWAIT), true);
+    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, MSG_DONTWAIT), JNI_TRUE);
 }
 
 int NET_RecvFrom(int s, void *buf, int len, unsigned int flags,
        struct sockaddr *from, socklen_t *fromlen) {
-    BLOCKING_IO_RETURN_INT( s, recvfrom(s, buf, len, flags, from, fromlen), true );
+    BLOCKING_IO_RETURN_INT( s, recvfrom(s, buf, len, flags, from, fromlen), JNI_TRUE );
 }
 
 int NET_Send(int s, void *msg, int len, unsigned int flags) {
-    BLOCKING_IO_RETURN_INT( s, send(s, msg, len, flags), true );
+    BLOCKING_IO_RETURN_INT( s, send(s, msg, len, flags), JNI_TRUE );
 }
 
 int NET_SendTo(int s, const void *msg, int len,  unsigned  int
        flags, const struct sockaddr *to, int tolen) {
-    BLOCKING_IO_RETURN_INT( s, sendto(s, msg, len, flags, to, tolen), true );
+    BLOCKING_IO_RETURN_INT( s, sendto(s, msg, len, flags, to, tolen), JNI_TRUE );
 }
 
 int NET_Accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
-    BLOCKING_IO_RETURN_INT( s, accept(s, addr, addrlen), true );
+    BLOCKING_IO_RETURN_INT( s, accept(s, addr, addrlen), JNI_TRUE );
 }
 
 int NET_Connect(int s, struct sockaddr *addr, int addrlen) {
-    BLOCKING_IO_RETURN_INT( s, connect(s, addr, addrlen), true );
+    BLOCKING_IO_RETURN_INT( s, connect(s, addr, addrlen), JNI_TRUE );
 }
 
 int NET_Poll(struct pollfd *ufds, unsigned int nfds, int timeout) {
-    BLOCKING_IO_RETURN_INT( ufds[0].fd, poll(ufds, nfds, timeout), false );
+    BLOCKING_IO_RETURN_INT( ufds[0].fd, poll(ufds, nfds, timeout), JNI_FALSE );
 }
 
 /*
