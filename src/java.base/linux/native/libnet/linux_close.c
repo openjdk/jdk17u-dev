@@ -353,8 +353,8 @@ int NET_SocketClose(int fd) {
 
 /*
  * Macro to perform a blocking IO operation.
- * If RETRY is true, then restarts automatically if interrupted
- * by signal (other than our wakeup signal).
+ * If interrupted by signal (other than our wakeup signal), and if RETRY is true,
+ * then restarts automatically
  */
 #define BLOCKING_IO_RETURN_INT(FD, FUNC, RETRY) {     \
     int ret;                                          \
