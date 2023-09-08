@@ -35,6 +35,7 @@ import sun.misc.Signal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
 
 public class B8312065 {
     public static void main(String[] args) throws Exception {
@@ -45,7 +46,7 @@ public class B8312065 {
 
         long osThreadId = NativeThread.getID();
 
-        int timeout = 2000;
+        int timeoutMillis = 2000;
         int n = 10;
         Thread t = new Thread(() -> {
             // Send SIGPIPE to the thread every second
@@ -62,24 +63,24 @@ public class B8312065 {
                 }
             }
             System.out.println("Test FAILED: Socket.connect blocked " + n + " seconds, " +
-                    "expected around " + timeout / 1000 + " seconds");
+                    "expected around " + timeoutMillis / 1000 + " seconds");
             System.exit(1);
         });
         t.setDaemon(true);
         t.start();
 
-        long startMillis = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         try {
             Socket socket = new Socket();
             // There is no good way to mock SocketTimeoutException, just assume 192.168.255.255 is not in use
-            socket.connect(new InetSocketAddress("192.168.255.255", 8080), timeout);
+            socket.connect(new InetSocketAddress("192.168.255.255", 8080), timeoutMillis);
         } catch (SocketTimeoutException e) {
-            long duration = System.currentTimeMillis() - startMillis;
-            if (duration >= timeout) {
+            long duration = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+            if (duration >= timeoutMillis) {
                 System.out.println("Test passed");
             } else {
-                System.out.println("Test FAILED: duration " + duration + " ms, expected >= " + timeout + " ms");
+                System.out.println("Test FAILED: duration " + duration + " ms, expected >= " + timeoutMillis + " ms");
                 System.exit(1);
             }
         }
