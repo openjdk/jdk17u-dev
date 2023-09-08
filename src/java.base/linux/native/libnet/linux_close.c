@@ -40,6 +40,13 @@
 #include "jvm.h"
 #include "net_util.h"
 
+#if (__STDC_VERSION__ >= 199901L)
+#include <stdbool.h>
+#else
+#define true 1
+#define false 0
+#endif
+
 /*
  * Stack allocated by thread when doing blocking operation
  */
@@ -345,68 +352,58 @@ int NET_SocketClose(int fd) {
 /************** Basic I/O operations here ***************/
 
 /*
- * Macro to perform a blocking IO operation. Restarts
- * automatically if interrupted by signal (other than
- * our wakeup signal)
+ * Macro to perform a blocking IO operation.
+ * If RETRY is true, then restarts automatically if interrupted
+ * by signal (other than our wakeup signal).
  */
-#define BLOCKING_IO_RETURN_INT(FD, FUNC) {      \
-    int ret;                                    \
-    threadEntry_t self;                         \
-    fdEntry_t *fdEntry = getFdEntry(FD);        \
-    if (fdEntry == NULL) {                      \
-        errno = EBADF;                          \
-        return -1;                              \
-    }                                           \
-    do {                                        \
-        startOp(fdEntry, &self);                \
-        ret = FUNC;                             \
-        endOp(fdEntry, &self);                  \
-    } while (ret == -1 && errno == EINTR);      \
-    return ret;                                 \
+#define BLOCKING_IO_RETURN_INT(FD, FUNC, RETRY) {     \
+    int ret;                                          \
+    threadEntry_t self;                               \
+    fdEntry_t *fdEntry = getFdEntry(FD);              \
+    if (fdEntry == NULL) {                            \
+        errno = EBADF;                                \
+        return -1;                                    \
+    }                                                 \
+    do {                                              \
+        startOp(fdEntry, &self);                      \
+        ret = FUNC;                                   \
+        endOp(fdEntry, &self);                        \
+    } while ((RETRY) && ret == -1 && errno == EINTR); \
+    return ret;                                       \
 }
 
 int NET_Read(int s, void* buf, size_t len) {
-    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, 0) );
+    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, 0), true );
 }
 
 int NET_NonBlockingRead(int s, void* buf, size_t len) {
-    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, MSG_DONTWAIT) );
+    BLOCKING_IO_RETURN_INT( s, recv(s, buf, len, MSG_DONTWAIT), true );
 }
 
 int NET_RecvFrom(int s, void *buf, int len, unsigned int flags,
        struct sockaddr *from, socklen_t *fromlen) {
-    BLOCKING_IO_RETURN_INT( s, recvfrom(s, buf, len, flags, from, fromlen) );
+    BLOCKING_IO_RETURN_INT( s, recvfrom(s, buf, len, flags, from, fromlen), true );
 }
 
 int NET_Send(int s, void *msg, int len, unsigned int flags) {
-    BLOCKING_IO_RETURN_INT( s, send(s, msg, len, flags) );
+    BLOCKING_IO_RETURN_INT( s, send(s, msg, len, flags), true );
 }
 
 int NET_SendTo(int s, const void *msg, int len,  unsigned  int
        flags, const struct sockaddr *to, int tolen) {
-    BLOCKING_IO_RETURN_INT( s, sendto(s, msg, len, flags, to, tolen) );
+    BLOCKING_IO_RETURN_INT( s, sendto(s, msg, len, flags, to, tolen), true );
 }
 
 int NET_Accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
-    BLOCKING_IO_RETURN_INT( s, accept(s, addr, addrlen) );
+    BLOCKING_IO_RETURN_INT( s, accept(s, addr, addrlen), true );
 }
 
 int NET_Connect(int s, struct sockaddr *addr, int addrlen) {
-    BLOCKING_IO_RETURN_INT( s, connect(s, addr, addrlen) );
+    BLOCKING_IO_RETURN_INT( s, connect(s, addr, addrlen), true );
 }
 
 int NET_Poll(struct pollfd *ufds, unsigned int nfds, int timeout) {
-    int ret;
-    threadEntry_t self;
-    fdEntry_t *fdEntry = getFdEntry(ufds[0].fd);
-    if (fdEntry == NULL) {
-        errno = EBADF;
-        return -1;
-    }
-    startOp(fdEntry, &self);
-    ret = poll(ufds, nfds, timeout);
-    endOp(fdEntry, &self);
-    return ret;
+    BLOCKING_IO_RETURN_INT( ufds[0].fd, poll(ufds, nfds, timeout), false );
 }
 
 /*
