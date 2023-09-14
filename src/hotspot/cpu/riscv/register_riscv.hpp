@@ -28,6 +28,7 @@
 
 #include "asm/register.hpp"
 #include "utilities/population_count.hpp"
+#include "utilities/powerOfTwo.hpp"
 
 #define CSR_FFLAGS   0x001        // Floating-Point Accrued Exceptions.
 #define CSR_FRM      0x002        // Floating-Point Dynamic Rounding Mode.
