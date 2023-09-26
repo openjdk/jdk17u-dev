@@ -111,20 +111,6 @@ void MallocHeader::mark_block_as_dead() {
   set_footer(_footer_canary_dead_mark);
 }
 
-void MallocHeader::release() {
-  assert(MemTracker::enabled(), "Sanity");
-
-  check_block_integrity();
-
-  MallocMemorySummary::record_free(size(), flags());
-  MallocMemorySummary::record_free_malloc_header(sizeof(MallocHeader));
-  if (MemTracker::tracking_level() == NMT_detail) {
-    MallocSiteTable::deallocation_at(size(), _bucket_idx, _pos_idx);
-  }
-
-  mark_block_as_dead();
-}
-
 void MallocHeader::print_block_on_error(outputStream* st, address bad_address) const {
   assert(bad_address >= (address)this, "sanity");
 

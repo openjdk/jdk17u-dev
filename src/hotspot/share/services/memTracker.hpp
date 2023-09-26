@@ -26,6 +26,7 @@
 #define SHARE_SERVICES_MEMTRACKER_HPP
 
 #include "services/nmtCommon.hpp"
+#include "utilities/debug.hpp"
 #include "utilities/nativeCallStack.hpp"
 
 

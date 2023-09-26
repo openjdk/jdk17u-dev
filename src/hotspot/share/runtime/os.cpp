@@ -669,23 +669,20 @@ void* os::malloc(size_t size, MEMFLAGS memflags, const NativeCallStack& stack) {
     return NULL;
   }
 
-  const NMT_TrackingLevel level = MemTracker::tracking_level();
-  const size_t nmt_overhead =
-      MemTracker::malloc_header_size(level) + MemTracker::malloc_footer_size(level);
 
-  const size_t outer_size = size + nmt_overhead;
+  const size_t outer_size = size + MemTracker::overhead_per_malloc();
 
   // Check for overflow.
   if (outer_size < size) {
     return NULL;
   }
 
-  void* const outer_ptr = (u_char*)::malloc(outer_size);
+  void* const outer_ptr = ::malloc(outer_size);
   if (outer_ptr == NULL) {
     return NULL;
   }
 
-  void* inner_ptr = MemTracker::record_malloc((address)outer_ptr, size, memflags, stack, level);
+  void* const inner_ptr = MemTracker::record_malloc((address)outer_ptr, size, memflags, stack);
 
   DEBUG_ONLY(::memset(inner_ptr, uninitBlockPad, size);)
   DEBUG_ONLY(break_if_ptr_caught(inner_ptr);)
