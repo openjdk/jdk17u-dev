@@ -724,19 +724,17 @@ void* os::realloc(void *memblock, size_t size, MEMFLAGS memflags, const NativeCa
     return NULL;
   }
 
-  const NMT_TrackingLevel level = MemTracker::tracking_level();
-  const size_t nmt_overhead =
-      MemTracker::malloc_header_size(level) + MemTracker::malloc_footer_size(level);
-
-  const size_t new_outer_size = size + nmt_overhead;
+  const size_t new_outer_size = size + MemTracker::overhead_per_malloc();
 
   // If NMT is enabled, this checks for heap overwrites, then de-accounts the old block.
-  void* const old_outer_ptr = MemTracker::record_free(memblock, level);
+  void* const old_outer_ptr = MemTracker::record_free(memblock);
 
   void* const new_outer_ptr = ::realloc(old_outer_ptr, new_outer_size);
+  if (new_outer_ptr == NULL) {
+    return NULL;
+  }
 
-  // If NMT is enabled, this checks for heap overwrites, then de-accounts the old block.
-  void* const new_inner_ptr = MemTracker::record_malloc(new_outer_ptr, size, memflags, stack, level);
+  void* const new_inner_ptr = MemTracker::record_malloc(new_outer_ptr, size, memflags, stack);
 
   DEBUG_ONLY(break_if_ptr_caught(new_inner_ptr);)
 
@@ -757,10 +755,9 @@ void  os::free(void *memblock) {
 
   DEBUG_ONLY(break_if_ptr_caught(memblock);)
 
-  const NMT_TrackingLevel level = MemTracker::tracking_level();
-
   // If NMT is enabled, this checks for heap overwrites, then de-accounts the old block.
-  void* const old_outer_ptr = MemTracker::record_free(memblock, level);
+  void* const old_outer_ptr = MemTracker::record_free(memblock);
+
   ::free(old_outer_ptr);
 }
 
