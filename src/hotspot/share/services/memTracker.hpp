@@ -51,17 +51,18 @@ class MemTracker : AllStatic {
  public:
   static inline NMT_TrackingLevel tracking_level() { return NMT_off; }
   static inline bool enabled() { return false; }
+  static size_t overhead_per_malloc() { return 0; }
   static inline void init() { }
   static bool check_launcher_nmt_support(const char* value) { return true; }
   static bool verify_nmt_option() { return true; }
 
   static inline void* record_malloc(void* mem_base, size_t size, MEMFLAGS flag,
-    const NativeCallStack& stack, NMT_TrackingLevel level) { return mem_base; }
+    const NativeCallStack& stack) { return mem_base; }
   static inline size_t malloc_header_size(NMT_TrackingLevel level) { return 0; }
   static inline size_t malloc_header_size(void* memblock) { return 0; }
   static inline size_t malloc_footer_size(NMT_TrackingLevel level) { return 0; }
   static inline void* malloc_base(void* memblock) { return memblock; }
-  static inline void* record_free(void* memblock, NMT_TrackingLevel level) { return memblock; }
+  static inline void* record_free(void* memblock) { return memblock; }
 
   static inline void record_new_arena(MEMFLAGS flag) { }
   static inline void record_arena_free(MEMFLAGS flag) { }

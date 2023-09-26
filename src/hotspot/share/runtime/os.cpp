@@ -669,7 +669,6 @@ void* os::malloc(size_t size, MEMFLAGS memflags, const NativeCallStack& stack) {
     return NULL;
   }
 
-
   const size_t outer_size = size + MemTracker::overhead_per_malloc();
 
   // Check for overflow.

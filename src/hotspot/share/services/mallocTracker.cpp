@@ -247,7 +247,7 @@ void* MallocTracker::record_malloc(void* malloc_base, size_t size, MEMFLAGS flag
     MallocHeader* const header2 = malloc_header(memblock);
     assert(header2->size() == size, "Wrong size");
     assert(header2->flags() == flags, "Wrong flags");
-    header2->assert_block_integrity();
+    header2->check_block_integrity();
   }
 #endif
 
@@ -259,7 +259,7 @@ void* MallocTracker::record_free(void* memblock) {
   assert(memblock != NULL, "precondition");
 
   MallocHeader* const header = malloc_header(memblock);
-  header->assert_block_integrity();
+  header->check_block_integrity();
 
   MallocMemorySummary::record_free(header->size(), header->flags());
   MallocMemorySummary::record_free_malloc_header(sizeof(MallocHeader));
