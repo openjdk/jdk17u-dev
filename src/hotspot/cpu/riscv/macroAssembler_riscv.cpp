@@ -4185,8 +4185,7 @@ address MacroAssembler::zero_words(Register ptr, Register cnt) {
 
 // base:  Address of a buffer to be zeroed, 8 bytes aligned.
 // cnt:   Immediate count in HeapWords.
-void MacroAssembler::zero_words(Register base, u_int64_t cnt)
-{
+void MacroAssembler::zero_words(Register base, u_int64_t cnt) {
   assert_different_registers(base, t0, t1);
 
   BLOCK_COMMENT("zero_words {");
