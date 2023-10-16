@@ -188,116 +188,109 @@ enum X509Authentication implements SSLAuthentication {
         }
     }
 
-    static final class X509PossessionGenerator
-                implements SSLPossessionGenerator {
-        final String[] keyTypes;
+    public static SSLPossession createPossession(
+            HandshakeContext context, String[] keyTypes) {
+        if (context.sslConfig.isClientMode) {
+            return createClientPossession(
+                    (ClientHandshakeContext) context, keyTypes);
+        } else {
+            return createServerPossession(
+                    (ServerHandshakeContext) context, keyTypes);
+        }
+    }
 
-        private X509PossessionGenerator(String[] keyTypes) {
-            this.keyTypes = keyTypes;
+    // Used by TLS 1.2 and TLS 1.3.
+    private static SSLPossession createClientPossession(
+            ClientHandshakeContext chc, String[] keyTypes) {
+        X509ExtendedKeyManager km = chc.sslContext.getX509KeyManager();
+        String clientAlias = null;
+        if (chc.conContext.transport instanceof SSLSocketImpl socket) {
+            clientAlias = km.chooseClientAlias(
+                    keyTypes,
+                    chc.peerSupportedAuthorities == null ? null :
+                            chc.peerSupportedAuthorities.clone(),
+                    socket);
+        } else if (chc.conContext.transport instanceof SSLEngineImpl engine) {
+            clientAlias = km.chooseEngineClientAlias(
+                    keyTypes,
+                    chc.peerSupportedAuthorities == null ? null :
+                            chc.peerSupportedAuthorities.clone(),
+                    engine);
         }
 
-        @Override
-        public SSLPossession createPossession(HandshakeContext context) {
-            if (context.sslConfig.isClientMode) {
-                for (String keyType : keyTypes) {
-                    SSLPossession poss = createClientPossession(
-                            (ClientHandshakeContext)context, keyType);
-                    if (poss != null) {
-                        return poss;
-                    }
-                }
-            } else {
-                for (String keyType : keyTypes) {
-                    SSLPossession poss = createServerPossession(
-                            (ServerHandshakeContext)context, keyType);
-                    if (poss != null) {
-                        return poss;
-                    }
-                }
+        if (clientAlias == null) {
+            if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+                SSLLogger.finest("No X.509 cert selected for "
+                        + Arrays.toString(keyTypes));
             }
-
             return null;
         }
 
-        // Used by TLS 1.2 and TLS 1.3.
-        private SSLPossession createClientPossession(
-                ClientHandshakeContext chc, String keyType) {
-            X509ExtendedKeyManager km = chc.sslContext.getX509KeyManager();
-            String clientAlias = null;
-            if (chc.conContext.transport instanceof SSLSocketImpl) {
-                clientAlias = km.chooseClientAlias(
-                        new String[] { keyType },
-                        chc.peerSupportedAuthorities == null ? null :
-                                chc.peerSupportedAuthorities.clone(),
-                        (SSLSocket)chc.conContext.transport);
-            } else if (chc.conContext.transport instanceof SSLEngineImpl) {
-                clientAlias = km.chooseEngineClientAlias(
-                        new String[] { keyType },
-                        chc.peerSupportedAuthorities == null ? null :
-                                chc.peerSupportedAuthorities.clone(),
-                        (SSLEngine)chc.conContext.transport);
+        PrivateKey clientPrivateKey = km.getPrivateKey(clientAlias);
+        if (clientPrivateKey == null) {
+            if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+                SSLLogger.finest(
+                        clientAlias + " is not a private key entry");
             }
-
-            if (clientAlias == null) {
-                if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
-                    SSLLogger.finest("No X.509 cert selected for " + keyType);
-                }
-                return null;
-            }
-
-            PrivateKey clientPrivateKey = km.getPrivateKey(clientAlias);
-            if (clientPrivateKey == null) {
-                if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
-                    SSLLogger.finest(
-                            clientAlias + " is not a private key entry");
-                }
-                return null;
-            }
-
-            X509Certificate[] clientCerts = km.getCertificateChain(clientAlias);
-            if ((clientCerts == null) || (clientCerts.length == 0)) {
-                if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
-                    SSLLogger.finest(clientAlias +
-                        " is a private key entry with no cert chain stored");
-                }
-                return null;
-            }
-
-            PublicKey clientPublicKey = clientCerts[0].getPublicKey();
-            if ((!clientPrivateKey.getAlgorithm().equals(keyType))
-                    || (!clientPublicKey.getAlgorithm().equals(keyType))) {
-                if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
-                    SSLLogger.fine(
-                            clientAlias + " private or public key is not of " +
-                            keyType + " algorithm");
-                }
-                return null;
-            }
-
-            return new X509Possession(clientPrivateKey, clientCerts);
+            return null;
         }
 
-        private SSLPossession createServerPossession(
-                ServerHandshakeContext shc, String keyType) {
-            X509ExtendedKeyManager km = shc.sslContext.getX509KeyManager();
-            String serverAlias = null;
-            if (shc.conContext.transport instanceof SSLSocketImpl) {
+        X509Certificate[] clientCerts = km.getCertificateChain(clientAlias);
+        if ((clientCerts == null) || (clientCerts.length == 0)) {
+            if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+                SSLLogger.finest(clientAlias +
+                        " is a private key entry with no cert chain stored");
+            }
+            return null;
+        }
+
+        String privateKeyAlgorithm = clientPrivateKey.getAlgorithm();
+        if (!Arrays.asList(keyTypes).contains(privateKeyAlgorithm)) {
+            if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+                SSLLogger.fine(
+                        clientAlias + " private key algorithm " +
+                                privateKeyAlgorithm + " not in request list");
+            }
+            return null;
+        }
+
+        String publicKeyAlgorithm = clientCerts[0].getPublicKey().getAlgorithm();
+        if (!privateKeyAlgorithm.equals(publicKeyAlgorithm)) {
+            if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+                SSLLogger.fine(
+                        clientAlias + " private or public key is not of " +
+                                "same algorithm: " +
+                                privateKeyAlgorithm + " vs " +
+                                publicKeyAlgorithm);
+            }
+            return null;
+        }
+
+        return new X509Possession(clientPrivateKey, clientCerts);
+    }
+
+    private static SSLPossession createServerPossession(
+            ServerHandshakeContext shc, String[] keyTypes) {
+        X509ExtendedKeyManager km = shc.sslContext.getX509KeyManager();
+        String serverAlias = null;
+        for (String keyType : keyTypes) {
+            if (shc.conContext.transport instanceof SSLSocketImpl socket) {
                 serverAlias = km.chooseServerAlias(keyType,
                         shc.peerSupportedAuthorities == null ? null :
                                 shc.peerSupportedAuthorities.clone(),
-                        (SSLSocket)shc.conContext.transport);
-            } else if (shc.conContext.transport instanceof SSLEngineImpl) {
+                        socket);
+            } else if (shc.conContext.transport instanceof SSLEngineImpl engine) {
                 serverAlias = km.chooseEngineServerAlias(keyType,
                         shc.peerSupportedAuthorities == null ? null :
                                 shc.peerSupportedAuthorities.clone(),
-                        (SSLEngine)shc.conContext.transport);
+                        engine);
             }
 
             if (serverAlias == null) {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                     SSLLogger.finest("No X.509 cert selected for " + keyType);
                 }
-                return null;
+                continue;
             }
 
             PrivateKey serverPrivateKey = km.getPrivateKey(serverAlias);
