@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -35,52 +35,46 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.NamedParameterSpec;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
 import java.util.Map;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509ExtendedKeyManager;
+
 import sun.security.ssl.SupportedGroupsExtension.SupportedGroups;
 
 enum X509Authentication implements SSLAuthentication {
     // Require rsaEncryption public key
-    RSA         ("RSA",         new X509PossessionGenerator(
-                                    new String[]{"RSA"})),
+    RSA         ("RSA",         "RSA"),
 
     // Require RSASSA-PSS public key
-    RSASSA_PSS  ("RSASSA-PSS",  new X509PossessionGenerator(
-                                    new String[] {"RSASSA-PSS"})),
+    RSASSA_PSS  ("RSASSA-PSS",  "RSASSA-PSS"),
 
     // Require rsaEncryption or RSASSA-PSS public key
     //
     // Note that this is a specifical scheme for TLS 1.2. (EC)DHE_RSA cipher
     // suites of TLS 1.2 can use either rsaEncryption or RSASSA-PSS public
     // key for authentication and handshake.
-    RSA_OR_PSS  ("RSA_OR_PSS",  new X509PossessionGenerator(
-                                    new String[] {"RSA", "RSASSA-PSS"})),
+    RSA_OR_PSS  ("RSA_OR_PSS",  "RSA", "RSASSA-PSS"),
 
     // Require DSA public key
-    DSA         ("DSA",         new X509PossessionGenerator(
-                                    new String[] {"DSA"})),
+    DSA         ("DSA",         "DSA"),
 
     // Require EC public key
-    EC          ("EC",          new X509PossessionGenerator(
-                                    new String[] {"EC"})),
+    EC          ("EC",          "EC"),
     // Edwards-Curve key
-    EDDSA       ("EdDSA",       new X509PossessionGenerator(
-                                    new String[] {"EdDSA"}));
+    EDDSA       ("EdDSA",       "EdDSA");
 
-    final String keyType;
-    final SSLPossessionGenerator possessionGenerator;
+    final String keyAlgorithm;
+    final String[] keyTypes;
 
-    private X509Authentication(String keyType,
-            SSLPossessionGenerator possessionGenerator) {
-        this.keyType = keyType;
-        this.possessionGenerator = possessionGenerator;
+    private X509Authentication(String keyAlgorithm,
+            String... keyTypes) {
+        this.keyAlgorithm = keyAlgorithm;
+        this.keyTypes = keyTypes;
     }
 
     static X509Authentication valueOf(SignatureScheme signatureScheme) {
         for (X509Authentication au : X509Authentication.values()) {
-            if (au.keyType.equals(signatureScheme.keyAlgorithm)) {
+            if (au.keyAlgorithm.equals(signatureScheme.keyAlgorithm)) {
                 return au;
             }
         }
@@ -90,7 +84,7 @@ enum X509Authentication implements SSLAuthentication {
 
     @Override
     public SSLPossession createPossession(HandshakeContext handshakeContext) {
-        return possessionGenerator.createPossession(handshakeContext);
+        return X509Authentication.createPossession(handshakeContext, keyTypes);
     }
 
     @Override
@@ -312,7 +306,7 @@ enum X509Authentication implements SSLAuthentication {
                     SSLLogger.finest(
                             serverAlias + " is not a private key entry");
                 }
-                return null;
+                continue;
             }
 
             X509Certificate[] serverCerts = km.getCertificateChain(serverAlias);
@@ -321,7 +315,7 @@ enum X509Authentication implements SSLAuthentication {
                     SSLLogger.finest(
                             serverAlias + " is not a certificate entry");
                 }
-                return null;
+                continue;
             }
 
             PublicKey serverPublicKey = serverCerts[0].getPublicKey();
@@ -330,9 +324,9 @@ enum X509Authentication implements SSLAuthentication {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                     SSLLogger.fine(
                             serverAlias + " private or public key is not of " +
-                            keyType + " algorithm");
+                                    keyType + " algorithm");
                 }
-                return null;
+                continue;
             }
 
             // For TLS 1.2 and prior versions, the public key of a EC cert
@@ -344,9 +338,9 @@ enum X509Authentication implements SSLAuthentication {
                 if (!(serverPublicKey instanceof ECPublicKey)) {
                     if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                         SSLLogger.warning(serverAlias +
-                            " public key is not an instance of ECPublicKey");
+                                " public key is not an instance of ECPublicKey");
                     }
-                    return null;
+                    continue;
                 }
 
                 // For ECC certs, check whether we support the EC domain
@@ -354,24 +348,25 @@ enum X509Authentication implements SSLAuthentication {
                 // ClientHello extension, check against that too for
                 // TLS 1.2 and prior versions.
                 ECParameterSpec params =
-                        ((ECPublicKey)serverPublicKey).getParams();
+                        ((ECPublicKey) serverPublicKey).getParams();
                 NamedGroup namedGroup = NamedGroup.valueOf(params);
                 if ((namedGroup == null) ||
                         (!SupportedGroups.isSupported(namedGroup)) ||
                         ((shc.clientRequestedNamedGroups != null) &&
-                        !shc.clientRequestedNamedGroups.contains(namedGroup))) {
+                                !shc.clientRequestedNamedGroups.contains(namedGroup))) {
 
                     if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                         SSLLogger.warning(
-                            "Unsupported named group (" + namedGroup +
-                            ") used in the " + serverAlias + " certificate");
+                                "Unsupported named group (" + namedGroup +
+                                        ") used in the " + serverAlias + " certificate");
                     }
 
-                    return null;
+                    continue;
                 }
             }
 
             return new X509Possession(serverPrivateKey, serverCerts);
         }
+        return null;
     }
 }

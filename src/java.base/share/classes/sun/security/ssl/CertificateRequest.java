@@ -761,6 +761,7 @@ final class CertificateRequest {
             }
 
             Collection<String> checkedKeyTypes = new HashSet<>();
+            List<String> supportedKeyTypes = new ArrayList<>();
             for (SignatureScheme ss : hc.peerRequestedCertSignSchemes) {
                 if (checkedKeyTypes.contains(ss.keyAlgorithm)) {
                     if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
@@ -769,6 +770,7 @@ final class CertificateRequest {
                     }
                     continue;
                 }
+                checkedKeyTypes.add(ss.keyAlgorithm);
 
                 // Don't select a signature scheme unless we will be able to
                 // produce a CertificateVerify message later
