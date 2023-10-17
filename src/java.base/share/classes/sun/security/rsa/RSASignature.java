@@ -144,7 +144,7 @@ public abstract class RSASignature extends SignatureSpi {
      * Reset the message digest if it is not already reset.
      */
     private void resetDigest() {
-        if (!digestReset) {
+        if (digestReset == false) {
             md.reset();
             digestReset = true;
         }
@@ -259,17 +259,15 @@ public abstract class RSASignature extends SignatureSpi {
             throw new IOException("SEQUENCE length error");
         }
         AlgorithmId algId = AlgorithmId.parse(values[0]);
-        if (!algId.getOID().equals(oid)) {
+        if (algId.getOID().equals(oid) == false) {
             throw new IOException("ObjectIdentifier mismatch: "
                 + algId.getOID());
         }
         if (algId.getEncodedParams() != null) {
             throw new IOException("Unexpected AlgorithmId parameters");
         }
-        if (values[1].isConstructed()) {
-            throw new IOException("Unexpected constructed digest value");
-        }
-        return values[1].getOctetString();
+        byte[] digest = values[1].getOctetString();
+        return digest;
     }
 
     // set parameter, not supported. See JCA doc

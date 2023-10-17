@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -51,7 +51,7 @@ import sun.security.jca.JCAUtil;
  *   0x00 | BT | PS...PS | 0x00 | data...data
  *
  * where BT is the blocktype (1 or 2). The length of the entire string
- * must be the same as the size of the modulus (i.e. 128 byte for a 1024-bit
+ * must be the same as the size of the modulus (i.e. 128 byte for a 1024 bit
  * key). Per spec, the padding string must be at least 8 bytes long. That
  * leaves up to (length of key in bytes) - 11 bytes for the data.
  *
@@ -67,7 +67,7 @@ import sun.security.jca.JCAUtil;
  * The algorithms (representations) are forwards-compatible: that is,
  * the algorithm described in previous releases are in later releases.
  * However, additional comments/checks/clarifications were added to the
- * latter versions based on real-world experience (e.g. stricter v1.5
+ * later versions based on real-world experience (e.g. stricter v1.5
  * format checking.)
  *
  * Note: RSA keys should be at least 512 bits long
@@ -100,6 +100,9 @@ public final class RSAPadding {
 
     // maximum size of the data
     private final int maxDataSize;
+
+    // OAEP: main message digest
+    private MessageDigest md;
 
     // OAEP: MGF1
     private MGF1 mgf;
@@ -147,8 +150,6 @@ public final class RSAPadding {
             // sanity check, already verified in RSASignature/RSACipher
             throw new InvalidKeyException("Padded size must be at least 64");
         }
-        // OAEP: main message digest
-        MessageDigest md;
         switch (type) {
         case PAD_BLOCKTYPE_1:
         case PAD_BLOCKTYPE_2:
@@ -200,7 +201,7 @@ public final class RSAPadding {
 
     // cache of hashes of zero length data
     private static final Map<String,byte[]> emptyHashes =
-        Collections.synchronizedMap(new HashMap<>());
+        Collections.synchronizedMap(new HashMap<String,byte[]>());
 
     /**
      * Return the value of the digest using the specified message digest
