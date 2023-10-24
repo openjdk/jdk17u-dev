@@ -31,6 +31,7 @@
  * @key intermittent
  * @summary Basic tests for Process and Environment Variable code
  * @modules java.base/java.lang:open
+ * @requires !vm.musl
  * @library /test/lib
  * @run main/othervm/native/timeout=300 -Djava.security.manager=allow Basic
  * @run main/othervm/native/timeout=300 -Djava.security.manager=allow -Djdk.lang.Process.launchMechanism=fork Basic
@@ -40,7 +41,7 @@
 /*
  * @test
  * @modules java.base/java.lang:open
- * @requires (os.family == "linux")
+ * @requires (os.family == "linux" & !vm.musl)
  * @library /test/lib
  * @run main/othervm/timeout=300 -Djava.security.manager=allow -Djdk.lang.Process.launchMechanism=posix_spawn Basic
  */
@@ -486,15 +487,15 @@ public class Basic {
                             equal(run(pb).exitValue(),
                                   False.exitValue());
                             // Traditional shell scripts without #!
-                            setFileContents(prog, "exec /bin/true\n");
-                            prog.setExecutable(true);
-                            equal(run(pb).exitValue(),
-                                  True.exitValue());
-                            prog.delete();
-                            setFileContents(prog, "exec /bin/false\n");
-                            prog.setExecutable(true);
-                            equal(run(pb).exitValue(),
-                                  False.exitValue());
+                            if (!(Platform.isLinux() && Platform.isMusl())) {
+                                setFileContents(prog, "exec /bin/true\n");
+                                prog.setExecutable(true);
+                                equal(run(pb).exitValue(), True.exitValue());
+                                prog.delete();
+                                setFileContents(prog, "exec /bin/false\n");
+                                prog.setExecutable(true);
+                                equal(run(pb).exitValue(), False.exitValue());
+                            }
                             prog.delete();
                         }
 
@@ -511,14 +512,16 @@ public class Basic {
                         pb.command(cmd);
 
                         // Test traditional shell scripts without #!
-                        setFileContents(dir1Prog, "/bin/echo \"$@\"\n");
-                        pb.command(new String[] {"prog", "hello", "world"});
-                        checkPermissionDenied(pb);
-                        dir1Prog.setExecutable(true);
-                        equal(run(pb).out(), "hello world\n");
-                        equal(run(pb).exitValue(), True.exitValue());
-                        dir1Prog.delete();
-                        pb.command(cmd);
+                        if (!(Platform.isLinux() && Platform.isMusl())) {
+                            setFileContents(dir1Prog, "/bin/echo \"$@\"\n");
+                            pb.command(new String[] {"prog", "hello", "world"});
+                            checkPermissionDenied(pb);
+                            dir1Prog.setExecutable(true);
+                            equal(run(pb).out(), "hello world\n");
+                            equal(run(pb).exitValue(), True.exitValue());
+                            dir1Prog.delete();
+                            pb.command(cmd);
+                        }
 
                         // If prog found on both parent and child's PATH,
                         // parent's is used.

@@ -436,7 +436,7 @@ JVM_END
 
 
 JVM_ENTRY_NO_ENV(void, JVM_Halt(jint code))
-  before_exit(thread);
+  before_exit(thread, true);
   vm_exit(code);
 JVM_END
 
@@ -2973,12 +2973,6 @@ JVM_ENTRY(void, JVM_StopThread(JNIEnv* env, jobject jthread, jobject throwable))
     // exited setting this flag has no effect.
     java_lang_Thread::set_stillborn(java_thread);
   }
-JVM_END
-
-
-JVM_ENTRY(jboolean, JVM_IsThreadAlive(JNIEnv* env, jobject jthread))
-  oop thread_oop = JNIHandles::resolve_non_null(jthread);
-  return java_lang_Thread::is_alive(thread_oop);
 JVM_END
 
 

@@ -4,7 +4,7 @@
  *
  *   Type 1 font loader (body).
  *
- * Copyright (C) 1996-2022 by
+ * Copyright (C) 1996-2023 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -355,6 +355,10 @@
         mmvar->axis[i].tag = FT_MAKE_TAG( 'w', 'd', 't', 'h' );
       else if ( ft_strcmp( mmvar->axis[i].name, "OpticalSize" ) == 0 )
         mmvar->axis[i].tag = FT_MAKE_TAG( 'o', 'p', 's', 'z' );
+      else if ( ft_strcmp( mmvar->axis[i].name, "Slant" ) == 0 )
+        mmvar->axis[i].tag = FT_MAKE_TAG( 's', 'l', 'n', 't' );
+      else if ( ft_strcmp( mmvar->axis[i].name, "Italic" ) == 0 )
+        mmvar->axis[i].tag = FT_MAKE_TAG( 'i', 't', 'a', 'l' );
     }
 
     mm_weights_unmap( blend->default_weight_vector,
@@ -2057,9 +2061,9 @@
         name_table->elements[n][len] = '\0';
 
         /* record index of /.notdef */
-        if ( *cur == '.'                                              &&
+        if ( *cur == '.'                                                &&
              ft_strcmp( ".notdef",
-                        (const char*)(name_table->elements[n]) ) == 0 )
+                        (const char*)( name_table->elements[n] ) ) == 0 )
         {
           notdef_index = n;
           notdef_found = 1;
@@ -2331,8 +2335,8 @@
       /* in valid Type 1 fonts we don't see `RD' or `-|' directly */
       /* since those tokens are handled by parse_subrs and        */
       /* parse_charstrings                                        */
-      else if ( *cur == 'R' && cur + 6 < limit && *(cur + 1) == 'D' &&
-                have_integer )
+      else if ( *cur == 'R' && cur + 6 < limit && *( cur + 1 ) == 'D' &&
+                have_integer                                          )
       {
         FT_ULong  s;
         FT_Byte*  b;
@@ -2344,8 +2348,8 @@
         have_integer = 0;
       }
 
-      else if ( *cur == '-' && cur + 6 < limit && *(cur + 1) == '|' &&
-                have_integer )
+      else if ( *cur == '-' && cur + 6 < limit && *( cur + 1 ) == '|' &&
+                have_integer                                          )
       {
         FT_ULong  s;
         FT_Byte*  b;

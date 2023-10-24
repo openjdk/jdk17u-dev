@@ -728,9 +728,10 @@ bool os::create_attached_thread(JavaThread* thread) {
   // and save the caller's signal mask
   PosixSignals::hotspot_sigmask(thread);
 
-  log_info(os, thread)("Thread attached (tid: " UINTX_FORMAT ", pthread id: " UINTX_FORMAT ").",
-    os::current_thread_id(), (uintx) pthread_self());
-
+  log_info(os, thread)("Thread attached (tid: " UINTX_FORMAT ", pthread id: " UINTX_FORMAT
+                       ", stack: " PTR_FORMAT " - " PTR_FORMAT " (" SIZE_FORMAT "K) ).",
+                       os::current_thread_id(), (uintx) pthread_self(),
+                       p2i(thread->stack_base()), p2i(thread->stack_end()), thread->stack_size() / K);
   return true;
 }
 
@@ -1050,7 +1051,7 @@ void * os::dll_load(const char *filename, char *ebuf, int ebuflen) {
 
   void * result= ::dlopen(filename, RTLD_LAZY);
   if (result != NULL) {
-    Events::log(NULL, "Loaded shared library %s", filename);
+    Events::log_dll_message(NULL, "Loaded shared library %s", filename);
     // Successful loading
     log_info(os)("shared library load of %s was successful", filename);
     return result;
@@ -1065,7 +1066,7 @@ void * os::dll_load(const char *filename, char *ebuf, int ebuflen) {
     ::strncpy(ebuf, error_report, ebuflen-1);
     ebuf[ebuflen-1]='\0';
   }
-  Events::log(NULL, "Loading shared library %s failed, %s", filename, error_report);
+  Events::log_dll_message(NULL, "Loading shared library %s failed, %s", filename, error_report);
   log_info(os)("shared library load of %s failed, %s", filename, error_report);
 
   return NULL;
@@ -1079,7 +1080,7 @@ void * os::dll_load(const char *filename, char *ebuf, int ebuflen) {
   log_info(os)("attempting shared library load of %s", filename);
   void * result= ::dlopen(filename, RTLD_LAZY);
   if (result != NULL) {
-    Events::log(NULL, "Loaded shared library %s", filename);
+    Events::log_dll_message(NULL, "Loaded shared library %s", filename);
     // Successful loading
     log_info(os)("shared library load of %s was successful", filename);
     return result;
@@ -1096,7 +1097,7 @@ void * os::dll_load(const char *filename, char *ebuf, int ebuflen) {
     ::strncpy(ebuf, error_report, ebuflen-1);
     ebuf[ebuflen-1]='\0';
   }
-  Events::log(NULL, "Loading shared library %s failed, %s", filename, error_report);
+  Events::log_dll_message(NULL, "Loading shared library %s failed, %s", filename, error_report);
   log_info(os)("shared library load of %s failed, %s", filename, error_report);
 
   int diag_msg_max_length=ebuflen-strlen(ebuf);
@@ -1256,22 +1257,6 @@ void * os::dll_load(const char *filename, char *ebuf, int ebuflen) {
 }
 #endif // !__APPLE__
 
-void* os::get_default_process_handle() {
-#ifdef __APPLE__
-  // MacOS X needs to use RTLD_FIRST instead of RTLD_LAZY
-  // to avoid finding unexpected symbols on second (or later)
-  // loads of a library.
-  return (void*)::dlopen(NULL, RTLD_FIRST);
-#else
-  return (void*)::dlopen(NULL, RTLD_LAZY);
-#endif
-}
-
-// XXX: Do we need a lock around this as per Linux?
-void* os::dll_lookup(void* handle, const char* name) {
-  return dlsym(handle, name);
-}
-
 int _print_dll_info_cb(const char * name, address base_address, address top_address, void * param) {
   outputStream * out = (outputStream *) param;
   out->print_cr(INTPTR_FORMAT " \t%s", (intptr_t)base_address, name);
@@ -1392,8 +1377,34 @@ void os::print_os_info(outputStream* st) {
   VM_Version::print_platform_virtualization_info(st);
 }
 
+#ifdef __APPLE__
+static void print_sysctl_info_string(const char* sysctlkey, outputStream* st, char* buf, size_t size) {
+  if (sysctlbyname(sysctlkey, buf, &size, nullptr, 0) >= 0) {
+    st->print_cr("%s:%s", sysctlkey, buf);
+  }
+}
+
+static void print_sysctl_info_uint64(const char* sysctlkey, outputStream* st) {
+  uint64_t val;
+  size_t size=sizeof(uint64_t);
+  if (sysctlbyname(sysctlkey, &val, &size, nullptr, 0) >= 0) {
+    st->print_cr("%s:%llu", sysctlkey, val);
+  }
+}
+#endif
+
 void os::pd_print_cpu_info(outputStream* st, char* buf, size_t buflen) {
-  // Nothing to do for now.
+#ifdef __APPLE__
+  print_sysctl_info_string("machdep.cpu.brand_string", st, buf, buflen);
+  print_sysctl_info_uint64("hw.cpufrequency", st);
+  print_sysctl_info_uint64("hw.cpufrequency_min", st);
+  print_sysctl_info_uint64("hw.cpufrequency_max", st);
+  print_sysctl_info_uint64("hw.cachelinesize", st);
+  print_sysctl_info_uint64("hw.l1icachesize", st);
+  print_sysctl_info_uint64("hw.l1dcachesize", st);
+  print_sysctl_info_uint64("hw.l2cachesize", st);
+  print_sysctl_info_uint64("hw.l3cachesize", st);
+#endif
 }
 
 void os::get_summary_cpu_info(char* buf, size_t buflen) {
@@ -1874,13 +1885,6 @@ char* os::pd_attempt_reserve_memory_at(char* requested_addr, size_t bytes, bool 
   return NULL;
 }
 
-// Sleep forever; naked call to OS-specific sleep; use with CAUTION
-void os::infinite_sleep() {
-  while (true) {    // sleep forever ...
-    ::sleep(100);   // ... 100 seconds at a time
-  }
-}
-
 // Used to convert frequent JVM_Yield() to nops
 bool os::dont_yield() {
   return DontYieldALot;
@@ -2259,28 +2263,6 @@ void os::os_exception_wrapper(java_call_t f, JavaValue* value,
   f(value, method, args, thread);
 }
 
-void os::print_statistics() {
-}
-
-bool os::message_box(const char* title, const char* message) {
-  int i;
-  fdStream err(defaultStream::error_fd());
-  for (i = 0; i < 78; i++) err.print_raw("=");
-  err.cr();
-  err.print_raw_cr(title);
-  for (i = 0; i < 78; i++) err.print_raw("-");
-  err.cr();
-  err.print_raw_cr(message);
-  for (i = 0; i < 78; i++) err.print_raw("=");
-  err.cr();
-
-  char buf[16];
-  // Prevent process from exiting upon "read error" without consuming all CPU
-  while (::read(0, buf, sizeof(buf)) <= 0) { ::sleep(100); }
-
-  return buf[0] == 'y' || buf[0] == 'Y';
-}
-
 static inline struct timespec get_mtime(const char* filename) {
   struct stat st;
   int ret = os::stat(filename, &st);
@@ -2300,25 +2282,6 @@ int os::compare_file_modified_times(const char* file1, const char* file2) {
     return filetime1.tv_nsec - filetime2.tv_nsec;
   }
   return diff;
-}
-
-// Is a (classpath) directory empty?
-bool os::dir_is_empty(const char* path) {
-  DIR *dir = NULL;
-  struct dirent *ptr;
-
-  dir = opendir(path);
-  if (dir == NULL) return true;
-
-  // Scan the directory
-  bool result = true;
-  while (result && (ptr = readdir(dir)) != NULL) {
-    if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
-      result = false;
-    }
-  }
-  closedir(dir);
-  return result;
 }
 
 // This code originates from JDK's sysOpen and open64_w

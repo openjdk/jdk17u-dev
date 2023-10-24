@@ -109,7 +109,7 @@ class CodeCache : AllStatic {
   static CodeHeap* get_code_heap(int code_blob_type);         // Returns the CodeHeap for the given CodeBlobType
   // Returns the name of the VM option to set the size of the corresponding CodeHeap
   static const char* get_code_heap_flag_name(int code_blob_type);
-  static ReservedCodeSpace reserve_heap_memory(size_t size);  // Reserves one continuous chunk of memory for the CodeHeaps
+  static ReservedCodeSpace reserve_heap_memory(size_t size, size_t rs_ps);  // Reserves one continuous chunk of memory for the CodeHeaps
 
   // Iteration
   static CodeBlob* first_blob(CodeHeap* heap);                // Returns the first CodeBlob on the given CodeHeap
@@ -212,6 +212,9 @@ class CodeCache : AllStatic {
   static size_t max_capacity();
 
   static double reverse_free_ratio();
+
+  static size_t max_distance_to_non_nmethod();
+  static bool is_non_nmethod(address addr);
 
   static void clear_inline_caches();                  // clear all inline caches
   static void cleanup_inline_caches();                // clean unloaded/zombie nmethods from inline caches

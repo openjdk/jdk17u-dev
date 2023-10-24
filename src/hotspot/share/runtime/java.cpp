@@ -71,6 +71,7 @@
 #include "runtime/task.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/timer.hpp"
+#include "runtime/trimNativeHeap.hpp"
 #include "runtime/vmOperations.hpp"
 #include "runtime/vmThread.hpp"
 #include "runtime/vm_version.hpp"
@@ -244,7 +245,6 @@ void print_statistics() {
     Deoptimization::print_statistics();
     SharedRuntime::print_statistics();
 #endif //COMPILER1
-    os::print_statistics();
   }
 
   if (PrintLockStatistics || PrintPreciseBiasedLockingStatistics || PrintPreciseRTMLockingStatistics) {
@@ -404,7 +404,7 @@ void print_statistics() {
 // Note: before_exit() can be executed only once, if more than one threads
 //       are trying to shutdown the VM at the same time, only one thread
 //       can run before_exit() and all other threads must wait.
-void before_exit(JavaThread* thread) {
+void before_exit(JavaThread* thread, bool halt) {
   #define BEFORE_EXIT_NOT_RUN 0
   #define BEFORE_EXIT_RUNNING 1
   #define BEFORE_EXIT_DONE    2
@@ -451,7 +451,7 @@ void before_exit(JavaThread* thread) {
     event.commit();
   }
 
-  JFR_ONLY(Jfr::on_vm_shutdown();)
+  JFR_ONLY(Jfr::on_vm_shutdown(false, halt);)
 
   // Stop the WatcherThread. We do this before disenrolling various
   // PeriodicTasks to reduce the likelihood of races.
@@ -467,6 +467,8 @@ void before_exit(JavaThread* thread) {
   if (StringDedup::is_enabled()) {
     StringDedup::stop();
   }
+
+  NativeHeapTrimmer::cleanup();
 
   // Stop concurrent GC threads
   Universe::heap()->stop();

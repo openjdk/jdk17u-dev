@@ -821,6 +821,7 @@ void ClassLoaderData::add_to_deallocate_list(Metadata* m) {
       _deallocate_list = new (ResourceObj::C_HEAP, mtClass) GrowableArray<Metadata*>(100, mtClass);
     }
     _deallocate_list->append_if_missing(m);
+    ResourceMark rm;
     log_debug(class, loader, data)("deallocate added for %s", m->print_value_string());
     ClassLoaderDataGraph::set_should_clean_deallocate_lists();
   }
@@ -968,11 +969,13 @@ void ClassLoaderData::print_on(outputStream* out) const {
   out->print_cr(" - keep alive          %d", _keep_alive);
   out->print   (" - claim               ");
   switch(_claim) {
-    case _claim_none:       out->print_cr("none"); break;
-    case _claim_finalizable:out->print_cr("finalizable"); break;
-    case _claim_strong:     out->print_cr("strong"); break;
-    case _claim_other:      out->print_cr("other"); break;
-    default:                ShouldNotReachHere();
+    case _claim_none:                       out->print_cr("none"); break;
+    case _claim_finalizable:                out->print_cr("finalizable"); break;
+    case _claim_strong:                     out->print_cr("strong"); break;
+    case _claim_other:                      out->print_cr("other"); break;
+    case _claim_other | _claim_finalizable: out->print_cr("other and finalizable"); break;
+    case _claim_other | _claim_strong:      out->print_cr("other and strong"); break;
+    default:                                ShouldNotReachHere();
   }
   out->print_cr(" - handles             %d", _handles.count());
   out->print_cr(" - dependency count    %d", _dependency_count);
