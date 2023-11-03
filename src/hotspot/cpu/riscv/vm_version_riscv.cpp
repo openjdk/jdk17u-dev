@@ -26,12 +26,12 @@
 
 #include "precompiled.hpp"
 #include "runtime/java.hpp"
-#include "runtime/os.inline.hpp"
+#include "runtime/os.hpp"
 #include "runtime/vm_version.hpp"
 #include "utilities/formatBuffer.hpp"
 #include "utilities/macros.hpp"
 
-#include <ctype.h>
+#include OS_HEADER_INLINE(os)
 
 uint32_t VM_Version::_initial_vector_length = 0;
 
