@@ -50,6 +50,7 @@
 #include "runtime/stackFrameStream.inline.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/threadSMR.hpp"
+#include "runtime/trimNativeHeap.hpp"
 #include "runtime/vmThread.hpp"
 #include "runtime/vmOperations.hpp"
 #include "runtime/vm_version.hpp"
@@ -901,6 +902,14 @@ void VMError::report(outputStream* st, bool _verbose) {
        st->cr();
      }
 
+  STEP("printing registers")
+
+     // printing registers
+     if (_verbose && _context) {
+       os::print_context(st, _context);
+       st->cr();
+     }
+
   STEP("printing register info")
 
      // decode register contents if possible
@@ -910,11 +919,11 @@ void VMError::report(outputStream* st, bool _verbose) {
        st->cr();
      }
 
-  STEP("printing registers, top of stack, instructions near pc")
+  STEP("printing top of stack, instructions near pc")
 
-     // registers, top of stack, instructions near pc
+     // printing top of stack, instructions near pc
      if (_verbose && _context) {
-       os::print_context(st, _context);
+       os::print_tos_pc(st, _context);
        st->cr();
      }
 
@@ -1194,6 +1203,14 @@ void VMError::report(outputStream* st, bool _verbose) {
   STEP("Native Memory Tracking")
      if (_verbose) {
        MemTracker::error_report(st);
+       st->cr();
+     }
+
+  STEP("printing periodic trim state")
+
+     if (_verbose) {
+       NativeHeapTrimmer::print_state(st);
+       st->cr();
      }
 
   STEP("printing system")
@@ -1379,10 +1396,14 @@ void VMError::print_vm_info(outputStream* st) {
   // STEP("Native Memory Tracking")
 
   MemTracker::error_report(st);
+  st->cr();
+
+  // STEP("printing periodic trim state")
+  NativeHeapTrimmer::print_state(st);
+  st->cr();
+
 
   // STEP("printing system")
-
-  st->cr();
   st->print_cr("---------------  S Y S T E M  ---------------");
   st->cr();
 
@@ -1738,6 +1759,7 @@ void VMError::report_and_die(int id, const char* message, const char* detail_fmt
           int e = errno;
           out.print_raw("#\n# Can't open file to dump replay data. Error: ");
           out.print_raw_cr(os::strerror(e));
+          close(fd);
         }
       }
     }
