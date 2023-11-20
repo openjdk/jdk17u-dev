@@ -58,7 +58,7 @@ public class SealingViolation {
 
         OutputAnalyzer output = TestCommon.dump(signedJar, classList, bootclasspath,
                                      "-Xlog:cds+class=debug");
-        output.shouldMatch("cds.class.*klasses.*app   pkg.ClassInPackage")
+        output.shouldMatch("cds.class.*klasses.* pkg.ClassInPackage")
               .shouldHaveExitValue(0);
 
         output = TestCommon.exec(signedJar, "-Xlog:cds=debug,class+load",
