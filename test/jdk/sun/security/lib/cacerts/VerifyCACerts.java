@@ -53,6 +53,7 @@ public class VerifyCACerts {
     // shasum -a 256 cacerts | sed -e 's/../&:/g' | tr '[:lower:]' '[:upper:]' | cut -c1-95
     private static final String CHECKSUM
             = "61:5F:6D:C5:9C:A3:8A:65:3F:CB:F9:F5:26:04:23:F4:53:A6:8C:B3:8B:2B:0A:F0:66:7D:9E:67:B9:4D:AC:B7";
+
     // Hex formatter to upper case with ":" delimiter
     private static final HexFormat HEX = HexFormat.ofDelimiter(":").withUpperCase();
 
