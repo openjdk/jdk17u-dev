@@ -43,21 +43,19 @@
 #include "OT/Color/sbix/sbix.hh"
 #include "hb-ot-os2-table.hh"
 #include "hb-ot-post-table.hh"
-
-#if !defined(AIX)
 #include "hb-ot-post-table-v2subset.hh"
-#endif
-
 #include "hb-ot-cff1-table.hh"
 #include "hb-ot-cff2-table.hh"
 #include "hb-ot-vorg-table.hh"
 #include "hb-ot-name-table.hh"
 #include "hb-ot-layout-gsub-table.hh"
 #include "hb-ot-layout-gpos-table.hh"
+#include "hb-ot-var-avar-table.hh"
 #include "hb-ot-var-cvar-table.hh"
 #include "hb-ot-var-fvar-table.hh"
 #include "hb-ot-var-gvar-table.hh"
 #include "hb-ot-var-hvar-table.hh"
+#include "hb-ot-var-mvar-table.hh"
 #include "hb-ot-math-table.hh"
 #include "hb-ot-stat-table.hh"
 #include "hb-repacker.hh"
