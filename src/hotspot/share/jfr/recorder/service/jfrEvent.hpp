@@ -77,6 +77,7 @@ class JfrEvent {
   {
     if (!T::isInstant && !_untimed && is_enabled()) {
       set_starttime(JfrTicks::now());
+    }
   }
 
   void commit() {
@@ -165,7 +166,7 @@ class JfrEvent {
     if (!is_enabled()) {
       return false;
     }
-    return evaluate() && JfrThreadLocal::is_included(Thread::current());
+    return evaluate();
   }
 
   bool evaluate() {
