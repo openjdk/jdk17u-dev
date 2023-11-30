@@ -459,7 +459,7 @@ else
 
    # hb-ft.cc is not presently needed, and requires freetype 2.4.2 or later.
    LIBFONTMANAGER_EXCLUDE_FILES += libharfbuzz/hb-ft.cc
- 
+
    # list of disabled warnings and the compilers for which it was specifically added.
    # array-bounds         -> GCC 12 on Alpine Linux
    # parentheses          -> GCC 6
