@@ -351,10 +351,8 @@ public class GenerationTests {
                         Arrays.stream(xml_transforms).forEach(t ->
                             Arrays.stream(KeyInfoType.values()).forEach(k -> {
                                 if (isMajor(s, d)) {
-                                    if (!s.contains("#eddsa") || k != KeyInfoType.KeyValue) {
-                                        test_create_detached_signature(c, s, d, t, k,
-                                                Content.Xml, server.getPort(), false, null);
-                                    }
+                                    test_create_detached_signature(c, s, d, t, k,
+                                            Content.Xml, server.getPort(), false, null);
                                 }
                         })))));
 
@@ -364,10 +362,8 @@ public class GenerationTests {
                     Arrays.stream(allDigestMethods).forEach(d ->
                         Arrays.stream(KeyInfoType.values()).forEach(k -> {
                             if (isMajor(s, d)) {
-                                if (!s.contains("#eddsa") || k != KeyInfoType.KeyValue) {
-                                    test_create_detached_signature(c, s, d, null, k,
-                                            Content.Text, server.getPort(), false, null);
-                                }
+                                test_create_detached_signature(c, s, d, null, k,
+                                        Content.Text, server.getPort(), false, null);
                             }
                         }))));
 
@@ -378,11 +374,9 @@ public class GenerationTests {
                         Arrays.stream(non_xml_transforms).forEach(t ->
                             Arrays.stream(KeyInfoType.values()).forEach(k -> {
                                 if (isMajor(s, d)) {
-                                    if (!s.contains("#eddsa") || k != KeyInfoType.KeyValue) {
-                                        test_create_detached_signature(c, s, d, t, k,
-                                                Content.Base64, server.getPort(),
-                                                false, null);
-                                    }
+                                    test_create_detached_signature(c, s, d, t, k,
+                                            Content.Base64, server.getPort(),
+                                            false, null);
                                 }
                         })))));
 
@@ -1955,8 +1949,6 @@ public class GenerationTests {
                     } else if (sm.contains("#ecdsa-")) {
                         kpg = KeyPairGenerator.getInstance("EC");
                         kpg.initialize(256);
-                    } else if (sm.contains("#eddsa-")) {
-                        kpg = KeyPairGenerator.getInstance(sm.substring(sm.lastIndexOf('-') + 1));
                     } else {
                         throw new RuntimeException("Unsupported signature algorithm");
                     }
