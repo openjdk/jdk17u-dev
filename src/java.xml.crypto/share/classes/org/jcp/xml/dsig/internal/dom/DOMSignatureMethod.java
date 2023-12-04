@@ -1020,5 +1020,5 @@ public abstract class DOMSignatureMethod extends AbstractDOMSignatureMethod {
             return Type.ECDSA;
         }
     }
-    
+
 }
