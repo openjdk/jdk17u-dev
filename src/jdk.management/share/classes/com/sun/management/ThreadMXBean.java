@@ -133,7 +133,7 @@ public interface ThreadMXBean extends java.lang.management.ThreadMXBean {
      * @see #isThreadAllocatedMemoryEnabled
      * @see #setThreadAllocatedMemoryEnabled
      *
-     * @since 17.0.10
+     * @since 17.0.11
      */
     public default long getTotalThreadAllocatedBytes() {
         if (!isThreadAllocatedMemorySupported()) {
