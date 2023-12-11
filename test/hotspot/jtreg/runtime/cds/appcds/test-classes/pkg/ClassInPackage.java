@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,22 +19,12 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
+ *
  */
 
+package pkg;
 
-/*
- * @test
- * @key stress randomness
- *
- * @summary converted from VM Testbase gc/lock/jniref/jnireflock02.
- * VM Testbase keywords: [gc, stress, stressopt, nonconcurrent]
- *
- * @library /vmTestbase
- *          /test/lib
- * @run main/othervm/native
- *      -XX:-UseGCOverheadLimit
- *      gc.lock.LockerTest
- *      -gp1 random(primitiveArrays)
- *      -lockers jniRef
- */
+public class ClassInPackage {
 
+
+}
