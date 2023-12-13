@@ -80,6 +80,8 @@ Node *MulNode::Ideal(PhaseGVN *phase, bool can_reshape) {
         igvn->_worklist.push(in1);
         igvn->_worklist.push(in2);
       }
+      in1 = in(1);
+      in2 = in(2);
       progress = this;
     }
   }
