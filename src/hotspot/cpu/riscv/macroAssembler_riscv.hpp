@@ -408,6 +408,7 @@ class MacroAssembler: public Assembler {
   void store_sized_value(Address dst, Register src, size_t size_in_bytes, Register src2 = noreg);
 
   // Misaligned loads, will use the best way, according to the AvoidUnalignedAccess flag
+  void load_short_misaligned(Register dst, Address src, Register tmp, bool is_signed, int granularity = 1);
   void load_int_misaligned(Register dst, Address src, Register tmp, bool is_signed, int granularity = 1);
   void load_long_misaligned(Register dst, Address src, Register tmp, int granularity = 1);
 
@@ -734,6 +735,10 @@ public:
   void andrw(Register Rd, Register Rs1, Register Rs2);
   void orrw(Register Rd, Register Rs1, Register Rs2);
   void xorrw(Register Rd, Register Rs1, Register Rs2);
+
+  // logic with negate
+  void andn(Register Rd, Register Rs1, Register Rs2);
+  void orn(Register Rd, Register Rs1, Register Rs2);
 
   // revb
   void revb_h_h(Register Rd, Register Rs, Register tmp = t0);                           // reverse bytes in halfword in lower 16 bits, sign-extend
@@ -1139,7 +1144,7 @@ public:
   void shadd(Register Rd, Register Rs1, Register Rs2, Register tmp, int shamt);
 
   // test single bit in Rs, result is set to Rd
-  void test_bit(Register Rd, Register Rs, uint32_t bit_pos, Register tmp = t0);
+  void test_bit(Register Rd, Register Rs, uint32_t bit_pos);
 
   // Here the float instructions with safe deal with some exceptions.
   // e.g. convert from NaN, +Inf, -Inf to int, float, double
