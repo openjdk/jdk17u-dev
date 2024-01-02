@@ -752,8 +752,23 @@ class MacroAssembler: public Assembler {
 
   void cmpxchgptr(Register reg, Address adr);
 
-  void locked_cmpxchgptr(Register reg, AddressLiteral adr);
+  // cvt instructions
+  void cvtss2sd(XMMRegister dst, XMMRegister src);
+  void cvtss2sd(XMMRegister dst, Address src);
+  void cvtsd2ss(XMMRegister dst, XMMRegister src);
+  void cvtsd2ss(XMMRegister dst, Address src);
+  void cvtsi2sdl(XMMRegister dst, Register src);
+  void cvtsi2sdl(XMMRegister dst, Address src);
+  void cvtsi2ssl(XMMRegister dst, Register src);
+  void cvtsi2ssl(XMMRegister dst, Address src);
+#ifdef _LP64
+  void cvtsi2sdq(XMMRegister dst, Register src);
+  void cvtsi2sdq(XMMRegister dst, Address src);
+  void cvtsi2ssq(XMMRegister dst, Register src);
+  void cvtsi2ssq(XMMRegister dst, Address src);
+#endif
 
+  void locked_cmpxchgptr(Register reg, AddressLiteral adr);
 
   void imulptr(Register dst, Register src) { LP64_ONLY(imulq(dst, src)) NOT_LP64(imull(dst, src)); }
   void imulptr(Register dst, Register src, int imm32) { LP64_ONLY(imulq(dst, src, imm32)) NOT_LP64(imull(dst, src, imm32)); }
@@ -825,6 +840,7 @@ class MacroAssembler: public Assembler {
 
   void testptr(Register src, int32_t imm32) {  LP64_ONLY(testq(src, imm32)) NOT_LP64(testl(src, imm32)); }
   void testptr(Register src1, Address src2) { LP64_ONLY(testq(src1, src2)) NOT_LP64(testl(src1, src2)); }
+  void testptr(Address src, int32_t imm32) {  LP64_ONLY(testq(src, imm32)) NOT_LP64(testl(src, imm32)); }
   void testptr(Register src1, Register src2);
 
   void xorptr(Register dst, Register src) { LP64_ONLY(xorq(dst, src)) NOT_LP64(xorl(dst, src)); }
