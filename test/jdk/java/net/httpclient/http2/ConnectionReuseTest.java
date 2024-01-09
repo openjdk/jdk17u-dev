@@ -36,9 +36,6 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
-import jdk.httpclient.test.lib.common.HttpServerAdapters.HttpTestExchange;
-import jdk.httpclient.test.lib.common.HttpServerAdapters.HttpTestHandler;
-import jdk.httpclient.test.lib.common.HttpServerAdapters.HttpTestServer;
 import jdk.test.lib.net.IPSupport;
 import jdk.test.lib.net.SimpleSSLContext;
 import org.junit.jupiter.api.AfterAll;
@@ -57,16 +54,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @test
  * @bug 8305906
  * @summary verify that the HttpClient pools and reuses a connection for HTTP/2 requests
- * @library /test/lib /test/jdk/java/net/httpclient/lib
- * @build jdk.test.lib.net.SimpleSSLContext
+ * @library /test/lib server/ ../
+ * @build jdk.test.lib.net.SimpleSSLContext HttpServerAdapters
  *        jdk.test.lib.net.IPSupport
- *        jdk.httpclient.test.lib.common.HttpServerAdapters
+ * @modules java.net.http/jdk.internal.net.http.common
+ *          java.net.http/jdk.internal.net.http.frame
+ *          java.net.http/jdk.internal.net.http.hpack
+ *          java.logging
+ *          java.base/sun.net.www.http
+ *          java.base/sun.net.www
+ *          java.base/sun.net
  *
- * @run junit ConnectionReuseTest
+ * @run junit/othervm ConnectionReuseTest
  * @run junit/othervm -Djava.net.preferIPv6Addresses=true
  *                    -Djdk.internal.httpclient.debug=true ConnectionReuseTest
  */
-public class ConnectionReuseTest {
+public class ConnectionReuseTest implements HttpServerAdapters {
 
     private static SSLContext sslContext;
     private static HttpTestServer http2_Server; // h2 server over HTTP
@@ -83,12 +86,14 @@ public class ConnectionReuseTest {
         sslContext = new SimpleSSLContext().get();
         assertNotNull(sslContext, "Unexpected null sslContext");
 
-        http2_Server = HttpTestServer.create(HTTP_2);
+        http2_Server = HttpTestServer.of(
+                    new Http2TestServer("localhost", false, 0));
         http2_Server.addHandler(new Handler(), "/");
         http2_Server.start();
         System.out.println("Started HTTP v2 server at " + http2_Server.serverAuthority());
 
-        https2_Server = HttpTestServer.create(HTTP_2, sslContext);
+        https2_Server = HttpTestServer.of(
+                    new Http2TestServer("localhost", true, sslContext));
         https2_Server.addHandler(new Handler(), "/");
         https2_Server.start();
         System.out.println("Started HTTPS v2 server at " + https2_Server.serverAuthority());
@@ -115,7 +120,7 @@ public class ConnectionReuseTest {
         if (IPSupport.preferIPv6Addresses()) {
             if (https2_Server.getAddress().getAddress().isLoopbackAddress()) {
                 // h2 over HTTPS, use the short form of the host, in the request URI
-                arguments.add(Arguments.of(new URI("https://[::1]:" +
+                arguments.add(Arguments.of(new URI("https://localhost:" +
                         https2_Server.getAddress().getPort() + "/")));
             }
             if (http2_Server.getAddress().getAddress().isLoopbackAddress()) {
@@ -138,26 +143,25 @@ public class ConnectionReuseTest {
                 .proxy(NO_PROXY).sslContext(sslContext);
         final HttpRequest req = HttpRequest.newBuilder().uri(requestURI)
                 .GET().version(HTTP_2).build();
-        try (final HttpClient client = builder.build()) {
-            String clientConnAddr = null;
-            for (int i = 1; i <= 5; i++) {
-                System.out.println("Issuing request(" + i + ") " + req);
-                final HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-                assertEquals(200, resp.statusCode(), "unexpected response code");
-                final String respBody = resp.body();
-                System.out.println("Server side handler responded to a request from " + respBody);
-                assertNotEquals(Handler.UNKNOWN_CLIENT_ADDR, respBody,
-                        "server handler couldn't determine client address in request");
-                if (i == 1) {
-                    // for the first request we just keep track of the client connection address
-                    // that got used for this request
-                    clientConnAddr = respBody;
-                } else {
-                    // verify that the client connection used to issue the request is the same
-                    // as the previous request's client connection
-                    assertEquals(clientConnAddr, respBody, "HttpClient unexpectedly used a" +
-                            " different connection for request(" + i + ")");
-                }
+        final HttpClient client = builder.build();
+        String clientConnAddr = null;
+        for (int i = 1; i <= 5; i++) {
+            System.out.println("Issuing request(" + i + ") " + req);
+            final HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            assertEquals(200, resp.statusCode(), "unexpected response code");
+            final String respBody = resp.body();
+            System.out.println("Server side handler responded to a request from " + respBody);
+            assertNotEquals(Handler.UNKNOWN_CLIENT_ADDR, respBody,
+                    "server handler couldn't determine client address in request");
+            if (i == 1) {
+                // for the first request we just keep track of the client connection address
+                // that got used for this request
+                clientConnAddr = respBody;
+            } else {
+                // verify that the client connection used to issue the request is the same
+                // as the previous request's client connection
+                assertEquals(clientConnAddr, respBody, "HttpClient unexpectedly used a" +
+                        " different connection for request(" + i + ")");
             }
         }
     }
