@@ -364,14 +364,14 @@ public class XMLUtils {
                         case "RSA" -> SignatureMethod.RSA_SHA256;
                         case "DSA" -> SignatureMethod.DSA_SHA256;
                         case "EC" -> SignatureMethod.ECDSA_SHA256;
-                        case "ED25519" -> SignatureMethod.ED25519;
-                        case "ED448" -> SignatureMethod.ED448;
+                        case "ED25519" -> "http://www.w3.org/2021/04/xmldsig-more#eddsa-ed25519";
+                        case "ED448" -> "http://www.w3.org/2021/04/xmldsig-more#eddsa-ed448";
                         case "EDDSA" -> {
                             if (privateKey instanceof EdECPrivateKey edsk) {
                                 yield edsk.getParams().getName()
                                         .equals(NamedParameterSpec.ED25519.getName())
-                                        ? SignatureMethod.ED25519
-                                        : SignatureMethod.ED448;
+                                        ? "http://www.w3.org/2021/04/xmldsig-more#eddsa-ed25519"
+                                        : "http://www.w3.org/2021/04/xmldsig-more#eddsa-ed448";
                             } else {
                                 throw new InvalidKeyException();
                             }

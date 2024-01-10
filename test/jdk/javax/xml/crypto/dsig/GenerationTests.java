@@ -210,7 +210,7 @@ public class GenerationTests {
             SignatureMethod.HMAC_SHA256,
             SignatureMethod.SHA256_RSA_MGF1,
             SignatureMethod.RSA_PSS,
-            SignatureMethod.ED25519);
+            "http://www.w3.org/2021/04/xmldsig-more#eddsa-ed25519");
 
     private static final String[] allSignatureMethods
             = Stream.of(SignatureMethod.class.getDeclaredFields())
@@ -244,7 +244,7 @@ public class GenerationTests {
 
     // As of JDK 17, the number of defined algorithms are...
     static {
-        if (allSignatureMethods.length != 25
+        if (allSignatureMethods.length != 23
                 || allDigestMethods.length != 9) {
             System.out.println(Arrays.toString(allSignatureMethods));
             System.out.println(Arrays.toString(allDigestMethods));
@@ -550,8 +550,8 @@ public class GenerationTests {
         ecdsaSha384 = fac.newSignatureMethod(SignatureMethod.ECDSA_SHA384, null);
         ecdsaSha512 = fac.newSignatureMethod(SignatureMethod.ECDSA_SHA512, null);
 
-        ed25519 = fac.newSignatureMethod(SignatureMethod.ED25519, null);
-        ed448 = fac.newSignatureMethod(SignatureMethod.ED448, null);
+        ed25519 = fac.newSignatureMethod("http://www.w3.org/2021/04/xmldsig-more#eddsa-ed25519", null);
+        ed448 = fac.newSignatureMethod("http://www.w3.org/2021/04/xmldsig-more#eddsa-ed448", null);
 
         hmacSha1 = fac.newSignatureMethod(SignatureMethod.HMAC_SHA1, null);
         hmacSha224 = fac.newSignatureMethod(SignatureMethod.HMAC_SHA224, null);
