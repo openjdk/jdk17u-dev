@@ -56,7 +56,6 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
 import java.security.spec.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -107,7 +106,6 @@ public class GenerationTests {
     private static KeyInfo dsa1024, dsa2048, rsa, rsa1024, rsa2048,
                            p256ki, p384ki, p521ki;
     private static KeySelector kvks = new KeySelectors.KeyValueKeySelector();
-    private static KeySelector x5ks = new KeySelectors.RawX509KeySelector();
     private static KeySelector sks;
     private static Key signingKey;
     private static PublicKey validatingKey;
