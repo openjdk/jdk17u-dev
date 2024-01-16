@@ -759,7 +759,7 @@ socketTransport_startListening(jdwpTransportEnv* env, const char* address,
 
         if (isEqualIPv6Addr(listenAddr, mappedAny)) {
             for (ai = addrInfo; ai != NULL; ai = ai->ai_next) {
-                if (isEqualIPv6Addr(listenAddr, in6addr_any)) {
+                if (isEqualIPv6Addr(ai, in6addr_any)) {
                     listenAddr = ai;
                     break;
                 }
