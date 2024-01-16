@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,7 +20,6 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-
 /*
  * @test
  * @bug 4290801 4692419 4693631 5101540 5104960 6296410 6336600 6371531
@@ -29,7 +28,6 @@
  * @summary Basic tests for Currency class.
  * @modules java.base/java.util:open
  *          jdk.localedata
- * @run junit CurrencyTest
  */
 
 import java.io.ByteArrayInputStream;
@@ -40,141 +38,103 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-+import java.util.ArrayList;
 import java.util.Currency;
-+import java.util.List;
-import java.util.Locale;;
-+
-+import org.junit.jupiter.api.Disabled;
-+import org.junit.jupiter.api.Nested;
-+import org.junit.jupiter.api.Test;
-+import org.junit.jupiter.params.ParameterizedTest;
-+import org.junit.jupiter.params.provider.Arguments;
-+import org.junit.jupiter.params.provider.MethodSource;
-+
-+import static org.junit.jupiter.api.Assertions.assertEquals;
-+import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Locale;
 
 
 public class CurrencyTest {
 
-+    // 'tablea1.txt' should be up-to-date before testing
-+    @Test
-+    public void dataVersionTest() {
+    public static void main(String[] args) throws Exception {
         CheckDataVersion.check();
+        testCurrencyCodeValidation();
+        testLocaleMapping();
+        testSymbols();
+        testFractionDigits();
+        testSerialization();
+        testDisplayNames();
+        testFundsCodes();
     }
 
-+    @Nested
-+    class CodeValidationTests {
-+        // Calling getInstance() on equal currency codes should return equal currencies
-+        @ParameterizedTest
-+        @MethodSource("validCurrencies")
-+        public void validCurrencyTest(String currencyCode) {
-+            compareCurrencies(currencyCode);
-+        }
+    static void testCurrencyCodeValidation() {
+        // test creation of some valid currencies
+        testValidCurrency("USD");
+        testValidCurrency("EUR");
+        testValidCurrency("GBP");
+        testValidCurrency("JPY");
+        testValidCurrency("CNY");
+        testValidCurrency("CHF");
 
-+        private static Stream<String> validCurrencies() {
-+            return Stream.of("USD", "EUR", "GBP", "JPY", "CNY", "CHF");
-+        }
-+
-+        // Calling getInstance() with an invalid currency code should throw an IAE
-+        @ParameterizedTest
-+        @MethodSource("invalidCurrencies")
-+        public void invalidCurrencyTest(String currencyCode) {
-+            assertThrows(IllegalArgumentException.class, () ->
-+                    Currency.getInstance(currencyCode), "getInstance() did not throw IAE");
-        }
-+
-+        private static Stream<String> invalidCurrencies() {
-+            return Stream.of("AQD", "US$", "\u20AC");
-        }
+        // test creation of some fictitious currencies
+        testInvalidCurrency("AQD");
+        testInvalidCurrency("US$");
+        testInvalidCurrency("\u20AC");
     }
 
-
-+    @Nested
-+    class FundsCodesTests {
-+        // Calling getInstance() on equal currency codes should return equal currencies
-+        @ParameterizedTest
-+        @MethodSource("fundsCodes")
-+        public void validCurrencyTest(String currencyCode) {
-+            compareCurrencies(currencyCode);
+    static void testValidCurrency(String currencyCode) {
+        Currency currency1 = Currency.getInstance(currencyCode);
+        Currency currency2 = Currency.getInstance(currencyCode);
+        if (currency1 != currency2) {
+            throw new RuntimeException("Didn't get same instance for same currency code");
         }
-+
-+        // Verify a currency has the expected fractional digits
-+        @ParameterizedTest
-+        @MethodSource("fundsCodes")
-+        public void fractionDigitTest(String currencyCode, int expectedFractionDigits) {
-+            compareFractionDigits(currencyCode, expectedFractionDigits);
-+        }
-+
-+        // Verify a currency has the expected numeric code
-+        @ParameterizedTest
-+        @MethodSource("fundsCodes")
-+        public void numericCodeTest(String currencyCode, int ignored, int expectedNumeric) {
-+            int numeric = Currency.getInstance(currencyCode).getNumericCode();
-+            assertEquals(numeric, expectedNumeric, String.format(
-+                    "Wrong numeric code for currency %s, expected %s, got %s",
-+                    currencyCode, expectedNumeric, numeric));
-+        }
-+
-+        private static Stream<Arguments> fundsCodes() {
-+            return Stream.of(
-+                    Arguments.of("BOV", 2, 984), Arguments.of("CHE", 2, 947),
-+                    Arguments.of("CHW", 2, 948), Arguments.of("CLF", 4, 990),
-+                    Arguments.of("COU", 2, 970), Arguments.of("MXV", 2, 979),
-+                    Arguments.of("USN", 2, 997), Arguments.of("UYI", 0, 940)
-+            );
+        if (!currency1.getCurrencyCode().equals(currencyCode)) {
+            throw new RuntimeException("Currency code changed");
         }
     }
 
-+    @Nested
-+    class LocaleMappingTests {
-+
+    static void testInvalidCurrency(String currencyCode) {
+        boolean gotException = false;
+        try {
+            Currency currency = Currency.getInstance(currencyCode);
+        } catch (IllegalArgumentException e) {
+            gotException = true;
+        }
+        if (!gotException) {
+            throw new RuntimeException("didn't get specified exception");
+        }
+    }
+
+    static void testLocaleMapping() {
         // very basic test: most countries have their own currency, and then
         // their currency code is an extension of their country code.
-+        @Test
-+        public void localeMappingTest() {
-+            Locale[] locales = Locale.getAvailableLocales();
-+            int goodCountries = 0;
-+            int ownCurrencies = 0;
-+            for (Locale locale : locales) {
-+                String ctryCode = locale.getCountry();
-+                int ctryLength = ctryCode.length();
-+                if (ctryLength == 0 ||
-+                        ctryLength == 3 || // UN M.49 code
-+                        ctryCode.matches("AA|Q[M-Z]|X[A-JL-Z]|ZZ" + // user defined codes, excluding "XK" (Kosovo)
-+                                "AC|CP|DG|EA|EU|FX|IC|SU|TA|UK")) { // exceptional reservation codes
-+                    assertThrows(IllegalArgumentException.class, () -> Currency.getInstance(locale), "Did not throw IAE");
-+                } else {
-+                    goodCountries++;
-+                    Currency currency = Currency.getInstance(locale);
-+                    if (currency.getCurrencyCode().indexOf(locale.getCountry()) == 0) {
-+                        ownCurrencies++;
-+                    }
+        Locale[] locales = Locale.getAvailableLocales();
+        int goodCountries = 0;
+        int ownCurrencies = 0;
+        for (int i = 0; i < locales.length; i++) {
+            Locale locale = locales[i];
+            String ctryCode = locale.getCountry();
+            int ctryLength = ctryCode.length();
+            if (ctryLength == 0 ||
+                ctryLength == 3 || // UN M.49 code
+                ctryCode.matches("AA|Q[M-Z]|X[A-JL-Z]|ZZ" + // user defined codes, excluding "XK" (Kosovo)
+                                 "AC|CP|DG|EA|EU|FX|IC|SU|TA|UK")) { // exceptional reservation codes
+                boolean gotException = false;
+                try {
+                    Currency.getInstance(locale);
+                } catch (IllegalArgumentException e) {
+                    gotException = true;
+                }
+                if (!gotException) {
+                    throw new RuntimeException("didn't get specified exception");
+                }
+            } else {
+                goodCountries++;
+                Currency currency = Currency.getInstance(locale);
+                if (currency.getCurrencyCode().indexOf(locale.getCountry()) == 0) {
+                    ownCurrencies++;
                 }
             }
-+            System.out.println("Countries tested: " + goodCountries +
-+                    ", own currencies: " + ownCurrencies);
-+            if (ownCurrencies < (goodCountries / 2 + 1)) {
-+                throw new RuntimeException("suspicious: not enough countries have their own currency.");
-+            }
         }
-+
-+        // Check an invalid country code
-+        @Test
-+        public void invalidCountryTest() {
-+            assertThrows(IllegalArgumentException.class, ()->
-+                    Currency.getInstance(Locale.of("", "EU")), "Did not throw IAE");
+        System.out.println("Countries tested: " + goodCountries +
+                ", own currencies: " + ownCurrencies);
+        if (ownCurrencies < (goodCountries / 2 + 1)) {
+            throw new RuntimeException("suspicious: not enough countries have their own currency.");
         }
-+        // Ensure a selection of countries have the expected currency
-+        @ParameterizedTest
-+        @MethodSource({"countryProvider", "switchedOverCountries"})
-+        public void countryCurrencyTest(String countryCode, String expected) {
-+            Locale locale = Locale.of("", countryCode);
-+            Currency currency = Currency.getInstance(locale);
-+            String code = (currency != null) ? currency.getCurrencyCode() : null;
-+            assertEquals(expected, code, generateErrMsg(
-+                    "currency for", locale.getDisplayCountry(), expected, code));
+
+        // check a few countries that don't change their currencies too often
+        String[] country1 = {"US", "CA", "JP", "CN", "SG", "CH"};
+        String[] currency1 = {"USD", "CAD", "JPY", "CNY", "SGD", "CHF"};
+        for (int i = 0; i < country1.length; i++) {
+            checkCountryCurrency(country1[i], currency1[i]);
         }
 
         /*
