@@ -146,6 +146,14 @@ struct my_statx
 #define STATX_BTIME 0x00000800U
 #endif
 
+#ifndef STATX_TYPE
+#define STATX_TYPE 0x00000001U
+#endif
+
+#ifndef STATX_MODE
+#define STATX_MODE 0x00000002U
+#endif
+
 #ifndef STATX_ALL
 #define STATX_ALL (STATX_BTIME | STATX_BASIC_STATS)
 #endif
@@ -707,6 +715,21 @@ Java_sun_nio_fs_UnixNativeDispatcher_stat1(JNIEnv* env, jclass this, jlong pathA
     struct stat64 buf;
     const char* path = (const char*)jlong_to_ptr(pathAddress);
 
+#if defined(__linux__)
+    struct my_statx statx_buf;
+    int flags = AT_STATX_SYNC_AS_STAT;
+    unsigned int mask = STATX_TYPE | STATX_MODE; // only want stx.mode
+
+    if (my_statx_func != NULL) {
+        // Prefer statx over stat64 on Linux if it's available
+        RESTARTABLE(statx_wrapper(AT_FDCWD, path, flags, mask, &statx_buf), err);
+        if (err == 0) {
+            return (jint)statx_buf.stx_mode;
+        } else {
+            return 0;
+        }
+    }
+#endif
     RESTARTABLE(stat64(path, &buf), err);
     if (err == -1) {
         return 0;
