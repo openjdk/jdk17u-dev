@@ -25,7 +25,7 @@
  * @bug 8011536 8316304
  * @summary Basic test for creationTime attribute on platforms/file systems
  *     that support it.
- * @library ../..
+ * @library ../.. /test/lib
  */
 
 import java.nio.file.Path;
@@ -33,6 +33,8 @@ import java.nio.file.Files;
 import java.nio.file.attribute.*;
 import java.time.Instant;
 import java.io.IOException;
+
+import jdk.test.lib.Platform;
 
 public class CreationTime {
 
