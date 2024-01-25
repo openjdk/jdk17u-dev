@@ -686,10 +686,11 @@ Java_sun_nio_fs_UnixNativeDispatcher_stat0(JNIEnv* env, jclass this,
         RESTARTABLE(statx_wrapper(AT_FDCWD, path, flags, mask, &statx_buf), err);
         if (err == 0) {
             copy_statx_attributes(env, &statx_buf, attrs);
-            return 0;
         } else {
-            return errno;
+            throwUnixException(env, errno);
         }
+        // statx was available, so return now
+        return;
     }
 #endif
     RESTARTABLE(stat64(path, &buf), err);
