@@ -407,7 +407,6 @@ public class Table extends Content {
                 if (tabs.contains(tabLabel)) {
                     HtmlTree tab = createTab(HtmlIds.forTab(id, tabIndex), tabStyle, false, tabLabel);
                     tablist.add(tab);
-
                 }
             }
             if (id == null) {
