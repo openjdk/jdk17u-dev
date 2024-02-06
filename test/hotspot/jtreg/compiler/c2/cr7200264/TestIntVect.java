@@ -32,6 +32,7 @@
 package compiler.c2.cr7200264;
 
 import compiler.lib.ir_framework.*;
+import compiler.lib.ir_framework.driver.irmatching.mapping.IRNodeMapEntry;
 
 /*
  * Based on test/hotspot/jtreg/compiler/c2/cr6340864/TestIntVect.java without performance tests.

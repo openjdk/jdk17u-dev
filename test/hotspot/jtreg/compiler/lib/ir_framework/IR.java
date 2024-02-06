@@ -141,4 +141,18 @@ public @interface IR {
      * {@link #applyIfNot()} depending on the use case.
      */
     String[] applyIfOr() default {};
+
+     /**
+     * Accepts a list of feature pairs where each pair is composed of target feature string followed by a true/false
+     * value where a true value necessities existence of target feature and vice-versa.
+     * IR verifications checks are enforced if any of the specified feature constraint is met.
+     */
+    String[] applyIfCPUFeatureOr() default {};
+
+    /**
+     * Accepts a list of feature pairs where each pair is composed of target feature string followed by a true/false
+     * value where a true value necessities existence of target feature and vice-versa.
+     * IR verifications checks are enforced only if all the specified feature constraints are met.
+     */
+    String[] applyIfCPUFeatureAnd() default {};
 }

@@ -23,13 +23,15 @@
 
 package compiler.lib.ir_framework;
 
-import compiler.lib.ir_framework.driver.irmatching.IRMatcher;
+import compiler.lib.ir_framework.driver.irmatching.mapping.*;
 import compiler.lib.ir_framework.shared.*;
 import jdk.test.lib.Platform;
 import jdk.test.whitebox.WhiteBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class provides default regex strings that can be used in {@link IR @IR} annotations to specify IR constraints.
@@ -145,6 +147,28 @@ public class IRNode {
     public static final String FAST_LOCK   = START + "FastLock" + MID + END;
     public static final String FAST_UNLOCK = START + "FastUnlock" + MID + END;
 
+    private static final String PREFIX = "_#";
+    private static final String VECTOR_PREFIX = PREFIX + "V#";
+    private static final String POSTFIX = "#_";
+    public static final String VECTOR_SIZE = "_@";
+    private static final String TYPE_BYTE   = "byte";
+    private static final String TYPE_CHAR   = "char";
+    private static final String TYPE_SHORT  = "short";
+    private static final String TYPE_INT    = "int";
+    private static final String TYPE_LONG   = "long";
+    private static final String TYPE_FLOAT  = "float";
+    private static final String TYPE_DOUBLE = "double";
+
+    /**
+     * IR placeholder string to regex-for-compile-phase map.
+     */
+    private static final Map<String, IRNodeMapEntry> IR_NODE_MAPPINGS = new HashMap<>();
+
+    /**
+     * Map every vectorNode to a type string.
+     */
+    private static final Map<String, String> VECTOR_NODE_TYPE = new HashMap<>();
+
     /**
      * Called by {@link IRMatcher} to merge special composite nodes together with additional user-defined input.
      */
@@ -219,5 +243,97 @@ public class IRNode {
             default -> throw new TestFrameworkException("Missing variable mapping for " + node);
         };
         TestFormat.fail("Must provide additional value at index " + (i + 1) + " right after " + varName);
+    }
+
+    public static final String LOAD_VECTOR_I = VECTOR_PREFIX + "LOAD_VECTOR_I" + POSTFIX;
+    static {
+        vectorNode(LOAD_VECTOR_I, "LoadVector", TYPE_INT);
+    }
+
+    public static final String STORE_VECTOR = PREFIX + "STORE_VECTOR" + POSTFIX;
+    static {
+        beforeMatchingNameRegex(STORE_VECTOR, "StoreVector");
+    }
+    
+    public static final String ADD_VI = VECTOR_PREFIX + "ADD_VI" + POSTFIX;
+    static {
+        vectorNode(ADD_VI, "AddVI", TYPE_INT);
+    }
+
+    public static final String SUB_VI = VECTOR_PREFIX + "SUB_VI" + POSTFIX;
+    static {
+        vectorNode(SUB_VI, "SubVI", TYPE_INT);
+    }
+
+    public static final String LSHIFT_VI = VECTOR_PREFIX + "LSHIFT_VI" + POSTFIX;
+    static {
+        vectorNode(LSHIFT_VI, "LShiftVI", TYPE_INT);
+    }
+
+    public static final String MUL_VI = VECTOR_PREFIX + "MUL_VI" + POSTFIX;
+    static {
+        vectorNode(MUL_VI, "MulVI", TYPE_INT);
+    }
+
+    /**
+     * Is {@code irVectorSizeString} a vector size string?
+     */
+    public static boolean isVectorSize(String irVectorSizeString) {
+        return irVectorSizeString.startsWith(VECTOR_SIZE);
+    }
+
+    public static final String RSHIFT_VI = VECTOR_PREFIX + "RSHIFT_VI" + POSTFIX;
+    static {
+        vectorNode(RSHIFT_VI, "RShiftVI", TYPE_INT);
+    }
+
+    public static final String AND_VI = VECTOR_PREFIX + "AND_VI" + POSTFIX;
+    static {
+        vectorNode(AND_VI, "AndV", TYPE_INT);
+    }
+
+    public static final String OR_VI = VECTOR_PREFIX + "OR_VI" + POSTFIX;
+    static {
+        vectorNode(OR_VI, "OrV", TYPE_INT);
+    }
+
+    public static final String XOR_VI = VECTOR_PREFIX + "XOR_VI" + POSTFIX;
+    static {
+        vectorNode(XOR_VI, "XorV", TYPE_INT);
+    }
+
+    public static final String URSHIFT_VI = VECTOR_PREFIX + "URSHIFT_VI" + POSTFIX;
+    static {
+        vectorNode(URSHIFT_VI, "URShiftVI", TYPE_INT);
+    }
+
+    /**
+     * Apply {@code irNodeRegex} as regex for the IR vector node name on all machine independent ideal graph phases up to and
+     * including {@link CompilePhase#BEFORE_MATCHING}. Since this is a vector node, we can also check the vector element
+     * type {@code typeString} and the vector size (number of elements), {@see VECTOR_SIZE}.
+     */
+    private static void vectorNode(String irNodePlaceholder, String irNodeRegex, String typeString) {
+        TestFramework.check(isVectorIRNode(irNodePlaceholder), "vectorNode: failed prefix check for irNodePlaceholder "
+                                                               + irNodePlaceholder + " -> did you use VECTOR_PREFIX?");
+        // IS_REPLACED is later replaced with the specific type and size of the vector.
+        String regex = START + irNodeRegex + MID  + IS_REPLACED + END;
+        IR_NODE_MAPPINGS.put(irNodePlaceholder, new RegexTypeEntry(RegexType.IDEAL_INDEPENDENT, regex));
+        VECTOR_NODE_TYPE.put(irNodePlaceholder, typeString);
+    }
+
+    /**
+     * Apply {@code irNodeRegex} as regex for the IR node name on all machine independent ideal graph phases up to and
+     * including {@link CompilePhase#BEFORE_MATCHING}.
+     */
+    private static void beforeMatchingNameRegex(String irNodePlaceholder, String irNodeRegex) {
+        String regex = START + irNodeRegex + MID + END;
+        IR_NODE_MAPPINGS.put(irNodePlaceholder, new RegexTypeEntry(RegexType.IDEAL_INDEPENDENT, regex));
+    }
+
+    /**
+     * Is {@code irVectorNodeString} an IR vector node placeholder string?
+     */
+    public static boolean isVectorIRNode(String irVectorNodeString) {
+        return irVectorNodeString.startsWith(VECTOR_PREFIX);
     }
 }
