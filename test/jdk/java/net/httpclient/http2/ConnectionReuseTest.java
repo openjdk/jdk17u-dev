@@ -56,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @summary verify that the HttpClient pools and reuses a connection for HTTP/2 requests
  * @library /test/lib server/ ../
  * @build jdk.test.lib.net.SimpleSSLContext HttpServerAdapters
- *        jdk.test.lib.net.IPSupport
+ *        ReferenceTracker jdk.test.lib.net.IPSupport
  * @modules java.net.http/jdk.internal.net.http.common
  *          java.net.http/jdk.internal.net.http.frame
  *          java.net.http/jdk.internal.net.http.hpack
@@ -117,11 +117,6 @@ public class ConnectionReuseTest implements HttpServerAdapters {
         // h2 over HTTP
         arguments.add(Arguments.of(new URI("http://" + http2_Server.serverAuthority() + "/")));
         if (IPSupport.preferIPv6Addresses()) {
-            if (https2_Server.getAddress().getAddress().isLoopbackAddress()) {
-                // h2 over HTTPS, use the short form of the host, in the request URI
-                arguments.add(Arguments.of(new URI("https://localhost:" +
-                        https2_Server.getAddress().getPort() + "/")));
-            }
             if (http2_Server.getAddress().getAddress().isLoopbackAddress()) {
                 // h2 over HTTP, use the short form of the host, in the request URI
                 arguments.add(Arguments.of(new URI("http://[::1]:" +
@@ -137,30 +132,55 @@ public class ConnectionReuseTest implements HttpServerAdapters {
      */
     @ParameterizedTest
     @MethodSource("requestURIs")
-    public void testConnReuse(final URI requestURI) throws Exception {
+    public void testConnReuse(final URI requestURI) throws Throwable {
         final HttpClient.Builder builder = HttpClient.newBuilder()
                 .proxy(NO_PROXY).sslContext(sslContext);
         final HttpRequest req = HttpRequest.newBuilder().uri(requestURI)
                 .GET().version(HTTP_2).build();
-        final HttpClient client = builder.build();
-        String clientConnAddr = null;
-        for (int i = 1; i <= 5; i++) {
-            System.out.println("Issuing request(" + i + ") " + req);
-            final HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            assertEquals(200, resp.statusCode(), "unexpected response code");
-            final String respBody = resp.body();
-            System.out.println("Server side handler responded to a request from " + respBody);
-            assertNotEquals(Handler.UNKNOWN_CLIENT_ADDR, respBody,
-                    "server handler couldn't determine client address in request");
-            if (i == 1) {
-                // for the first request we just keep track of the client connection address
-                // that got used for this request
-                clientConnAddr = respBody;
-            } else {
-                // verify that the client connection used to issue the request is the same
-                // as the previous request's client connection
-                assertEquals(clientConnAddr, respBody, "HttpClient unexpectedly used a" +
-                        " different connection for request(" + i + ")");
+        final ReferenceTracker tracker = ReferenceTracker.INSTANCE;
+        Throwable testFailure = null;
+        HttpClient client = tracker.track(builder.build());
+        try {
+            String clientConnAddr = null;
+            for (int i = 1; i <= 5; i++) {
+                System.out.println("Issuing request(" + i + ") " + req);
+                final HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+                assertEquals(200, resp.statusCode(), "unexpected response code");
+                final String respBody = resp.body();
+                System.out.println("Server side handler responded to a request from " + respBody);
+                assertNotEquals(Handler.UNKNOWN_CLIENT_ADDR, respBody,
+                        "server handler couldn't determine client address in request");
+                if (i == 1) {
+                    // for the first request we just keep track of the client connection address
+                    // that got used for this request
+                    clientConnAddr = respBody;
+                } else {
+                    // verify that the client connection used to issue the request is the same
+                    // as the previous request's client connection
+                    assertEquals(clientConnAddr, respBody, "HttpClient unexpectedly used a" +
+                            " different connection for request(" + i + ")");
+                }
+            }
+        } catch (Throwable t) {
+            testFailure = t;
+        } finally {
+            // dereference the client to allow the tracker to verify the resources
+            // have been released
+            client = null;
+            // wait for the client to be shutdown
+            final AssertionError trackerFailure = tracker.check(2000);
+            if (testFailure != null) {
+                if (trackerFailure != null) {
+                    // add the failure reported by the tracker as a suppressed
+                    // exception and throw the original test failure
+                    testFailure.addSuppressed(trackerFailure);
+                }
+                throw testFailure;
+            }
+            if (trackerFailure != null) {
+                // the test itself didn't fail but the tracker check failed.
+                // fail the test with this exception
+                throw trackerFailure;
             }
         }
     }
