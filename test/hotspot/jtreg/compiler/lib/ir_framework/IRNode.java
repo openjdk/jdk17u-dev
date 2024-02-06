@@ -254,7 +254,7 @@ public class IRNode {
     static {
         beforeMatchingNameRegex(STORE_VECTOR, "StoreVector");
     }
-    
+
     public static final String ADD_VI = VECTOR_PREFIX + "ADD_VI" + POSTFIX;
     static {
         vectorNode(ADD_VI, "AddVI", TYPE_INT);
