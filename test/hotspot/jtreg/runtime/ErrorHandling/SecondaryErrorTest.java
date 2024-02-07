@@ -28,7 +28,6 @@
  * @summary Synchronous signals during error reporting may terminate or hang VM process
  * @library /test/lib
  * @requires vm.flagless
- * @requires vm.flagless
  * @requires vm.debug
  * @requires os.family != "windows"
  * @author Thomas Stuefe (SAP)
