@@ -136,7 +136,7 @@ public class TestNewApiList extends JavadocTester {
                 table-tab">New Modules</button><button id="module-tab2" role="tab" aria-selected="fa\
                 lse" aria-controls="module.tabpanel" tabindex="-1" onkeydown="switchTab(event)" oncl\
                 ick="show('module', 'module-tab2', 2)" class="table-tab">Added in 3.2</button></div>
-                <div id="module.tabpanel" role="tabpanel" aria-labelledby="module-tab6">
+                <div id="module.tabpanel" role="tabpanel" aria-labelledby="module-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Module</div>
                 <div class="table-header col-last">Description</div>
@@ -153,7 +153,7 @@ public class TestNewApiList extends JavadocTester {
                 ed="false" aria-controls="package.tabpanel" tabindex="-1" onkeydown="switchTab(event\
                 )" onclick="show('package', 'package-tab5', 2)" class="table-tab">Added in v1.0</but\
                 ton></div>
-                <div id="package.tabpanel" role="tabpanel" aria-labelledby="package-tab6">
+                <div id="package.tabpanel" role="tabpanel" aria-labelledby="package-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Package</div>
                 <div class="table-header col-last">Description</div>
@@ -170,7 +170,7 @@ public class TestNewApiList extends JavadocTester {
                  aria-selected="false" aria-controls="interface.tabpanel" tabindex="-1" onkeydown="s\
                 witchTab(event)" onclick="show('interface', 'interface-tab6', 2)" class="table-tab">\
                 Added in 0.9</button></div>
-                <div id="interface.tabpanel" role="tabpanel" aria-labelledby="interface-tab6">
+                <div id="interface.tabpanel" role="tabpanel" aria-labelledby="interface-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Interface</div>
                 <div class="table-header col-last">Description</div>
@@ -187,7 +187,7 @@ public class TestNewApiList extends JavadocTester {
                 e-tab">New Classes</button><button id="class-tab4" role="tab" aria-selected="false" \
                 aria-controls="class.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="s\
                 how('class', 'class-tab4', 2)" class="table-tab">Added in 1.2</button></div>
-                <div id="class.tabpanel" role="tabpanel" aria-labelledby="class-tab6">
+                <div id="class.tabpanel" role="tabpanel" aria-labelledby="class-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Class</div>
                 <div class="table-header col-last">Description</div>
@@ -205,7 +205,7 @@ public class TestNewApiList extends JavadocTester {
                 e="tab" aria-selected="false" aria-controls="enum-class.tabpanel" tabindex="-1" onke\
                 ydown="switchTab(event)" onclick="show('enum-class', 'enum-class-tab6', 2)" class="t\
                 able-tab">Added in 0.9</button></div>
-                <div id="enum-class.tabpanel" role="tabpanel" aria-labelledby="enum-class-tab6">
+                <div id="enum-class.tabpanel" role="tabpanel" aria-labelledby="enum-class-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Enum Class</div>
                 <div class="table-header col-last">Description</div>
@@ -223,7 +223,7 @@ public class TestNewApiList extends JavadocTester {
                  aria-selected="false" aria-controls="exception.tabpanel" tabindex="-1" onkeydown="s\
                 witchTab(event)" onclick="show('exception', 'exception-tab6', 2)" class="table-tab">\
                 Added in 0.9</button></div>
-                <div id="exception.tabpanel" role="tabpanel" aria-labelledby="exception-tab6">
+                <div id="exception.tabpanel" role="tabpanel" aria-labelledby="exception-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Exceptions</div>
                 <div class="table-header col-last">Description</div>
@@ -240,7 +240,7 @@ public class TestNewApiList extends JavadocTester {
                 e-tab">New Errors</button><button id="error-tab3" role="tab" aria-selected="false" a\
                 ria-controls="error.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="sh\
                 ow('error', 'error-tab3', 2)" class="table-tab">Added in 2.0b</button></div>
-                <div id="error.tabpanel" role="tabpanel" aria-labelledby="error-tab6">
+                <div id="error.tabpanel" role="tabpanel" aria-labelledby="error-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Errors</div>
                 <div class="table-header col-last">Description</div>
@@ -258,7 +258,7 @@ public class TestNewApiList extends JavadocTester {
                 ss-tab2" role="tab" aria-selected="false" aria-controls="record-class.tabpanel" tabi\
                 ndex="-1" onkeydown="switchTab(event)" onclick="show('record-class', 'record-class-t\
                 ab2', 2)" class="table-tab">Added in 3.2</button></div>
-                <div id="record-class.tabpanel" role="tabpanel" aria-labelledby="record-class-tab6">
+                <div id="record-class.tabpanel" role="tabpanel" aria-labelledby="record-class-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Record Class</div>
                 <div class="table-header col-last">Description</div>
@@ -277,7 +277,7 @@ public class TestNewApiList extends JavadocTester {
                 lse" aria-controls="annotation-interface.tabpanel" tabindex="-1" onkeydown="switchTa\
                 b(event)" onclick="show('annotation-interface', 'annotation-interface-tab3', 2)" cla\
                 ss="table-tab">Added in 2.0b</button></div>
-                <div id="annotation-interface.tabpanel" role="tabpanel" aria-labelledby="annotation-interface-tab6">
+                <div id="annotation-interface.tabpanel" role="tabpanel" aria-labelledby="annotation-interface-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Annotation Interface</div>
                 <div class="table-header col-last">Description</div>
@@ -303,7 +303,7 @@ public class TestNewApiList extends JavadocTester {
                 field-tab5" role="tab" aria-selected="false" aria-controls="field.tabpanel" tabindex\
                 ="-1" onkeydown="switchTab(event)" onclick="show('field', 'field-tab5', 2)" class="t\
                 able-tab">Added in v1.0</button></div>
-                <div id="field.tabpanel" role="tabpanel" aria-labelledby="field-tab6">
+                <div id="field.tabpanel" role="tabpanel" aria-labelledby="field-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Field</div>
                 <div class="table-header col-last">Description</div>
@@ -346,7 +346,7 @@ public class TestNewApiList extends JavadocTester {
                 " aria-selected="false" aria-controls="method.tabpanel" tabindex="-1" onkeydown="swi\
                 tchTab(event)" onclick="show('method', 'method-tab5', 2)" class="table-tab">Added in\
                  v1.0</button></div>
-                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab6">
+                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Method</div>
                 <div class="table-header col-last">Description</div>
@@ -412,7 +412,7 @@ public class TestNewApiList extends JavadocTester {
                 ria-controls="constructor.tabpanel" tabindex="-1" onkeydown="switchTab(event)" oncli\
                 ck="show('constructor', 'constructor-tab3', 2)" class="table-tab">Added in 2.0b</but\
                 ton></div>
-                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab6">
+                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Constructor</div>
                 <div class="table-header col-last">Description</div>
@@ -455,7 +455,7 @@ public class TestNewApiList extends JavadocTester {
                 ria-selected="false" aria-controls="enum-constant.tabpanel" tabindex="-1" onkeydown=\
                 "switchTab(event)" onclick="show('enum-constant', 'enum-constant-tab6', 2)" class="t\
                 able-tab">Added in 0.9</button></div>
-                <div id="enum-constant.tabpanel" role="tabpanel" aria-labelledby="enum-constant-tab6">
+                <div id="enum-constant.tabpanel" role="tabpanel" aria-labelledby="enum-constant-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Enum Constant</div>
                 <div class="table-header col-last">Description</div>
@@ -493,7 +493,7 @@ public class TestNewApiList extends JavadocTester {
                 ed="false" aria-controls="annotation-interface-member.tabpanel" tabindex="-1" onkeyd\
                 own="switchTab(event)" onclick="show('annotation-interface-member', 'annotation-inte\
                 rface-member-tab3', 2)" class="table-tab">Added in 2.0b</button></div>
-                <div id="annotation-interface-member.tabpanel" role="tabpanel" aria-labelledby="annotation-interface-member-tab6">
+                <div id="annotation-interface-member.tabpanel" role="tabpanel" aria-labelledby="annotation-interface-member-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Annotation Interface Element</div>
                 <div class="table-header col-last">Description</div>
@@ -522,7 +522,7 @@ public class TestNewApiList extends JavadocTester {
                 r-removal-tab1" role="tab" aria-selected="false" aria-controls="for-removal.tabpanel\
                 " tabindex="-1" onkeydown="switchTab(event)" onclick="show('for-removal', 'for-remov\
                 al-tab1', 2)" class="table-tab">Terminally Deprecated in 5</button></div>
-                <div id="for-removal.tabpanel" role="tabpanel" aria-labelledby="for-removal-tab6">
+                <div id="for-removal.tabpanel" role="tabpanel" aria-labelledby="for-removal-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Element</div>
                 <div class="table-header col-last">Description</div>
@@ -539,7 +539,7 @@ public class TestNewApiList extends JavadocTester {
                 ted="false" aria-controls="method.tabpanel" tabindex="-1" onkeydown="switchTab(event\
                 )" onclick="show('method', 'method-tab1', 2)" class="table-tab">Deprecated in 5</but\
                 ton></div>
-                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab6">
+                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Method</div>
                 <div class="table-header col-last">Description</div>
@@ -556,7 +556,7 @@ public class TestNewApiList extends JavadocTester {
                 or-tab1" role="tab" aria-selected="false" aria-controls="constructor.tabpanel" tabin\
                 dex="-1" onkeydown="switchTab(event)" onclick="show('constructor', 'constructor-tab1\
                 ', 2)" class="table-tab">Deprecated in 5</button></div>
-                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab6">
+                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Constructor</div>
                 <div class="table-header col-last">Description</div>
@@ -573,7 +573,7 @@ public class TestNewApiList extends JavadocTester {
                 "enum-constant-tab1" role="tab" aria-selected="false" aria-controls="enum-constant.t\
                 abpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('enum-constant', '\
                 enum-constant-tab1', 2)" class="table-tab">Deprecated in 5</button></div>
-                <div id="enum-constant.tabpanel" role="tabpanel" aria-labelledby="enum-constant-tab6">
+                <div id="enum-constant.tabpanel" role="tabpanel" aria-labelledby="enum-constant-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Enum Constant</div>
                 <div class="table-header col-last">Description</div>
@@ -592,7 +592,7 @@ public class TestNewApiList extends JavadocTester {
                 erface-member.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('an\
                 notation-interface-member', 'annotation-interface-member-tab1', 2)" class="table-tab\
                 ">Deprecated in 5</button></div>
-                <div id="annotation-interface-member.tabpanel" role="tabpanel" aria-labelledby="annotation-interface-member-tab6">
+                <div id="annotation-interface-member.tabpanel" role="tabpanel" aria-labelledby="annotation-interface-member-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Annotation Interface Element</div>
                 <div class="table-header col-last">Description</div>
@@ -626,7 +626,7 @@ public class TestNewApiList extends JavadocTester {
                 table-tab">New Methods</button><button id="method-tab1" role="tab" aria-selected="fa\
                 lse" aria-controls="method.tabpanel" tabindex="-1" onkeydown="switchTab(event)" oncl\
                 ick="show('method', 'method-tab1', 2)" class="table-tab">New Methods</button></div>
-                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab1">
+                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Method</div>
                 <div class="table-header col-last">Description</div>
@@ -650,7 +650,7 @@ public class TestNewApiList extends JavadocTester {
                 " role="tab" aria-selected="false" aria-controls="constructor.tabpanel" tabindex="-1\
                 " onkeydown="switchTab(event)" onclick="show('constructor', 'constructor-tab1', 2)" \
                 class="table-tab">New Constructors</button></div>
-                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab1">
+                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Constructor</div>
                 <div class="table-header col-last">Description</div>
@@ -689,7 +689,7 @@ public class TestNewApiList extends JavadocTester {
                 r-removal-tab1" role="tab" aria-selected="false" aria-controls="for-removal.tabpanel\
                 " tabindex="-1" onkeydown="switchTab(event)" onclick="show('for-removal', 'for-remov\
                 al-tab1', 2)" class="table-tab">Terminally Deprecated in 5</button></div>
-                <div id="for-removal.tabpanel" role="tabpanel" aria-labelledby="for-removal-tab1">
+                <div id="for-removal.tabpanel" role="tabpanel" aria-labelledby="for-removal-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Element</div>
                 <div class="table-header col-last">Description</div>
@@ -706,7 +706,7 @@ public class TestNewApiList extends JavadocTester {
                 ted="false" aria-controls="method.tabpanel" tabindex="-1" onkeydown="switchTab(event\
                 )" onclick="show('method', 'method-tab1', 2)" class="table-tab">Deprecated in 5</but\
                 ton></div>
-                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab1">
+                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Method</div>
                 <div class="table-header col-last">Description</div>
@@ -723,7 +723,7 @@ public class TestNewApiList extends JavadocTester {
                 or-tab1" role="tab" aria-selected="false" aria-controls="constructor.tabpanel" tabin\
                 dex="-1" onkeydown="switchTab(event)" onclick="show('constructor', 'constructor-tab1\
                 ', 2)" class="table-tab">Deprecated in 5</button></div>
-                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab1">
+                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Constructor</div>
                 <div class="table-header col-last">Description</div>
@@ -761,7 +761,7 @@ public class TestNewApiList extends JavadocTester {
                 e-tab">New Classes</button><button id="class-tab5" role="tab" aria-selected="false" \
                 aria-controls="class.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="s\
                 how('class', 'class-tab5', 2)" class="table-tab">Added in 1.2</button></div>
-                <div id="class.tabpanel" role="tabpanel" aria-labelledby="class-tab5">
+                <div id="class.tabpanel" role="tabpanel" aria-labelledby="class-tab50">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Class</div>
                 <div class="table-header col-last">Description</div>
@@ -778,7 +778,7 @@ public class TestNewApiList extends JavadocTester {
                 e-tab">New Fields</button><button id="field-tab5" role="tab" aria-selected="false" a\
                 ria-controls="field.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="sh\
                 ow('field', 'field-tab5', 2)" class="table-tab">Added in 1.2</button></div>
-                <div id="field.tabpanel" role="tabpanel" aria-labelledby="field-tab5">
+                <div id="field.tabpanel" role="tabpanel" aria-labelledby="field-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Field</div>
                 <div class="table-header col-last">Description</div>
@@ -801,7 +801,7 @@ public class TestNewApiList extends JavadocTester {
                 ed="false" aria-controls="method.tabpanel" tabindex="-1" onkeydown="switchTab(event)\
                 " onclick="show('method', 'method-tab4', 2)" class="table-tab">Added in 2.0b</button\
                 ></div>
-                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab5">
+                <div id="method.tabpanel" role="tabpanel" aria-labelledby="method-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Method</div>
                 <div class="table-header col-last">Description</div>
@@ -833,7 +833,7 @@ public class TestNewApiList extends JavadocTester {
                 -selected="false" aria-controls="constructor.tabpanel" tabindex="-1" onkeydown="swit\
                 chTab(event)" onclick="show('constructor', 'constructor-tab4', 2)" class="table-tab"\
                 >Added in 2.0b</button></div>
-                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab5">
+                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Constructor</div>
                 <div class="table-header col-last">Description</div>
@@ -872,7 +872,7 @@ public class TestNewApiList extends JavadocTester {
                 or-tab2" role="tab" aria-selected="false" aria-controls="constructor.tabpanel" tabin\
                 dex="-1" onkeydown="switchTab(event)" onclick="show('constructor', 'constructor-tab2\
                 ', 2)" class="table-tab">Deprecated in 5</button></div>
-                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab5">
+                <div id="constructor.tabpanel" role="tabpanel" aria-labelledby="constructor-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Constructor</div>
                 <div class="table-header col-last">Description</div>
