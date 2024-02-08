@@ -761,7 +761,7 @@ public class TestNewApiList extends JavadocTester {
                 e-tab">New Classes</button><button id="class-tab5" role="tab" aria-selected="false" \
                 aria-controls="class.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="s\
                 how('class', 'class-tab5', 2)" class="table-tab">Added in 1.2</button></div>
-                <div id="class.tabpanel" role="tabpanel" aria-labelledby="class-tab50">
+                <div id="class.tabpanel" role="tabpanel" aria-labelledby="class-tab0">
                 <div class="summary-table two-column-summary">
                 <div class="table-header col-first">Class</div>
                 <div class="table-header col-last">Description</div>
