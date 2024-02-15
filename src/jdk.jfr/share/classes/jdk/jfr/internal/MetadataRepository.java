@@ -144,7 +144,7 @@ public final class MetadataRepository {
         handler.setRegistered(true);
         typeLibrary.addType(handler.getPlatformEventType());
         if (jvm.isRecording()) {
-            settingsManager.setEventControl(handler.getEventControl(), true);
+            settingsManager.setEventControl(handler.getEventControl(), true, JVM.counterTime());
             settingsManager.updateRetransform(Collections.singletonList((eventClass)));
        }
        setStaleMetadata();

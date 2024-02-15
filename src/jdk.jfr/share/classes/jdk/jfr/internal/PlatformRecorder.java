@@ -494,8 +494,9 @@ public final class PlatformRecorder {
             }
         }
         if (activeSettingEvent.isEnabled()) {
+            long timestamp = JVM.counterTime();
             for (EventControl ec : MetadataRepository.getInstance().getEventControls()) {
-                ec.writeActiveSettingEvent();
+                ec.writeActiveSettingEvent(timestamp);
             }
         }
     }
