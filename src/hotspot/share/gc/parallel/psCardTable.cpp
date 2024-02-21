@@ -151,8 +151,8 @@ class PSStripeShadowCardTable {
 
 public:
   PSStripeShadowCardTable(PSCardTable* pst, HeapWord* const start, HeapWord* const end) :
-    _card_shift(CardTable::card_shift()),
-    _card_size(CardTable::card_size()),
+    _card_shift(CardTable::card_shift),
+    _card_size(CardTable::card_size),
     _table_base(_table - (uintptr_t(start) >> _card_shift)) {
     size_t stripe_byte_size = pointer_delta(end, start) * HeapWordSize;
     size_t copy_length = align_up(stripe_byte_size, _card_size) >> _card_shift;
@@ -388,7 +388,7 @@ void PSCardTable::scavenge_contents_parallel(ObjectStartArray* start_array,
 
   // Scavenge
   cached_obj = {nullptr, old_gen_bottom};
-  const size_t stripe_size_in_words = num_cards_in_stripe * _card_size_in_words;
+  const size_t stripe_size_in_words = num_cards_in_stripe * card_size_in_words;
   const size_t slice_size_in_words = stripe_size_in_words * n_stripes;
   HeapWord* cur_addr = old_gen_bottom + stripe_index * stripe_size_in_words;
   for (/* empty */; cur_addr < old_gen_top; cur_addr += slice_size_in_words) {
