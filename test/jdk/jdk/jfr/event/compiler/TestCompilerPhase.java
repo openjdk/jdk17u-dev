@@ -45,6 +45,7 @@ import jdk.test.whitebox.WhiteBox;
  *     -XX:+UnlockDiagnosticVMOptions -XX:+WhiteBoxAPI
  *     -XX:CompileOnly=jdk.jfr.event.compiler.TestCompilerPhase::dummyMethod
  *     -XX:+SegmentedCodeCache -Xbootclasspath/a:.
+ *     -XX:-NeverActAsServerClassMachine
  *     jdk.jfr.event.compiler.TestCompilerPhase
  */
 public class TestCompilerPhase {
