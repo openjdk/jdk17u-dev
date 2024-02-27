@@ -169,7 +169,8 @@ public interface JMXConnector extends Closeable {
      * MBean server has not yet been established (with the {@link #connect(Map)
      * connect} method), or it has been closed, or it has broken.
      */
-    public MBeanServerConnection getMBeanServerConnection(
+     @Deprecated(since="21", forRemoval=true)
+     public MBeanServerConnection getMBeanServerConnection(
                                                Subject delegationSubject)
             throws IOException;
 

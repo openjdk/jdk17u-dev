@@ -389,7 +389,8 @@ public class RMIConnector implements JMXConnector, Serializable, JMXAddressable 
     throws IOException {
         return getMBeanServerConnection(null);
     }
-
+    
+    @SuppressWarnings("removal")
     public synchronized MBeanServerConnection
             getMBeanServerConnection(Subject delegationSubject)
             throws IOException {
