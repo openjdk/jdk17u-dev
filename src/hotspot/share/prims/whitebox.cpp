@@ -2318,22 +2318,19 @@ WB_ENTRY(void, WB_CheckThreadObjOfTerminatingThread(JNIEnv* env, jobject wb, job
 WB_END
 
 WB_ENTRY(void, WB_VerifyFrames(JNIEnv* env, jobject wb, jboolean log, jboolean update_map))
-  intx tty_token = -1;
-  if (log) {
-    tty_token = ttyLocker::hold_tty();
-    tty->print_cr("[WhiteBox::VerifyFrames] Walking Frames");
-  }
   ResourceMark rm; // for verify
+  stringStream st;
   for (StackFrameStream fst(JavaThread::current(), update_map, true); !fst.is_done(); fst.next()) {
     frame* current_frame = fst.current();
     if (log) {
-      current_frame->print_value();
+      current_frame->print_value_on(&st, NULL);
     }
     current_frame->verify(fst.register_map());
   }
   if (log) {
+    tty->print_cr("[WhiteBox::VerifyFrames] Walking Frames");
+    tty->print_raw(st.as_string());
     tty->print_cr("[WhiteBox::VerifyFrames] Done");
-    ttyLocker::release_tty(tty_token);
   }
 WB_END
 
@@ -2370,6 +2367,10 @@ WB_ENTRY(void, WB_PreTouchMemory(JNIEnv* env, jobject wb, jlong addr, jlong size
   if (from > to) {
     os::pretouch_memory(from, to, os::vm_page_size());
   }
+WB_END
+
+WB_ENTRY(void, WB_CleanMetaspaces(JNIEnv* env, jobject target))
+  ClassLoaderDataGraph::safepoint_and_clean_metaspaces();
 WB_END
 
 #define CC (char*)
@@ -2640,6 +2641,7 @@ static JNINativeMethod methods[] = {
   {CC"lockCritical",    CC"()V",                      (void*)&WB_LockCritical},
   {CC"unlockCritical",  CC"()V",                      (void*)&WB_UnlockCritical},
   {CC"preTouchMemory",  CC"(JJ)V",                    (void*)&WB_PreTouchMemory},
+  {CC"cleanMetaspaces", CC"()V",                      (void*)&WB_CleanMetaspaces},
 };
 
 
