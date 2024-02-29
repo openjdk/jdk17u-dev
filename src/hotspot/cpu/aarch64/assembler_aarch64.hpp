@@ -763,6 +763,8 @@ public:
 
   void adrp(Register Rd, const Address &dest, uint64_t &offset);
 
+  void prfm(const Address &adr, prfop pfop = PLDL1KEEP);
+
 #undef INSN
 
   void add_sub_immediate(Register Rd, Register Rn, unsigned uimm, int op,
@@ -1495,17 +1497,6 @@ public:
   INSN(ldrsh, 0b01, 0b10);
   INSN(ldrshw, 0b01, 0b11);
   INSN(ldrsw, 0b10, 0b10);
-
-#undef INSN
-
-#define INSN(NAME, size, op)                                    \
-  void NAME(const Address &adr, prfop pfop = PLDL1KEEP) {       \
-    ld_st2((Register)pfop, adr, size, op);                      \
-  }
-
-  INSN(prfm, 0b11, 0b10); // FIXME: PRFM should not be used with
-                          // writeback modes, but the assembler
-                          // doesn't enfore that.
 
 #undef INSN
 
