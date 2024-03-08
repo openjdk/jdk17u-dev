@@ -563,9 +563,9 @@ public final class String
                     }
                 }
                 if (dp == 0 || dst == null) {
-                    dst = new byte[length << 1];
+                    dst = StringUTF16.newBytesFor(length);
                 } else {
-                    byte[] buf = new byte[length << 1];
+                    byte[] buf = StringUTF16.newBytesFor(length);
                     StringLatin1.inflate(dst, 0, buf, 0, dp);
                     dst = buf;
                 }
@@ -723,9 +723,9 @@ public final class String
                 }
             }
             if (dp == 0 || dst == null) {
-                dst = new byte[length << 1];
+                dst = StringUTF16.newBytesFor(length);
             } else {
-                byte[] buf = new byte[length << 1];
+                byte[] buf = StringUTF16.newBytesFor(length);
                 StringLatin1.inflate(dst, 0, buf, 0, dp);
                 dst = buf;
             }
