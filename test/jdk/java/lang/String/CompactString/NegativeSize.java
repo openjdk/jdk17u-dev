@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
  * @bug 8077559
  * @summary Tests Compact String for negative size.
  * @requires vm.bits == 64 & os.maxMemory >= 4G
+ * @compile -encoding utf-8 NegativeSize.java
  * @run main/othervm -XX:+CompactStrings -Xmx4g NegativeSize
  * @run main/othervm -XX:-CompactStrings -Xmx4g NegativeSize
  */
