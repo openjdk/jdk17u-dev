@@ -72,6 +72,7 @@ import static org.testng.Assert.fail;
  * @bug 8196965 8302475
  * @library /test/lib /test/jdk/java/net/httpclient/lib
  * @build jdk.httpclient.test.lib.http2.Http2TestServer jdk.test.lib.net.SimpleSSLContext
+ *        jdk.test.lib.Platform jdk.test.lib.util.FileUtils
  * @run testng/othervm AsFileDownloadTest
  * @run testng/othervm/java.security.policy=AsFileDownloadTest.policy AsFileDownloadTest
  */
