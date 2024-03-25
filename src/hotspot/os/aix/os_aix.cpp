@@ -1144,13 +1144,10 @@ bool os::dll_address_to_library_name(address addr, char* buf,
   return AixSymbols::get_module_name(addr, buf, buflen);
 }
 
-
-
 // Loads .dll/.so and in case of error it checks if .dll/.so was built
 // for the same architecture as Hotspot is running on.
-static void* dll_load_library(const char *filename, char *ebuf, int ebuflen) {
-  printf("cjeclomg dll_load here %s",filename);
   log_info(os)("attempting shared library load of %s", filename);
+  
   if (ebuf && ebuflen > 0) {
     ebuf[0] = '\0';
     ebuf[ebuflen - 1] = '\0';
@@ -1160,9 +1157,6 @@ static void* dll_load_library(const char *filename, char *ebuf, int ebuflen) {
     ::strncpy(ebuf, "dll_load: empty filename specified", ebuflen - 1);
     return NULL;
   }
-
-
-
 
   // RTLD_LAZY is currently not implemented. The dl is loaded immediately with all its dependants.
   void * result= ::dlopen(filename, RTLD_LAZY);
