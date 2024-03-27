@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import sun.security.action.GetIntegerAction;
+import sun.security.action.GetPropertyAction;
 import sun.security.util.Debug;
 import sun.security.util.Event;
 import sun.security.util.IOUtils;
@@ -119,7 +120,9 @@ public final class OCSP {
     }
 
     private static boolean initializeBoolean(String prop, String def) {
-        String flag = GetPropertyAction.privilegedGetProperty(prop, def);
+        @SuppressWarnings("removal")
+        String flag = java.security.AccessController.doPrivileged(
+                new GetPropertyAction(prop, def));
         boolean value = Boolean.parseBoolean(flag);
         if (debug != null) {
             debug.println(prop + " set to " + value);
