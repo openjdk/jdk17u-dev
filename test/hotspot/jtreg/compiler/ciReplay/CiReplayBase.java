@@ -124,7 +124,7 @@ public abstract class CiReplayBase {
 
     public abstract void testAction();
 
-    private static void remove(String item) {
+    public static void remove(String item) {
         File toDelete = new File(item);
         toDelete.delete();
         if (Platform.isWindows()) {
@@ -188,6 +188,10 @@ public abstract class CiReplayBase {
         }
         removeFromCurrentDirectoryStartingWith(HS_ERR_NAME);
         return true;
+    }
+
+    public String getTestClass() {
+        return TestMain.class.getName();
     }
 
     public String getTestMethod() {
