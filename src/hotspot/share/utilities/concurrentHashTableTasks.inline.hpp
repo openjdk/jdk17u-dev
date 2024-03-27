@@ -56,7 +56,7 @@ class ConcurrentHashTable<CONFIG, F>::BucketsOperation {
 
   // Returns true if you succeeded to claim the range start -> (stop-1).
   bool claim(size_t* start, size_t* stop) {
-    size_t claimed = Atomic::fetch_and_add(&_next_to_claim, 1u);
+    size_t claimed = Atomic::fetch_then_add(&_next_to_claim, 1u);
     if (claimed >= _stop_task) {
       return false;
     }
