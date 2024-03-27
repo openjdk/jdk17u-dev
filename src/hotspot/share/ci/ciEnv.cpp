@@ -1185,6 +1185,26 @@ ciInstance* ciEnv::unloaded_ciinstance() {
 // Don't change thread state and acquire any locks.
 // Safe to call from VM error reporter.
 
+
+// Look up the location descriptor for the given class and return it as a string.
+// Returns the class name as a fallback if no location is found.
+const char *ciEnv::replay_name(ciKlass* k) const {
+  if (k->is_instance_klass()) {
+    return replay_name(k->as_instance_klass()->get_instanceKlass());
+  }
+  return k->name()->as_quoted_ascii();
+}
+
+// Look up the location descriptor for the given class and return it as a string.
+// Returns the class name as a fallback if no location is found.
+const char *ciEnv::replay_name(const InstanceKlass* ik) const {
+  const char* name = nullptr; // dyno_name(ik);
+  if (name != nullptr) {
+      return name;
+  }
+  return ik->name()->as_quoted_ascii();
+}
+
 void ciEnv::dump_compile_data(outputStream* out) {
   CompileTask* task = this->task();
   if (task) {
