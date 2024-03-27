@@ -694,7 +694,7 @@ class CompileReplay : public StackObj {
       // in signatures of inlinees. This ensures that inlining can be done as stated in the replay file.
       _protection_domain = Handle(_thread, k->protection_domain());
     }
-  
+
     // Only initialize the protection domain handle with the protection domain of the very first entry.
     // This also ensures that older replay files work.
     _protection_domain_initialized = true;
