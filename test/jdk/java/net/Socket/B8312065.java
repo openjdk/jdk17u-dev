@@ -73,8 +73,8 @@ public class B8312065 {
 
         try {
             Socket socket = new Socket();
-            // There is no good way to mock SocketTimeoutException, just assume 192.168.255.255 is not in use
-            socket.connect(new InetSocketAddress("192.168.255.255", 8080), timeoutMillis);
+            // There is no good way to mock SocketTimeoutException, use reserved IP from https://www.rfc-editor.org/rfc/rfc5737
+            socket.connect(new InetSocketAddress("192.0.2.1", 8080), timeoutMillis);
         } catch (SocketTimeoutException e) {
             long duration = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
             if (duration >= timeoutMillis) {
