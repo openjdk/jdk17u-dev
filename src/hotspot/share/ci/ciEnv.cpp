@@ -1198,6 +1198,7 @@ const char *ciEnv::replay_name(ciKlass* k) const {
 // Look up the location descriptor for the given class and return it as a string.
 // Returns the class name as a fallback if no location is found.
 const char *ciEnv::replay_name(const InstanceKlass* ik) const {
+  // JDK-8271911 is not in JDK 17, so we fall back to using the class name below.
   const char* name = nullptr; // dyno_name(ik);
   if (name != nullptr) {
       return name;
