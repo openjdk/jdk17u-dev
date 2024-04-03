@@ -262,7 +262,7 @@ public class EquivMapsGenerator {
         + "    static final Map<String, String[]> multiEquivsMap;\n"
         + "    static final Map<String, String> regionVariantEquivMap;\n\n"
         + "    static {\n"
-        + "        singleEquivMap = HashMap.newHashMap(";
+        + "        singleEquivMap = new HashMap<>(";
 
     private static final String footerText =
         "    }\n\n"
@@ -285,9 +285,9 @@ public class EquivMapsGenerator {
             writer.write(getOpenJDKCopyright());
             writer.write(headerText
                 + sortedLanguageMap1.size() + ");\n"
-                + "        multiEquivsMap = HashMap.newHashMap("
+                + "        multiEquivsMap = new HashMap<>("
                 + sortedLanguageMap2.size() + ");\n"
-                + "        regionVariantEquivMap = HashMap.newHashMap("
+                + "        regionVariantEquivMap = new HashMap<>("
                 + sortedRegionVariantMap.size() + ");\n\n"
                 + "        // This is an auto-generated file and should not be manually edited.\n"
                 + "        //   LSR Revision: " + LSRrevisionDate);
