@@ -308,6 +308,22 @@ public:
     rdy = 0b111,     // in instruction's rm field, selects dynamic rounding mode.In Rounding Mode register, Invalid.
   };
 
+  // handle unaligned access
+  static inline uint16_t ld_c_instr(address addr) {
+    return Bytes::get_native_u2(addr);
+  }
+  static inline void sd_c_instr(address addr, uint16_t c_instr) {
+    Bytes::put_native_u2(addr, c_instr);
+  }
+
+  // handle unaligned access
+  static inline uint32_t ld_instr(address addr) {
+    return Bytes::get_native_u4(addr);
+  }
+  static inline void sd_instr(address addr, uint32_t instr) {
+    Bytes::put_native_u4(addr, instr);
+  }
+
   static inline uint32_t extract(uint32_t val, unsigned msb, unsigned lsb) {
     assert_cond(msb >= lsb && msb <= 31);
     unsigned nbits = msb - lsb + 1;
@@ -332,10 +348,10 @@ public:
     unsigned mask = (1U << nbits) - 1;
     val <<= lsb;
     mask <<= lsb;
-    unsigned target = *(unsigned *)a;
+    unsigned target = ld_instr(a);
     target &= ~mask;
     target |= val;
-    *(unsigned *)a = target;
+    sd_instr(a, target);
   }
 
   static void patch(address a, unsigned bit, unsigned val) {
@@ -1877,10 +1893,10 @@ public:
     uint16_t mask = (1U << nbits) - 1;
     val <<= lsb;
     mask <<= lsb;
-    uint16_t target = *(uint16_t *)a;
+    uint16_t target = ld_c_instr(a);
     target &= ~mask;
     target |= val;
-    *(uint16_t *)a = target;
+    sd_c_instr(a, target);
   }
 
   static void c_patch(address a, unsigned bit, uint16_t val) {
@@ -2764,6 +2780,17 @@ public:
 
   static bool reachable_from_branch_at(address branch, address target) {
     return uabs(target - branch) < branch_range;
+  }
+
+  // Decode the given instruction, checking if it's a 16-bit compressed
+  // instruction and return the address of the next instruction.
+  static address locate_next_instruction(address inst) {
+    // Instruction wider than 16 bits has the two least-significant bits set.
+    if ((0x3 & *inst) == 0x3) {
+      return inst + instruction_size;
+    } else {
+      return inst + compressed_instruction_size;
+    }
   }
 
   Assembler(CodeBuffer* code) : AbstractAssembler(code), _in_compressible_region(false) {}

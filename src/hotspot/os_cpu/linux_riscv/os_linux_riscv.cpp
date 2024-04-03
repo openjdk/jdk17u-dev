@@ -231,7 +231,7 @@ bool PosixSignals::pd_hotspot_signal_handler(int sig, siginfo_t* info,
         CompiledMethod* nm = (cb != NULL) ? cb->as_compiled_method_or_null() : NULL;
         bool is_unsafe_arraycopy = (thread->doing_unsafe_access() && UnsafeCopyMemory::contains_pc(pc));
         if ((nm != NULL && nm->has_unsafe_access()) || is_unsafe_arraycopy) {
-          address next_pc = pc + NativeCall::instruction_size;
+          address next_pc = Assembler::locate_next_instruction(pc);
           if (is_unsafe_arraycopy) {
             next_pc = UnsafeCopyMemory::page_error_continue_pc(pc);
           }
@@ -272,7 +272,7 @@ bool PosixSignals::pd_hotspot_signal_handler(int sig, siginfo_t* info,
                 thread->thread_state() == _thread_in_native) &&
                 sig == SIGBUS && /* info->si_code == BUS_OBJERR && */
                 thread->doing_unsafe_access()) {
-      address next_pc = pc + NativeCall::instruction_size;
+      address next_pc = Assembler::locate_next_instruction(pc);
       if (UnsafeCopyMemory::contains_pc(pc)) {
         next_pc = UnsafeCopyMemory::page_error_continue_pc(pc);
       }
@@ -358,16 +358,15 @@ void os::print_tos_pc(outputStream *st, const void *context) {
 
   const ucontext_t* uc = (const ucontext_t*)context;
 
-  intptr_t *frame_sp = (intptr_t *)os::Linux::ucontext_get_sp(uc);
-  st->print_cr("Top of Stack: (sp=" PTR_FORMAT ")", p2i(frame_sp));
-  print_hex_dump(st, (address)frame_sp, (address)(frame_sp + 64), sizeof(intptr_t));
+  address sp = (address)os::Linux::ucontext_get_sp(uc);
+  print_tos(st, sp);
   st->cr();
 
   // Note: it may be unsafe to inspect memory near pc. For example, pc may
   // point to garbage if entry point in an nmethod is corrupted. Leave
   // this at the end, and hope for the best.
   address pc = os::fetch_frame_from_context(uc).pc();
-  print_instructions(st, pc, UseRVC ? sizeof(char) : (int)NativeInstruction::instruction_size);
+  print_instructions(st, pc);
   st->cr();
 }
 

@@ -472,16 +472,15 @@ void os::print_tos_pc(outputStream *st, const void *context) {
 
   const ucontext_t* uc = (const ucontext_t*)context;
 
-  intptr_t *sp = (intptr_t *)os::Bsd::ucontext_get_sp(uc);
-  st->print_cr("Top of Stack: (sp=" INTPTR_FORMAT ")", (intptr_t)sp);
-  print_hex_dump(st, (address)sp, (address)(sp + 8*sizeof(intptr_t)), sizeof(intptr_t));
+  address sp = (address)os::Bsd::ucontext_get_sp(uc);
+  print_tos(st, sp);
   st->cr();
 
   // Note: it may be unsafe to inspect memory near pc. For example, pc may
   // point to garbage if entry point in an nmethod is corrupted. Leave
   // this at the end, and hope for the best.
   address pc = os::Posix::ucontext_get_pc(uc);
-  print_instructions(st, pc, 4/*native instruction size*/);
+  print_instructions(st, pc);
   st->cr();
 }
 

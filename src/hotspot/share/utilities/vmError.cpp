@@ -50,6 +50,7 @@
 #include "runtime/stackFrameStream.inline.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/threadSMR.hpp"
+#include "runtime/trimNativeHeap.hpp"
 #include "runtime/vmThread.hpp"
 #include "runtime/vmOperations.hpp"
 #include "runtime/vm_version.hpp"
@@ -401,7 +402,7 @@ static void print_oom_reasons(outputStream* st) {
   st->print_cr("# Possible reasons:");
   st->print_cr("#   The system is out of physical RAM or swap space");
   if (UseCompressedOops) {
-    st->print_cr("#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap");
+    st->print_cr("#   This process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap");
   }
   if (LogBytesPerWord == 2) {
     st->print_cr("#   In 32 bit mode, the process size limit was hit");
@@ -637,9 +638,9 @@ void VMError::report(outputStream* st, bool _verbose) {
                                                       "(mprotect) failed to protect ");
            jio_snprintf(buf, sizeof(buf), SIZE_FORMAT, _size);
            st->print("%s", buf);
-           st->print(" bytes");
+           st->print(" bytes.");
            if (strlen(_detail_msg) > 0) {
-             st->print(" for ");
+             st->print(" Error detail: ");
              st->print("%s", _detail_msg);
            }
            st->cr();
@@ -1202,6 +1203,14 @@ void VMError::report(outputStream* st, bool _verbose) {
   STEP("Native Memory Tracking")
      if (_verbose) {
        MemTracker::error_report(st);
+       st->cr();
+     }
+
+  STEP("printing periodic trim state")
+
+     if (_verbose) {
+       NativeHeapTrimmer::print_state(st);
+       st->cr();
      }
 
   STEP("printing system")
@@ -1387,10 +1396,14 @@ void VMError::print_vm_info(outputStream* st) {
   // STEP("Native Memory Tracking")
 
   MemTracker::error_report(st);
+  st->cr();
+
+  // STEP("printing periodic trim state")
+  NativeHeapTrimmer::print_state(st);
+  st->cr();
+
 
   // STEP("printing system")
-
-  st->cr();
   st->print_cr("---------------  S Y S T E M  ---------------");
   st->cr();
 
@@ -1746,6 +1759,7 @@ void VMError::report_and_die(int id, const char* message, const char* detail_fmt
           int e = errno;
           out.print_raw("#\n# Can't open file to dump replay data. Error: ");
           out.print_raw_cr(os::strerror(e));
+          close(fd);
         }
       }
     }
