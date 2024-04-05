@@ -66,7 +66,7 @@ public class ISO639 {
     @ParameterizedTest
     @MethodSource("expectedISO639Codes")
     public void ISO3LetterTest(String ISO2, String expectedISO3) {
-        Locale loc = Locale.of(ISO2);
+        Locale loc = new Locale(ISO2);
         String actualISO3 = loc.getISO3Language();
         assertEquals(actualISO3, expectedISO3,
                 String.format("The Locale '%s' returned a bad ISO3 language code. " +
