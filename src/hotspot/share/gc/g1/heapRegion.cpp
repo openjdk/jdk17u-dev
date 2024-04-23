@@ -493,8 +493,7 @@ public:
   }
 
   void set_containing_obj(oop obj) {
-    assert(!_g1h->is_obj_dead_cond(_containing_obj, _vo),
-           "Precondition");
+    assert(!_g1h->is_obj_dead_cond(obj, _vo), "Precondition");
     _containing_obj = obj;
   }
 
