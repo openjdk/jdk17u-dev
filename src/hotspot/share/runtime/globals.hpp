@@ -893,9 +893,6 @@ const intx ObjectAlignmentInBytes = 8;
   develop(bool, TraceICs, false,                                            \
           "Trace inline cache changes")                                     \
                                                                             \
-  notproduct(bool, TraceInvocationCounterOverflow, false,                   \
-          "Trace method invocation counter overflow")                       \
-                                                                            \
   develop(bool, TraceInlineCacheClearing, false,                            \
           "Trace clearing of inline caches in nmethods")                    \
                                                                             \
