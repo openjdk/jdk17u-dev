@@ -42,7 +42,7 @@ public class ThreadTracker {
     private record ThreadRef(Thread thread) {
         @Override
         public int hashCode() {
-            return Long.hashCode(thread.threadId());
+            return Long.hashCode(thread.getId());
         }
         @Override
         public boolean equals(Object obj) {
