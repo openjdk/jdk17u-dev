@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Red Hat, Inc. All rights reserved.
+ * Copyright (c) 2017, 2024, Red Hat, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,7 +29,15 @@
  * @library /test/lib
  * @run driver TestSelectiveBarrierFlags -Xint
  * @run driver TestSelectiveBarrierFlags -Xbatch -XX:CompileThreshold=100 -XX:TieredStopAtLevel=1
- * @run driver TestSelectiveBarrierFlags -Xbatch -XX:CompileThreshold=100 -XX:-TieredCompilation -XX:+IgnoreUnrecognizedVMOptions -XX:+ShenandoahVerifyOptoBarriers
+ */
+
+ /* @test
+ * @summary Test selective barrier enabling works, by aggressively compiling HelloWorld with combinations
+ *          of barrier flags
+ * @requires vm.gc.Shenandoah
+ * @requires vm.debug
+ * @library /test/lib
+ * @run driver TestSelectiveBarrierFlags -Xbatch -XX:CompileThreshold=100 -XX:-TieredCompilation -XX:+ShenandoahVerifyOptoBarriers
  */
 
 import java.util.*;

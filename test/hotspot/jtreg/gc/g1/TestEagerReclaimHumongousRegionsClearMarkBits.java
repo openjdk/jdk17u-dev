@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@ package gc.g1;
  * mark bitmaps at reclaim.
  * @key randomness
  * @requires vm.gc.G1
+ * @requires vm.debug
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.management
@@ -129,7 +130,6 @@ public class TestEagerReclaimHumongousRegionsClearMarkBits {
             "-XX:+UnlockDiagnosticVMOptions",
             "-XX:+VerifyAfterGC",
             "-XX:ConcGCThreads=1", // Want to make marking as slow as possible.
-            "-XX:+IgnoreUnrecognizedVMOptions", // G1VerifyBitmaps is develop only.
             "-XX:+G1VerifyBitmaps",
             TestEagerReclaimHumongousRegionsClearMarkBitsReclaimRegionFast.class.getName());
         OutputAnalyzer output = new OutputAnalyzer(pb.start());
