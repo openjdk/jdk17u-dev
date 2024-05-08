@@ -630,7 +630,7 @@ void SharedRuntime::restore_native_result(MacroAssembler *masm,
 // as framesizes are fixed.
 // VMRegImpl::stack0 refers to the first slot 0(sp).
 // VMRegImpl::stack0+1 refers to the memory word 4-byes higher. Registers
-// up to RegisterImpl::number_of_registers are the 64-bit integer registers.
+// up to Register::number_of_registers are the 64-bit integer registers.
 
 // Note: the INPUTS in sig_bt are in units of Java argument words, which are
 // either 32-bit or 64-bit depending on the build. The OUTPUTS are in 32-bit
@@ -666,8 +666,8 @@ int SharedRuntime::java_calling_convention(const BasicType *sig_bt,
   const int z_num_iarg_registers = sizeof(z_iarg_reg) / sizeof(z_iarg_reg[0]);
   const int z_num_farg_registers = sizeof(z_farg_reg) / sizeof(z_farg_reg[0]);
 
-  assert(RegisterImpl::number_of_arg_registers == z_num_iarg_registers, "iarg reg count mismatch");
-  assert(FloatRegisterImpl::number_of_arg_registers == z_num_farg_registers, "farg reg count mismatch");
+  assert(Register::number_of_arg_registers == z_num_iarg_registers, "iarg reg count mismatch");
+  assert(FloatRegister::number_of_arg_registers == z_num_farg_registers, "farg reg count mismatch");
 
   int i;
   int stk = 0;
@@ -780,8 +780,8 @@ int SharedRuntime::c_calling_convention(const BasicType *sig_bt,
   const int z_num_farg_registers = sizeof(z_farg_reg) / sizeof(z_farg_reg[0]);
 
   // Check calling conventions consistency.
-  assert(RegisterImpl::number_of_arg_registers == z_num_iarg_registers, "iarg reg count mismatch");
-  assert(FloatRegisterImpl::number_of_arg_registers == z_num_farg_registers, "farg reg count mismatch");
+  assert(Register::number_of_arg_registers == z_num_iarg_registers, "iarg reg count mismatch");
+  assert(FloatRegister::number_of_arg_registers == z_num_farg_registers, "farg reg count mismatch");
 
   // Avoid passing C arguments in the wrong stack slots.
 
@@ -1578,38 +1578,7 @@ nmethod *SharedRuntime::generate_native_wrapper(MacroAssembler *masm,
                     SharedRuntime::out_preserve_stack_slots(); // see c_calling_convention
 
   // Now the space for the inbound oop handle area.
-  int total_save_slots = RegisterImpl::number_of_arg_registers * VMRegImpl::slots_per_word;
-  if (is_critical_native) {
-    // Critical natives may have to call out so they need a save area
-    // for register arguments.
-    int double_slots = 0;
-    int single_slots = 0;
-    for (int i = 0; i < total_in_args; i++) {
-      if (in_regs[i].first()->is_Register()) {
-        const Register reg = in_regs[i].first()->as_Register();
-        switch (in_sig_bt[i]) {
-          case T_BOOLEAN:
-          case T_BYTE:
-          case T_SHORT:
-          case T_CHAR:
-          case T_INT:
-          // Fall through.
-          case T_ARRAY:
-          case T_LONG: double_slots++; break;
-          default:  ShouldNotReachHere();
-        }
-      } else {
-        if (in_regs[i].first()->is_FloatRegister()) {
-          switch (in_sig_bt[i]) {
-            case T_FLOAT:  single_slots++; break;
-            case T_DOUBLE: double_slots++; break;
-            default:  ShouldNotReachHere();
-          }
-        }
-      }
-    }  // for
-    total_save_slots = double_slots * 2 + align_up(single_slots, 2); // Round to even.
-  }
+  int total_save_slots = Register::number_of_arg_registers * VMRegImpl::slots_per_word;
 
   int oop_handle_slot_offset = stack_slots;
   stack_slots += total_save_slots;                                        // 3)
@@ -1739,12 +1708,12 @@ nmethod *SharedRuntime::generate_native_wrapper(MacroAssembler *masm,
   //--------------------------------------------------------------------
 
 #ifdef ASSERT
-  bool reg_destroyed[RegisterImpl::number_of_registers];
-  bool freg_destroyed[FloatRegisterImpl::number_of_registers];
-  for (int r = 0; r < RegisterImpl::number_of_registers; r++) {
+  bool reg_destroyed[Register::number_of_registers];
+  bool freg_destroyed[FloatRegister::number_of_registers];
+  for (int r = 0; r < Register::number_of_registers; r++) {
     reg_destroyed[r] = false;
   }
-  for (int f = 0; f < FloatRegisterImpl::number_of_registers; f++) {
+  for (int f = 0; f < FloatRegister::number_of_registers; f++) {
     freg_destroyed[f] = false;
   }
 #endif // ASSERT
