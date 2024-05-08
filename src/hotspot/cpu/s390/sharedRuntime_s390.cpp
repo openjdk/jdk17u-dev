@@ -1579,6 +1579,37 @@ nmethod *SharedRuntime::generate_native_wrapper(MacroAssembler *masm,
 
   // Now the space for the inbound oop handle area.
   int total_save_slots = Register::number_of_arg_registers * VMRegImpl::slots_per_word;
+  if (is_critical_native) {
+    // Critical natives may have to call out so they need a save area
+    // for register arguments.
+    int double_slots = 0;
+    int single_slots = 0;
+    for (int i = 0; i < total_in_args; i++) {
+      if (in_regs[i].first()->is_Register()) {
+        const Register reg = in_regs[i].first()->as_Register();
+        switch (in_sig_bt[i]) {
+          case T_BOOLEAN:
+          case T_BYTE:
+          case T_SHORT:
+          case T_CHAR:
+          case T_INT:
+            // Fall through.
+          case T_ARRAY:
+          case T_LONG: double_slots++; break;
+          default:  ShouldNotReachHere();
+        }
+      } else {
+        if (in_regs[i].first()->is_FloatRegister()) {
+          switch (in_sig_bt[i]) {
+            case T_FLOAT:  single_slots++; break;
+            case T_DOUBLE: double_slots++; break;
+            default:  ShouldNotReachHere();
+          }
+        }
+      }
+    }  // for
+    total_save_slots = double_slots * 2 + align_up(single_slots, 2); // Round to even.
+  }
 
   int oop_handle_slot_offset = stack_slots;
   stack_slots += total_save_slots;                                        // 3)
