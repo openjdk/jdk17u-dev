@@ -1593,7 +1593,7 @@ nmethod *SharedRuntime::generate_native_wrapper(MacroAssembler *masm,
           case T_SHORT:
           case T_CHAR:
           case T_INT:
-            // Fall through.
+          // Fall through.
           case T_ARRAY:
           case T_LONG: double_slots++; break;
           default:  ShouldNotReachHere();
