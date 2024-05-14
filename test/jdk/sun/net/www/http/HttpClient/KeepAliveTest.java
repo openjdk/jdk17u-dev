@@ -178,7 +178,7 @@ public class KeepAliveTest {
             System.out.println("UsingProxy:" + httpClientCached.getUsingProxy());
             System.out.println("ProxiedHost:" + httpClientCached.getProxyHostUsed());
             System.out.println("ProxiedPort:" + httpClientCached.getProxyPortUsed());
-            Class<?> clientVectorClass = Class.forName("sun.net.www.http.KeepAliveCache$ClientVector");
+            Class<?> clientVectorClass = Class.forName("sun.net.www.http.ClientVector");
             Field napField = clientVectorClass.getDeclaredField("nap");
             napField.setAccessible(true);
             int napValue = (int) napField.get(clientVectorObjectInMap);
@@ -282,7 +282,8 @@ public class KeepAliveTest {
         } else {
             System.out.print(serverHeaders[scenarioNumber]);
         }
-        Thread server = Thread.ofPlatform().start(() -> executeServer(scenarioNumber));
+        Thread server = new Thread(() -> executeServer(scenarioNumber));
+        server.start();
         connectToServerURL(expectedValue);
         server.join();
         System.out.println();
