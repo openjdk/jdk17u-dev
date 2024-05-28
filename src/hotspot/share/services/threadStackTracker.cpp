@@ -61,7 +61,7 @@ void ThreadStackTracker::new_thread_stack(void* base, size_t size, const NativeC
       _simple_thread_stacks->add(site);
     }
   }
-  _thread_count ++;
+  _thread_count++;
 }
 
 void ThreadStackTracker::delete_thread_stack(void* base, size_t size) {
