@@ -44,9 +44,7 @@ import sun.security.util.Cache;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Fork(value = 3, jvmArgsAppend = {"--add-exports", "java.base/sun.security.util=ALL-UNNAMED", "-Xmx1g"})
-@Warmup(iterations = 5, time = 1)
-@Measurement(iterations = 5, time = 1)
+@Fork(jvmArgsAppend = {"--add-exports", "java.base/sun.security.util=ALL-UNNAMED"})
 public class CacheBench {
 
     @State(Scope.Benchmark)
