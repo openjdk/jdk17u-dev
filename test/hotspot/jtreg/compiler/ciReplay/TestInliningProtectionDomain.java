@@ -93,7 +93,7 @@ public class TestInliningProtectionDomain extends DumpReplayBase {
                                        "bar", inlineesReplay.get(0).isDisallowedByReplay()));
         } else {
             Asserts.assertTrue(compare(inlineesNormal.get(4), "compiler.ciReplay.InliningBar", "bar2", inlineesNormal.get(4).isNormalInline()));
-            Asserts.assertTrue(compare(inlineesReplay.get(4), "compiler.ciReplay.InliningBar", "bar2", inlineesReplay.get(4).isForcedByReplay()));
+            Asserts.assertTrue(compare(inlineesReplay.get(4), "compiler.ciReplay.InliningBar", "bar2", inlineesReplay.get(4).isForcedByReplay() || inlineesReplay.get(4).isForcedIncrementalInlineByReplay()));
         }
         remove(LOG_FILE_NORMAL);
         remove(LOG_FILE_REPLAY);
