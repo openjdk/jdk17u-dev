@@ -507,9 +507,10 @@ public class VMProps implements Callable<Map<String, String>> {
 
     private boolean checkDockerSupport() throws IOException, InterruptedException {
         log("checkDockerSupport(): entering");
-        ProcessBuilder pb = new ProcessBuilder(Container.ENGINE_COMMAND, "ps");
-        Map<String, String> logFileNames = redirectOutputToLogFile("checkDockerSupport(): <container> ps",
-                                                      pb, "container-ps");
+        ProcessBuilder pb = new ProcessBuilder("which", Container.ENGINE_COMMAND);
+        Map<String, String> logFileNames =
+            redirectOutputToLogFile("checkDockerSupport(): which <container-engine>",
+                                                      pb, "which-container");
         Process p = pb.start();
         p.waitFor(10, TimeUnit.SECONDS);
         int exitValue = p.exitValue();
@@ -556,14 +557,15 @@ public class VMProps implements Callable<Map<String, String>> {
      * Checks if we are in <i>almost</i> out-of-box configuration, i.e. the flags
      * which JVM is started with don't affect its behavior "significantly".
      * {@code TEST_VM_FLAGLESS} enviroment variable can be used to force this
-     * method to return true and allow any flags.
+     * method to return true or false and allow or reject any flags.
      *
      * @return true if there are no JVM flags
      */
     private String isFlagless() {
         boolean result = true;
-        if (System.getenv("TEST_VM_FLAGLESS") != null) {
-            return "" + result;
+        String flagless = System.getenv("TEST_VM_FLAGLESS");
+        if (flagless != null) {
+            return "" + "true".equalsIgnoreCase(flagless);
         }
 
         List<String> allFlags = new ArrayList<String>();
