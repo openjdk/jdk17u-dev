@@ -46,7 +46,7 @@ public class SummaryDiffThreadCount {
         pb.start().waitFor();
 
         output = new OutputAnalyzer(pb.start());
-        output.shouldContain("Baseline succeeded");
+        output.shouldContain("Baseline taken");
 
         // Creating 10 threads.
         for (int i = 0; i < 10; i++) {
