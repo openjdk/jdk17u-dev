@@ -53,6 +53,13 @@ hotspot_gc = \
 hotspot_runtime = \
   runtime
 
+hotspot_runtime_non_cds_mode = \
+  runtime \
+  -runtime/cds/CheckSharingWithDefaultArchive.java \
+  -runtime/cds/appcds/dynamicArchive/DynamicSharedSymbols.java \
+  -runtime/cds/appcds/dynamicArchive/TestAutoCreateSharedArchive.java \
+  -runtime/cds/appcds/jcmd
+
 hotspot_handshake = \
   runtime/handshake
 
