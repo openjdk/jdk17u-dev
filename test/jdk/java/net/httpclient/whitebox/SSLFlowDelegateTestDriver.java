@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,16 +23,11 @@
 
 /*
  * @test
- * @summary run CTW for all classes from jdk.crypto.ec module
- *
- * @library /test/lib / /testlibrary/ctw/src
- * @modules java.base/jdk.internal.access
- *          java.base/jdk.internal.jimage
- *          java.base/jdk.internal.misc
- *          java.base/jdk.internal.reflect
- * @modules jdk.crypto.ec
- *
- * @build jdk.test.whitebox.WhiteBox
- * @run driver jdk.test.lib.helpers.ClassFileInstaller jdk.test.whitebox.WhiteBox
- * @run driver/timeout=7200 sun.hotspot.tools.ctw.CtwRunner modules:jdk.crypto.ec
+ * @bug 8308144
+ * @summary tests that the SSLFlowDelegate doesn't accumulate application data when the
+ *          downReader doesn't request any
+ * @modules java.net.http/jdk.internal.net.http
+ * @run testng/othervm  -Djdk.internal.httpclient.debug=true
+ *                      -Djavax.net.debug=ssl:handshake
+ *                      java.net.http/jdk.internal.net.http.SSLFlowDelegateTest
  */
