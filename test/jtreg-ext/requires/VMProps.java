@@ -99,6 +99,7 @@ public class VMProps implements Callable<Map<String, String>> {
         map.put("vm.simpleArch", this::vmArch);
         map.put("vm.debug", this::vmDebug);
         map.put("vm.jvmci", this::vmJvmci);
+        map.put("vm.jvmci.enabled", this::vmJvmciEnabled);
         map.put("vm.emulatedClient", this::vmEmulatedClient);
         // vm.hasSA is "true" if the VM contains the serviceability agent
         // and jhsdb.
@@ -259,6 +260,20 @@ public class VMProps implements Callable<Map<String, String>> {
 
         return "true";
     }
+
+
+    /**
+     * @return true if JVMCI is enabled
+     */
+    protected String vmJvmciEnabled() {
+        // builds with jvmci have this flag
+        if ("false".equals(vmJvmci())) {
+            return "false";
+        }
+
+        return "" + Compiler.isJVMCIEnabled();
+    }
+
 
     /**
      * @return true if VM runs in emulated-client mode and false otherwise.
@@ -557,14 +572,15 @@ public class VMProps implements Callable<Map<String, String>> {
      * Checks if we are in <i>almost</i> out-of-box configuration, i.e. the flags
      * which JVM is started with don't affect its behavior "significantly".
      * {@code TEST_VM_FLAGLESS} enviroment variable can be used to force this
-     * method to return true and allow any flags.
+     * method to return true or false and allow or reject any flags.
      *
      * @return true if there are no JVM flags
      */
     private String isFlagless() {
         boolean result = true;
-        if (System.getenv("TEST_VM_FLAGLESS") != null) {
-            return "" + result;
+        String flagless = System.getenv("TEST_VM_FLAGLESS");
+        if (flagless != null) {
+            return "" + "true".equalsIgnoreCase(flagless);
         }
 
         List<String> allFlags = new ArrayList<String>();
