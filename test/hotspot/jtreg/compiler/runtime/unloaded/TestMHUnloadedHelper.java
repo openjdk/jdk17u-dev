@@ -41,7 +41,7 @@ public class TestMHUnloadedHelper {
     static byte[] generateClassFile(Class<?> caller) {
         var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String name = caller.getName().replace('.', '/');
-        cw.visit(V19, ACC_PUBLIC | ACC_SUPER, name, null, "java/lang/Object", null);
+        cw.visit(V17, ACC_PUBLIC | ACC_SUPER, name, null, "java/lang/Object", null);
         {
             var mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, "test", METHOD_TYPE.toMethodDescriptorString(), null, null);
             mv.visitCode();
