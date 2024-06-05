@@ -739,9 +739,9 @@ FILE* os::open(int fd, const char* mode) {
   return ::fdopen(fd, mode);
 }
 
-ssize_t os::write(int fd, const void *buf, unsigned int nBytes) {
+ssize_t os::pd_write(int fd, const void *buf, size_t nBytes) {
   ssize_t res;
-  RESTARTABLE(::write(fd, buf, (size_t) nBytes), res);
+  RESTARTABLE(::write(fd, buf, nBytes), res);
   return res;
 }
 
