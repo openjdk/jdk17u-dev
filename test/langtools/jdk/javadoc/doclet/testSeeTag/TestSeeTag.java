@@ -138,7 +138,7 @@ public class TestSeeTag extends JavadocTester {
                     <dt>See Also:</dt>
                     <dd>
                     <ul class="see-list">
-                    <li><span class="invalid-tag">invalid input: '&lt;a href="'</span></li>
+                    <li>invalid input: '&lt;a href="'</li>
                     </ul>
                     </dd>
                     </dl>
