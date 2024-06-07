@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
 public final class OutputAnalyzer {
 
     private static final String jvmwarningmsg = ".* VM warning:.*";
+
+    private static final String anythingwarningmsg = ".*WARNING:.*";
 
     private static final String deprecatedmsg = ".* VM warning:.* deprecated.*";
 
@@ -651,6 +653,18 @@ public final class OutputAnalyzer {
     public List<String> asLinesWithoutVMWarnings() {
         return Arrays.stream(getOutput().split("\\R"))
                      .filter(Pattern.compile(jvmwarningmsg).asPredicate().negate())
+                     .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the contents of the output buffer (stdout and stderr), without anything
+     * warning msgs, as list of strings. Output is split by newlines.
+     *
+     * @return Contents of the output buffer as list of strings
+     */
+    public List<String> asLinesWithoutAnythingWarnings() {
+        return Arrays.stream(getOutput().split("\\R"))
+                     .filter(Pattern.compile(anythingwarningmsg).asPredicate().negate())
                      .collect(Collectors.toList());
     }
 
