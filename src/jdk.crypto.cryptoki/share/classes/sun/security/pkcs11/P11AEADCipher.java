@@ -475,9 +475,8 @@ final class P11AEADCipher extends CipherSpi {
             }
 
             if (type == Transformation.AES_GCM) {
-                CK_VERSION cryptokiVersion = token.p11.getVersion();
-                boolean useNormativeMechFirst = cryptokiVersion.major > 2 ||
-                    (cryptokiVersion.major == 2  && cryptokiVersion.minor >= 40);
+                // JDK-8255409 allows using useNormativeMechFirst dependent on token.p11.getVersion();
+                boolean useNormativeMechFirst = false;
                 if (encrypt) {
                     token.p11.C_GCMEncryptInitWithRetry(session.id(), mechWithParams,
                         p11KeyID, useNormativeMechFirst);
