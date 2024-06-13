@@ -46,7 +46,7 @@ public class ToArray {
     }
 
     static void executeTest() throws Throwable {
-        try (var executor = Executors.newCachedThreadPool()) {
+        try (ExecutorService executor = Executors.newCachedThreadPool()) {
             final ConcurrentHashMap<Integer, Integer> m = new ConcurrentHashMap<>();
             final ThreadLocalRandom rnd = ThreadLocalRandom.current();
             final int nCPU = Runtime.getRuntime().availableProcessors();
