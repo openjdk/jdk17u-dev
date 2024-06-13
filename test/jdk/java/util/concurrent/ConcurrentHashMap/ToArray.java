@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -46,7 +47,8 @@ public class ToArray {
     }
 
     static void executeTest() throws Throwable {
-        try (ExecutorService executor = Executors.newCachedThreadPool()) {
+        ExecutorService executor = Executors.newCachedThreadPool();
+        try {
             final ConcurrentHashMap<Integer, Integer> m = new ConcurrentHashMap<>();
             final ThreadLocalRandom rnd = ThreadLocalRandom.current();
             final int nCPU = Runtime.getRuntime().availableProcessors();
@@ -99,6 +101,8 @@ public class ToArray {
             // Wait for workers and foreman to complete
             workers.forEach(CompletableFuture<?>::join);
             foreman.join();
+        } finally {
+            executor.shutdown();
         }
     }
 }
