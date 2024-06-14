@@ -256,9 +256,9 @@ public class i18n {
 
         if (lang != null) {
             if (country != null) {
-                Locale.setDefault(Locale.of(lang, country));
+                Locale.setDefault(new Locale(lang, country));
             } else {
-                Locale.setDefault(Locale.of(lang));
+                Locale.setDefault(new Locale(lang));
             }
         }
 
