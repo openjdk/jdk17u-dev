@@ -588,19 +588,21 @@ java/net/MulticastSocket/B6427403.java                          8308807 aix-ppc6
 java/net/MulticastSocket/IPMulticastIF.java                     8308807 aix-ppc64
 java/net/MulticastSocket/JoinLeave.java                         8308807 aix-ppc64
 java/net/MulticastSocket/MulticastAddresses.java                8308807 aix-ppc64
-java/net/MulticastSocket/NoLoopbackPackets.java                 7122846,8308807 macosx-all,aix-ppc64
+java/net/MulticastSocket/NoLoopbackPackets.java                 7122846 macosx-all
 java/net/MulticastSocket/NoSetNetworkInterface.java             8308807 aix-ppc64
 java/net/MulticastSocket/Promiscuous.java                       8308807 aix-ppc64
 java/net/MulticastSocket/SetGetNetworkInterfaceTest.java        8308807 aix-ppc64
-java/net/MulticastSocket/SetLoopbackMode.java                   7122846,8308807 macosx-all,aix-ppc64
+java/net/MulticastSocket/SetLoopbackMode.java                   7122846 macosx-all
 java/net/MulticastSocket/SetOutgoingIf.java                     8308807 aix-ppc64
-java/net/MulticastSocket/Test.java                              7145658,8308807 macosx-all,aix-ppc64
+java/net/MulticastSocket/Test.java                              7145658 macosx-all
 
 java/net/ServerSocket/AcceptInheritHandle.java                  8211854 aix-ppc64
 
 ############################################################################
 
 # jdk_nio
+
+
 
 java/nio/channels/AsynchronousSocketChannel/StressLoopback.java 8211851 aix-ppc64
 
