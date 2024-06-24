@@ -275,7 +275,7 @@ public class Debug {
         String retString = "";
         if (printThreadDetails) {
             retString = "0x" + Long.toHexString(
-                    Thread.currentThread().threadId()).toUpperCase(Locale.ROOT) +
+                    Thread.currentThread().getId()).toUpperCase(Locale.ROOT) +
                     "|" + Thread.currentThread().getName() + "|" + formatCaller();
         }
         if (printDateTime) {
