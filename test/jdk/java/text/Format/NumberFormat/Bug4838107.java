@@ -47,7 +47,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 /*
  * This bug is about exponential formatting. But I added test cases for:
  *   - Double and BigDecimal numbers which don't have exponent parts.
