@@ -72,7 +72,8 @@ public class B5045306 {
 
     public static void startHttpServer() {
         try {
-            server = HttpServer.create(new InetSocketAddress(InetAddress.getLocalHost(), 0), 10, "/", new SimpleHttpTransactionHandler());
+            server = HttpServer.create(new InetSocketAddress(InetAddress.getLocalHost(), 0), 10);
+            server.createContext("/", new SimpleHttpTransactionHandler());
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
         } catch (IOException e) {
