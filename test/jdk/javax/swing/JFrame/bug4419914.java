@@ -37,17 +37,17 @@ import javax.swing.JFrame;
 import java.util.Locale;
 
 public class bug4419914 {
-    private static final String INSTRUCTIONS = """
-        1. You will see a frame with five buttons.
-        2. Confirm that each button is placed as follows:
-             NORTH
-        END  CENTER  START
-             SOUTH
-        3. Press the "NORTH" button and confirm the button is focused.
-        4. Press TAB repeatedly and confirm that the TAB focus moves from right to left.
-             (NORTH - START - CENTER - END - SOUTH - NORTH - START - CENTER - ...)
-
-            If there's anything different from the above items, click Fail else click Pass.""";
+    private static final String INSTRUCTIONS =
+            "1. You will see a frame with five buttons.\n" +
+            "2. Confirm that each button is placed as follows:\n" +
+            "     NORTH\n" +
+            "END  CENTER  START\n" +
+            "     SOUTH\n" +
+            "3. Press the \"NORTH\" button and confirm the button is focused.\n" +
+            "4. Press TAB repeatedly and confirm that the TAB focus moves from right to left.\n" +
+            "     (NORTH - START - CENTER - END - SOUTH - NORTH - START - CENTER - ...)\n" +
+            "\n" +
+            "If there's anything different from the above items, click Fail else click Pass.";
 
     public static void main(String[] args) throws Exception {
         PassFailJFrame.builder()
