@@ -54,7 +54,8 @@ public class PerConnectionProxy {
     public static void main(String[] args) {
         try {
             InetAddress loopbackAddress = InetAddress.getLoopbackAddress();
-            server = HttpServer.create(new InetSocketAddress(loopbackAddress, 0), 10, "/", new PerConnectionProxyHandler());
+            server = HttpServer.create(new InetSocketAddress(loopbackAddress, 0), 10);
+            server.createContext("/", new PerConnectionProxyHandler());
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
             ProxyServer pserver = new ProxyServer(loopbackAddress, server.getAddress().getPort());

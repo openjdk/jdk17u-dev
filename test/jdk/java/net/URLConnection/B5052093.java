@@ -67,7 +67,8 @@ public class B5052093 {
 
     public static void main(String[] args) throws Exception {
         InetAddress loopback = InetAddress.getLoopbackAddress();
-        server = HttpServer.create(new InetSocketAddress(loopback, 0), 10, "/", new B5052093Handler());
+        server = HttpServer.create(new InetSocketAddress(loopback, 0), 10);
+        server.createContext("/", new B5052093Handler());
         server.setExecutor(Executors.newSingleThreadExecutor());
         server.start();
         try {

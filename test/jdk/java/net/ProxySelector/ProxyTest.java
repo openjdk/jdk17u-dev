@@ -79,7 +79,8 @@ public class ProxyTest {
         ProxySelector.setDefault(new MyProxySelector());
         try {
             InetAddress loopback = InetAddress.getLoopbackAddress();
-            server = HttpServer.create(new InetSocketAddress(loopback, 0), 10, "/", new ProxyTestHandler());
+            server = HttpServer.create(new InetSocketAddress(loopback, 0), 10);
+            server.createContext("/", new ProxyTestHandler());
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
             URL url = URIBuilder.newBuilder()

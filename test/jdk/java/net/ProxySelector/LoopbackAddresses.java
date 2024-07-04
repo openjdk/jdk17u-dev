@@ -64,7 +64,8 @@ public class LoopbackAddresses {
             // to answer both for the loopback and "localhost".
             // Though "localhost" usually point to the loopback there is no
             // hard guarantee.
-            server = HttpServer.create(new InetSocketAddress(loopback, 0), 10, "/", new LoopbackAddressesHandler());
+            server = HttpServer.create(new InetSocketAddress(loopback, 0), 10);
+            server.createContext("/", new LoopbackAddressesHandler());
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
             ProxyServer pserver = new ProxyServer(InetAddress.getByName("localhost"), server.getAddress().getPort());
