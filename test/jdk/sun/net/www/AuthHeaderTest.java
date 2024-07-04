@@ -74,7 +74,8 @@ public class AuthHeaderTest {
         Authenticator.setDefault (auth);
         InetAddress loopback = InetAddress.getLoopbackAddress();
         try {
-            server = HttpServer.create(new InetSocketAddress(loopback, 0), 10, "/", new AuthHeaderTestHandler());
+            server = HttpServer.create(new InetSocketAddress(loopback, 0), 10);
+            server.createContext("/", new AuthHeaderTestHandler());
             server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
             System.out.println ("Server: listening on port: " + server.getAddress().getPort());
