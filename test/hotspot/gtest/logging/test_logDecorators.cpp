@@ -24,6 +24,7 @@
 #include "precompiled.hpp"
 #include "jvm.h"
 #include "logging/logDecorators.hpp"
+#include "runtime/os.hpp"
 #include "unittest.hpp"
 
 static LogDecorators::Decorator decorator_array[] = {
