@@ -33,13 +33,13 @@
 #include "metaprogramming/integralConstant.hpp"
 #include "metaprogramming/isPointer.hpp"
 #include "metaprogramming/isSame.hpp"
-#include "metaprogramming/isVolatile.hpp"
 #include "oops/accessDecorators.hpp"
 #include "oops/oopsHierarchy.hpp"
 #include "runtime/globals.hpp"
 #include "utilities/debug.hpp"
 #include "utilities/globalDefinitions.hpp"
 
+#include <type_traits>
 
 // This metafunction returns either oop or narrowOop depending on whether
 // an access needs to use compressed oops or not.
@@ -1079,7 +1079,11 @@ namespace AccessInternal {
     // If this fails to compile, then you have sent in something that is
     // not recognized as a valid primitive type to a primitive Access function.
     STATIC_ASSERT((HasDecorator<decorators, INTERNAL_VALUE_IS_OOP>::value || // oops have already been validated
+<<<<<<< HEAD
                    (IsPointer<T>::value || std::is_integral<T>::value) ||
+=======
+                   (IsPointer<T>::value || IsIntegral<T>::value) ||
+>>>>>>> upstream/master
                     std::is_floating_point<T>::value)); // not allowed primitive type
   }
 
@@ -1092,7 +1096,7 @@ namespace AccessInternal {
     // If a volatile address is passed in but no memory ordering decorator,
     // set the memory ordering to MO_RELAXED by default.
     const DecoratorSet expanded_decorators = DecoratorFixup<
-      (IsVolatile<P>::value && !HasDecorator<decorators, MO_DECORATOR_MASK>::value) ?
+      (std::is_volatile<P>::value && !HasDecorator<decorators, MO_DECORATOR_MASK>::value) ?
       (MO_RELAXED | decorators) : decorators>::value;
     store_reduce_types<expanded_decorators>(const_cast<DecayedP*>(addr), decayed_value);
   }
@@ -1118,7 +1122,7 @@ namespace AccessInternal {
     // If a volatile address is passed in but no memory ordering decorator,
     // set the memory ordering to MO_RELAXED by default.
     const DecoratorSet expanded_decorators = DecoratorFixup<
-      (IsVolatile<P>::value && !HasDecorator<decorators, MO_DECORATOR_MASK>::value) ?
+      (std::is_volatile<P>::value && !HasDecorator<decorators, MO_DECORATOR_MASK>::value) ?
       (MO_RELAXED | decorators) : decorators>::value;
     return load_reduce_types<expanded_decorators, DecayedT>(const_cast<DecayedP*>(addr));
   }
@@ -1199,7 +1203,11 @@ namespace AccessInternal {
                         arrayOop dst_obj, size_t dst_offset_in_bytes, T* dst_raw,
                         size_t length) {
     STATIC_ASSERT((HasDecorator<decorators, INTERNAL_VALUE_IS_OOP>::value ||
+<<<<<<< HEAD
                    (IsSame<T, void>::value || std::is_integral<T>::value) ||
+=======
+                   (IsSame<T, void>::value || IsIntegral<T>::value) ||
+>>>>>>> upstream/master
                     std::is_floating_point<T>::value)); // arraycopy allows type erased void elements
     typedef typename Decay<T>::type DecayedT;
     const DecoratorSet expanded_decorators = DecoratorFixup<decorators | IS_ARRAY | IN_HEAP>::value;
