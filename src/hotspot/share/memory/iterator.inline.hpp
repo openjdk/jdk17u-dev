@@ -39,6 +39,8 @@
 #include "oops/typeArrayKlass.inline.hpp"
 #include "utilities/debug.hpp"
 
+#include <type_traits>
+
 // Defaults to strong claiming.
 inline MetadataVisitingOopIterateClosure::MetadataVisitingOopIterateClosure(ReferenceDiscoverer* rd) :
     ClaimMetadataVisitingOopIterateClosure(ClassLoaderData::_claim_strong, rd) {}
