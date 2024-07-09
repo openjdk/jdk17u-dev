@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,22 +22,24 @@
  *
  */
 
-#ifndef SHARE_METAPROGRAMMING_CONDITIONAL_HPP
-#define SHARE_METAPROGRAMMING_CONDITIONAL_HPP
+// Intentionally no #include guard.  May be included multiple times for effect.
 
-#include "memory/allocation.hpp"
+// The files vmassert_uninstall.hpp and vmassert_reinstall.hpp provide a
+// workaround for the name collision between HotSpot's assert macro and the
+// Standard Library's assert macro.  When including a 3rd-party header that
+// uses (and so includes) the standard assert macro, wrap that inclusion with
+// includes of these two files, e.g.
+//
+// #include "utilities/vmassert_uninstall.hpp"
+// #include <header including standard assert macro>
+// #include "utilities/vmassert_reinstall.hpp"
+//
+// This removes the HotSpot macro definition while pre-processing the
+// 3rd-party header, then reinstates the HotSpot macro (if previously defined)
+// for following code.
 
-// This trait evaluates its typedef called "type" to TrueType iff the condition
-// is true. Otherwise it evaluates to FalseType.
+// Remove HotSpot's assert macro, if present.
+#ifdef vmassert
+#undef assert
+#endif // vmassert
 
-template <bool condition, typename TrueType, typename FalseType>
-struct Conditional: AllStatic {
-  typedef TrueType type;
-};
-
-template <typename TrueType, typename FalseType>
-struct Conditional<false, TrueType, FalseType>: AllStatic {
-  typedef FalseType type;
-};
-
-#endif // SHARE_METAPROGRAMMING_CONDITIONAL_HPP
