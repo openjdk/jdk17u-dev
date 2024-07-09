@@ -27,7 +27,7 @@
 # Setup libraries and functionalities needed to test the JDK.
 ################################################################################
 
-# Minimum supported version
+# Minimum supported versions
 JTREG_MINIMUM_VERSION=7.3.1
 GTEST_MINIMUM_VERSION=1.13.0
 
