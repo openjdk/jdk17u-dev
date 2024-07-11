@@ -1792,7 +1792,7 @@ bool PSParallelCompact::invoke_no_policy(bool maximum_heap_compaction) {
     bool marked_for_unloading = false;
 
     marking_start.update();
-    marking_phase(vmthread_cm, maximum_heap_compaction, &_gc_tracer);
+    marking_phase(&_gc_tracer);
 
     bool max_on_system_gc = UseMaximumCompactionOnSystemGC
       && GCCause::is_user_requested_gc(gc_cause);
@@ -1966,36 +1966,6 @@ public:
   }
 };
 
-static void mark_from_roots_work(ParallelRootType::Value root_type, uint worker_id) {
-  assert(ParallelScavengeHeap::heap()->is_gc_active(), "called outside gc");
-
-  ParCompactionManager* cm =
-    ParCompactionManager::gc_thread_compaction_manager(worker_id);
-  PCMarkAndPushClosure mark_and_push_closure(cm);
-
-  switch (root_type) {
-    case ParallelRootType::class_loader_data:
-      {
-        CLDToOopClosure cld_closure(&mark_and_push_closure, ClassLoaderData::_claim_strong);
-        ClassLoaderDataGraph::always_strong_cld_do(&cld_closure);
-      }
-      break;
-
-    case ParallelRootType::code_cache:
-      // Do not treat nmethods as strong roots for mark/sweep, since we can unload them.
-      //ScavengableNMethods::scavengable_nmethods_do(CodeBlobToOopClosure(&mark_and_push_closure));
-      break;
-
-    case ParallelRootType::sentinel:
-    DEBUG_ONLY(default:) // DEBUG_ONLY hack will create compile error on release builds (-Wswitch) and runtime check on debug builds
-      fatal("Bad enumeration value: %u", root_type);
-      break;
-  }
-
-  // Do the real work
-  cm->follow_marking_stacks();
-}
-
 void steal_marking_work(TaskTerminator& terminator, uint worker_id) {
   assert(ParallelScavengeHeap::heap()->is_gc_active(), "called outside gc");
 
@@ -2019,7 +1989,6 @@ void steal_marking_work(TaskTerminator& terminator, uint worker_id) {
 class MarkFromRootsTask : public AbstractGangTask {
   StrongRootsScope _strong_roots_scope; // needed for Threads::possibly_parallel_threads_do
   OopStorageSetStrongParState<false /* concurrent */, false /* is_const */> _oop_storage_set_par_state;
-  SequentialSubTasksDone _subtasks;
   TaskTerminator _terminator;
   uint _active_workers;
 
@@ -2027,14 +1996,20 @@ public:
   MarkFromRootsTask(uint active_workers) :
       AbstractGangTask("MarkFromRootsTask"),
       _strong_roots_scope(active_workers),
-      _subtasks(ParallelRootType::sentinel),
       _terminator(active_workers, ParCompactionManager::oop_task_queues()),
-      _active_workers(active_workers) {
-  }
+      _active_workers(active_workers) {}
 
   virtual void work(uint worker_id) {
-    for (uint task = 0; _subtasks.try_claim_task(task); /*empty*/ ) {
-      mark_from_roots_work(static_cast<ParallelRootType::Value>(task), worker_id);
+    ParCompactionManager* cm = ParCompactionManager::gc_thread_compaction_manager(worker_id);
+    cm->create_marking_stats_cache();
+    PCMarkAndPushClosure mark_and_push_closure(cm);
+
+    {
+      CLDToOopClosure cld_closure(&mark_and_push_closure, ClassLoaderData::_claim_strong);
+      ClassLoaderDataGraph::always_strong_cld_do(&cld_closure);
+
+      // Do the real work
+      cm->follow_marking_stacks();
     }
 
     PCAddThreadRootsMarkingTaskClosure closure(worker_id);
@@ -2042,9 +2017,7 @@ public:
 
     // Mark from OopStorages
     {
-      ParCompactionManager* cm = ParCompactionManager::gc_thread_compaction_manager(worker_id);
-      PCMarkAndPushClosure closure(cm);
-      _oop_storage_set_par_state.oops_do(&closure);
+      _oop_storage_set_par_state.oops_do(&mark_and_push_closure);
       // Do the real work
       cm->follow_marking_stacks();
     }
@@ -2077,9 +2050,14 @@ public:
   }
 };
 
-void PSParallelCompact::marking_phase(ParCompactionManager* cm,
-                                      bool maximum_heap_compaction,
-                                      ParallelOldTracer *gc_tracer) {
+static void flush_marking_stats_cache(const uint num_workers) {
+  for (uint i = 0; i < num_workers; ++i) {
+    ParCompactionManager* cm = ParCompactionManager::gc_thread_compaction_manager(i);
+    cm->flush_and_destroy_marking_stats_cache();
+  }
+}
+
+void PSParallelCompact::marking_phase(ParallelOldTracer *gc_tracer) {
   // Recursively traverse all live objects and mark them
   GCTraceTime(Info, gc, phases) tm("Marking Phase", &_gc_timer);
 
@@ -2108,6 +2086,12 @@ void PSParallelCompact::marking_phase(ParCompactionManager* cm,
 
     gc_tracer->report_gc_reference_stats(stats);
     pt.print_all_references();
+  }
+
+  {
+    GCTraceTime(Debug, gc, phases) tm("Flush Marking Stats", &_gc_timer);
+
+    flush_marking_stats_cache(active_gc_threads);
   }
 
   // This is the point where the entire marking should have completed.

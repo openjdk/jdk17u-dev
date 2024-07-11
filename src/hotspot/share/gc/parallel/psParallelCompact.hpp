@@ -1044,9 +1044,7 @@ class PSParallelCompact : AllStatic {
   static void post_compact();
 
   // Mark live objects
-  static void marking_phase(ParCompactionManager* cm,
-                            bool maximum_heap_compaction,
-                            ParallelOldTracer *gc_tracer);
+  static void marking_phase(ParallelOldTracer *gc_tracer);
 
   // Compute the dense prefix for the designated space.  This is an experimental
   // implementation currently not used in production.
