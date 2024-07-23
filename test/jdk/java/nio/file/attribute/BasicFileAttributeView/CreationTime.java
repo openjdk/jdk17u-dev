@@ -39,7 +39,6 @@
  * @run main CreationTime .
  */
 
-import java.lang.foreign.Linker;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.attribute.*;
