@@ -327,12 +327,10 @@ public:
     AbstractGangTask("Shenandoah Purge NMethods"),
     _cl(),
     _iterator(ShenandoahCodeRoots::table()) {
-    MutexLocker mu(CodeCache_lock, Mutex::_no_safepoint_check_flag);
     _iterator.nmethods_do_begin();
   }
 
   ~ShenandoahNMethodPurgeTask() {
-    MutexLocker mu(CodeCache_lock, Mutex::_no_safepoint_check_flag);
     _iterator.nmethods_do_end();
   }
 
