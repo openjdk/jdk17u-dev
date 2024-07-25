@@ -740,9 +740,9 @@ FILE* os::open(int fd, const char* mode) {
   return ::fdopen(fd, mode);
 }
 
-size_t os::write(int fd, const void *buf, unsigned int nBytes) {
-  size_t res;
-  RESTARTABLE((size_t) ::write(fd, buf, (size_t) nBytes), res);
+ssize_t os::pd_write(int fd, const void *buf, size_t nBytes) {
+  ssize_t res;
+  RESTARTABLE(::write(fd, buf, nBytes), res);
   return res;
 }
 
@@ -799,10 +799,6 @@ int os::raw_send(int fd, char* buf, size_t nBytes, uint flags) {
 
 int os::connect(int fd, struct sockaddr* him, socklen_t len) {
   RESTARTABLE_RETURN_INT(::connect(fd, him, len));
-}
-
-struct hostent* os::get_host_by_name(char* name) {
-  return ::gethostbyname(name);
 }
 
 void os::exit(int num) {

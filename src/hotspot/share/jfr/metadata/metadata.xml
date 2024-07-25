@@ -431,6 +431,14 @@
     <Field type="uint" name="gcId" label="GC Identifier" relation="GcId" />
   </Event>
 
+  <Event name="GCCPUTime" category="Java Virtual Machine, GC, Detailed" label="GC CPU Time" description="GC CPU Time information. Supported: G1GC, ParallelGC and SerialGC"
+    stackTrace="false" startTime="false">
+    <Field type="uint" name="gcId" label="GC Identifier" relation="GcId" />
+    <Field type="ulong" contentType="nanos" name="userTime" label="User Time" />
+    <Field type="ulong" contentType="nanos" name="systemTime" label="System Time" />
+    <Field type="ulong" contentType="nanos" name="realTime" label="Real Time" />
+  </Event>
+
   <Event name="GCPhasePause" category="Java Virtual Machine, GC, Phases" label="GC Phase Pause" thread="true">
     <Field type="uint" name="gcId" label="GC Identifier" relation="GcId" />
     <Field type="string" name="name" label="Name" />
@@ -650,7 +658,7 @@
     <Field type="Tickspan" name="objectAge" label="Object Age" />
     <Field type="ulong" contentType="bytes" name="lastKnownHeapUsage" label="Last Known Heap Usage" />
     <Field type="OldObject" name="object" label="Object" />
-    <Field type="int" name="arrayElements" label="Array Elements" description="If the object is an array, the number of elements, or -1 if it is not an array" />
+    <Field type="int" name="arrayElements" label="Array Elements" description="If the object is an array, the number of elements, or minimum value for the type int if it is not an array" />
     <Field type="OldObjectGcRoot" name="root" label="GC Root" />
   </Event>
 
