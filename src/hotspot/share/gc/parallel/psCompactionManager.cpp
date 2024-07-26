@@ -63,6 +63,8 @@ ParCompactionManager::ParCompactionManager() {
   _region_stack.initialize();
 
   reset_bitmap_query_cache();
+
+  _marking_stats_cache = NULL;
 }
 
 void ParCompactionManager::initialize(ParMarkBitMap* mbm) {
