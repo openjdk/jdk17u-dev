@@ -591,7 +591,7 @@ java/net/MulticastSocket/MulticastAddresses.java                8308807 aix-ppc6
 java/net/MulticastSocket/NoLoopbackPackets.java                 7122846 macosx-all
 java/net/MulticastSocket/NoSetNetworkInterface.java             8308807 aix-ppc64
 java/net/MulticastSocket/Promiscuous.java                       8308807 aix-ppc64
-java/net/MulticastSocket/SetGetNetworkInterfaceTest.java        8219083 windows-all,aix-ppc64
+java/net/MulticastSocket/SetGetNetworkInterfaceTest.java        8219083,8308807 windows-all,aix-ppc64
 java/net/MulticastSocket/SetLoopbackMode.java                   7122846 macosx-all
 java/net/MulticastSocket/SetOutgoingIf.java                     8308807 aix-ppc64
 java/net/MulticastSocket/Test.java                              7145658 macosx-all
