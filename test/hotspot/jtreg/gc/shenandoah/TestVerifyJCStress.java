@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Red Hat, Inc. All rights reserved.
+ * Copyright (c) 2017, 2024, Red Hat, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -40,21 +40,41 @@
  *      TestVerifyJCStress
  */
 
-/*
- * @test id=default
+ /*
+ * @test id=default-debug
  * @summary Tests that we pass at least one jcstress-like test with all verification turned on
  * @requires vm.gc.Shenandoah
+ * @requires vm.debug
  * @modules java.base/jdk.internal.misc
  *          java.management
  *
  * @run main/othervm -Xmx1g -Xms1g -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions
  *      -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=adaptive
- *      -XX:+ShenandoahVerify -XX:+IgnoreUnrecognizedVMOptions -XX:+ShenandoahVerifyOptoBarriers
+ *      -XX:+ShenandoahVerify -XX:+ShenandoahVerifyOptoBarriers
  *      TestVerifyJCStress
  *
  * @run main/othervm -Xmx1g -Xms1g -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions
  *      -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact
- *      -XX:+ShenandoahVerify -XX:+IgnoreUnrecognizedVMOptions -XX:+ShenandoahVerifyOptoBarriers
+ *      -XX:+ShenandoahVerify -XX:+ShenandoahVerifyOptoBarriers
+ *      TestVerifyJCStress
+ */
+
+/*
+ * @test id=default
+ * @summary Tests that we pass at least one jcstress-like test with all verification turned on
+ * @requires vm.gc.Shenandoah
+ * @requires !vm.debug
+ * @modules java.base/jdk.internal.misc
+ *          java.management
+ *
+ * @run main/othervm -Xmx1g -Xms1g -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions
+ *      -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=adaptive
+ *      -XX:+ShenandoahVerify
+ *      TestVerifyJCStress
+ *
+ * @run main/othervm -Xmx1g -Xms1g -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions
+ *      -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact
+ *      -XX:+ShenandoahVerify
  *      TestVerifyJCStress
  */
 
@@ -67,12 +87,20 @@
  *
  * @run main/othervm -Xmx1g -Xms1g -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions
  *      -XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu
- *      -XX:+ShenandoahVerify -XX:+IgnoreUnrecognizedVMOptions -XX:+ShenandoahVerifyOptoBarriers
+ *      -XX:+ShenandoahVerify
  *      TestVerifyJCStress
+ */
+
+/*
+ * @test id=iu-c1
+ * @summary Tests that we pass at least one jcstress-like test with all verification turned on
+ * @requires vm.gc.Shenandoah
+ * @modules java.base/jdk.internal.misc
+ *          java.management
  *
  * @run main/othervm -Xmx1g -Xms1g -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions
  *      -XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu
- *      -XX:+ShenandoahVerify -XX:+IgnoreUnrecognizedVMOptions -XX:TieredStopAtLevel=1
+ *      -XX:+ShenandoahVerify -XX:TieredStopAtLevel=1
  *      TestVerifyJCStress
  */
 

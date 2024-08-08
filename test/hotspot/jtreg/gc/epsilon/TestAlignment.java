@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Red Hat, Inc. All rights reserved.
+ * Copyright (c) 2018, 2024, Red Hat, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,15 +36,22 @@ package gc.epsilon;
  * @run main/othervm -Xmx64m -XX:-UseTLAB
  *                   -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC
  *                   gc.epsilon.TestAlignment
- *
+ */
+
+/**
+ * @test TestAlignment
+ * @requires vm.gc.Epsilon
+ * @requires vm.bits == "64"
+ * @summary Check Epsilon TLAB options with unusual object alignment
+ * @bug 8212177
  * @run main/othervm -Xmx64m -XX:+UseTLAB
  *                   -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC
- *                   -XX:+IgnoreUnrecognizedVMOptions -XX:ObjectAlignmentInBytes=16
+ *                   -XX:ObjectAlignmentInBytes=16
  *                   gc.epsilon.TestAlignment
  *
  * @run main/othervm -Xmx64m -XX:-UseTLAB
  *                   -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC
- *                   -XX:+IgnoreUnrecognizedVMOptions -XX:ObjectAlignmentInBytes=16
+ *                   -XX:ObjectAlignmentInBytes=16
  *                   gc.epsilon.TestAlignment
  */
 
