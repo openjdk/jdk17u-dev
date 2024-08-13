@@ -473,7 +473,6 @@ java/awt/Robot/AcceptExtraMouseButtons/AcceptExtraMouseButtons.java 7107528 linu
 java/awt/Mouse/MouseDragEvent/MouseDraggedTest.java 8080676 linux-all
 java/awt/Mouse/MouseModifiersUnitTest/MouseModifiersInKeyEvent.java 8157147 linux-all,windows-all,macosx-all
 java/awt/Mouse/TitleBarDoubleClick/TitleBarDoubleClick.java 8148041 linux-all
-java/awt/Toolkit/DesktopProperties/rfe4758438.java 8193547 linux-all
 java/awt/Toolkit/ToolkitPropertyTest/ToolkitPropertyTest_Enable.java 6847163 linux-all
 java/awt/xembed/server/RunTestXEmbed.java 7034201 linux-all
 java/awt/Modal/ModalFocusTransferTests/FocusTransferDialogsDocModalTest.java 8164473 linux-all
@@ -581,25 +580,33 @@ javax/management/remote/mandatory/connection/RMIConnector_NPETest.java 8267887 g
 
 # jdk_net
 
-java/net/MulticastSocket/NoLoopbackPackets.java                 7122846 macosx-all
-java/net/MulticastSocket/SetLoopbackMode.java                   7122846 macosx-all
+java/net/DatagramSocket/DatagramSocketExample.java              8308807 aix-ppc64
+java/net/DatagramSocket/DatagramSocketMulticasting.java         8308807 aix-ppc64
 
+java/net/MulticastSocket/B6427403.java                          8308807 aix-ppc64
+java/net/MulticastSocket/IPMulticastIF.java                     8308807 aix-ppc64
+java/net/MulticastSocket/JoinLeave.java                         8308807 aix-ppc64
+java/net/MulticastSocket/MulticastAddresses.java                8308807 aix-ppc64
+java/net/MulticastSocket/NoLoopbackPackets.java                 7122846 macosx-all
+java/net/MulticastSocket/NoSetNetworkInterface.java             8308807 aix-ppc64
+java/net/MulticastSocket/Promiscuous.java                       8308807 aix-ppc64
+java/net/MulticastSocket/SetGetNetworkInterfaceTest.java        8219083,8308807 windows-all,aix-ppc64
+java/net/MulticastSocket/SetLoopbackMode.java                   7122846 macosx-all
+java/net/MulticastSocket/SetOutgoingIf.java                     8308807 aix-ppc64
 java/net/MulticastSocket/Test.java                              7145658 macosx-all
 
-java/net/MulticastSocket/SetGetNetworkInterfaceTest.java        8219083 windows-all
-
 java/net/ServerSocket/AcceptInheritHandle.java                  8211854 aix-ppc64
-
-
 ############################################################################
 
 # jdk_nio
 
+java/nio/channels/DatagramChannel/AdaptorMulticasting.java      8308807 aix-ppc64
+java/nio/channels/DatagramChannel/AfterDisconnect.java          8308807 aix-ppc64
+java/nio/channels/DatagramChannel/ManySourcesAndTargets.java    8264385 macosx-aarch64
 java/nio/channels/DatagramChannel/Unref.java                    8233437 generic-all
 
 java/nio/channels/AsynchronousSocketChannel/StressLoopback.java 8211851 aix-ppc64
 
-java/nio/channels/DatagramChannel/ManySourcesAndTargets.java    8264385 macosx-aarch64
 java/nio/file/Files/probeContentType/Basic.java                 8320943 windows-all
 
 ############################################################################
@@ -684,7 +691,6 @@ javax/sound/midi/Sequencer/Looping.java 8136897 generic-all
 
 javax/swing/plaf/basic/BasicTextUI/8001470/bug8001470.java 8233177 linux-all,windows-all
 
-javax/swing/JComponent/6683775/bug6683775.java 8172337 generic-all
 javax/swing/JFrame/MaximizeWindowTest.java 8321289 linux-all
 javax/swing/JWindow/ShapedAndTranslucentWindows/ShapedTranslucentPerPixelTranslucentGradient.java 8233582 linux-all
 javax/swing/JWindow/ShapedAndTranslucentWindows/ShapedPerPixelTranslucentGradient.java 8233582 linux-all
@@ -797,6 +803,7 @@ jdk/jfr/event/compiler/TestCodeSweeper.java                     8225209    gener
 jdk/jfr/event/os/TestThreadContextSwitches.java                 8247776 windows-all
 jdk/jfr/startupargs/TestStartName.java                          8214685 windows-x64
 jdk/jfr/startupargs/TestStartDuration.java                      8214685 windows-x64
+jdk/jfr/api/consumer/recordingstream/TestOnEvent.java           8255404 linux-x64
 
 ############################################################################
 
