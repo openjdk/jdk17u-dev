@@ -37,7 +37,7 @@
 class ShenandoahNoBlockOp : public StackObj {
 public:
   ShenandoahNoBlockOp(JavaThread* java_thread) {
-    assert(java_thread == nullptr, "Should not pass anything");
+    assert(java_thread == NULL, "Should not pass anything");
   }
 };
 
@@ -46,7 +46,7 @@ void ShenandoahLock::contended_lock(bool allow_block_for_safepoint) {
   if (allow_block_for_safepoint && thread->is_Java_thread()) {
     contended_lock_internal<ThreadBlockInVM>(static_cast<JavaThread*>(thread));
   } else {
-    contended_lock_internal<ShenandoahNoBlockOp>(nullptr);
+    contended_lock_internal<ShenandoahNoBlockOp>(NULL);
   }
 }
 
