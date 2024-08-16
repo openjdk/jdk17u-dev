@@ -65,6 +65,9 @@ public class FloatMaxVectorTests extends AbstractVectorTest {
 
     private static final int Max = 256;  // juts so we can do N/Max
 
+    // for floating point reduction ops that may introduce rounding errors
+    private static final float RELATIVE_ROUNDING_ERROR = (float)0.000001;
+
     static final int BUFFER_REPS = Integer.getInteger("jdk.incubator.vector.test.buffer-vectors", 25000 / Max);
 
     interface FUnOp {
@@ -621,9 +624,6 @@ relativeError));
                                 mask[i % SPECIES.length()]);
         }
     }
-
-    // for floating point reduction ops that may introduce rounding errors
-    private static final float RELATIVE_ROUNDING_ERROR = (float)0.000001;
 
     static boolean isWithin1Ulp(float actual, float expected) {
         if (Float.isNaN(expected) && !Float.isNaN(actual)) {
