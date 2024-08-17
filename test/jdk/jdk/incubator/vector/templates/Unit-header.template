@@ -225,7 +225,7 @@ relativeError));
             Assert.assertEquals(rc, fa.apply(a, mask), Math.abs(rc * relativeError), "Final result is incorrect!");
             Assert.assertEquals(r[i], f.apply(a, i, mask), Math.abs(r[i] * relativeError), "at index #" + i);
         }
-     }
+    }
 #end[FP]
 
 #if[!Long]
