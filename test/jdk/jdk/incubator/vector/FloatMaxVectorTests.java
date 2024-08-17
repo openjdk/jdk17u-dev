@@ -625,6 +625,7 @@ relativeError));
         }
     }
 
+
     static boolean isWithin1Ulp(float actual, float expected) {
         if (Float.isNaN(expected) && !Float.isNaN(actual)) {
             return false;

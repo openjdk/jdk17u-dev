@@ -181,7 +181,7 @@ public class $vectorteststype$ extends AbstractVectorTest {
             Assert.assertEquals(rc, fa.apply(a), Math.abs(rc * relativeError), "Final result is incorrect!");
             Assert.assertEquals(r[i], f.apply(a, i), Math.abs(r[i] * relativeError), "at index #" + i);
         }
-     }
+    }
 #end[FP]
 
     interface FReductionMaskedOp {
