@@ -98,6 +98,11 @@ public class LogGeneratedClassesTest {
         Path lpnTest = Path.of("LongPackageName.java");
         Files.write(lpnTest, scratch, Charset.defaultCharset());
 
+        // create target
+        Files.createDirectory(Paths.get("dump"));
+        Files.createDirectories(Paths.get("dumpLong/com/example/nonsense"));
+        Files.createFile(Paths.get("dumpLong/com/example/nonsense/nonsense"));
+        Files.createFile(Paths.get("file"));
         CompilerUtils.compile(Path.of("."), CLASSES);
     }
 
