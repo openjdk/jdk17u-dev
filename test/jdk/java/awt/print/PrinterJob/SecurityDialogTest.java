@@ -38,6 +38,7 @@ import javax.swing.SwingUtilities;
 /**
  * @test
  * @bug 4937672 5100706 6252456
+ * @key printer
  * @summary Verifies "Print to file" option is disable if reading/writing files
  *          is not allowed by Security Manager.
  * @library /java/awt/regtesthelpers
