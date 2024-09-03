@@ -404,7 +404,7 @@ public class HTMLEditorKit extends StyledEditorKit implements Accessible {
             try {
                 InputStream is = HTMLEditorKit.getResourceAsStream(DEFAULT_CSS);
                 Reader r = new BufferedReader(
-                        new InputStreamReader(is, "ISO-8859-1"));
+                        new InputStreamReader(is, ISO_8859_1));
                 defaultStyles.loadRules(r, null);
                 r.close();
             } catch (Throwable e) {

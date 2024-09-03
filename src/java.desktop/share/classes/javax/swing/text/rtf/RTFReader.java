@@ -648,7 +648,7 @@ static char[] readCharset(InputStream strm)
     char[] values = new char[256];
     int i;
     StreamTokenizer in = new StreamTokenizer(new BufferedReader(
-            new InputStreamReader(strm, "ISO-8859-1")));
+            new InputStreamReader(strm, ISO_8859_1)));
 
     in.eolIsSignificant(false);
     in.commentChar('#');
