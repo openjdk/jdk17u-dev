@@ -35,7 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-/**
+/*
  * @test
  * @bug 4937672 5100706 6252456
  * @key printer
@@ -56,7 +56,7 @@ public class SecurityDialogTest {
                     "all the dialogs where it was present.\n" +
                     "Otherwise, press the Fail button.\n" +
                     "\n" +
-                    "The dialogs should be displayed even when " +
+                    "The dialogs should be displayed even when \n" +
                     "there is no queuePrintJob permission.";
 
     private static JLabel dialogType;
