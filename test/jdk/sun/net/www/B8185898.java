@@ -23,7 +23,7 @@
 
 /**
  * @test
- * @bug 8185898 8163921
+ * @bug 8185898 8163921 8339470
  * @modules java.base/sun.net.www
  * @library /test/lib
  * @run main/othervm B8185898
