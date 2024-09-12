@@ -35,7 +35,7 @@
 void ShenandoahLock::contended_lock(bool allow_block_for_safepoint) {
   Thread* thread = Thread::current();
   if (allow_block_for_safepoint && thread->is_Java_thread()) {
-    contended_lock_internal<true>(JavaThread::cast(thread));
+    contended_lock_internal<true>(thread->as_Java_thread());
   } else {
     contended_lock_internal<false>(nullptr);
   }
