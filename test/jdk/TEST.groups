@@ -563,9 +563,7 @@ jdk_core_manual_no_input = \
     javax/net/ssl/compatibility/HrrTest.java \
     javax/net/ssl/compatibility/SniTest.java \
     jdk/nio/zipfs/TestLocOffsetFromZip64EF.java \
-    jdk/nio/zipfs/LargeCompressedEntrySizeTest.java \
-    com/sun/net/httpserver/simpleserver/CommandLinePortNotSpecifiedTest.java \
-    com/sun/net/httpserver/simpleserver/jwebserver/CommandLinePortNotSpecifiedTest.java
+    jdk/nio/zipfs/LargeCompressedEntrySizeTest.java
 
 jdk_core_manual_no_input_security = \
     :jdk_security_infra \
