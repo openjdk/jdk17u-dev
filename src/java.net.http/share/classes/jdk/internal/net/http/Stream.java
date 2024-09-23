@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -135,6 +135,7 @@ class Stream<T> extends ExchangeImpl<T> {
     private volatile boolean remotelyClosed;
     private volatile boolean closed;
     private volatile boolean endStreamSent;
+    private volatile boolean finalResponseCodeReceived;
     // Indicates the first reason that was invoked when sending a ResetFrame
     // to the server. A streamState of 0 indicates that no reset was sent.
     // (see markStream(int code)
@@ -432,7 +433,7 @@ class Stream<T> extends ExchangeImpl<T> {
             HeaderFrame hframe = (HeaderFrame) frame;
             if (hframe.endHeaders()) {
                 Log.logTrace("handling response (streamid={0})", streamid);
-                handleResponse();
+                handleResponse(hframe);
             }
             if (hframe.getFlag(HeaderFrame.END_STREAM)) {
                 if (debug.on()) debug.log("handling END_STREAM: %d", streamid);
@@ -462,32 +463,58 @@ class Stream<T> extends ExchangeImpl<T> {
         return rspHeadersConsumer;
     }
 
-    protected void handleResponse() throws IOException {
+    protected void handleResponse(HeaderFrame hf) throws IOException {
         HttpHeaders responseHeaders = responseHeadersBuilder.build();
-        responseCode = (int)responseHeaders
-                .firstValueAsLong(":status")
-                .orElseThrow(() -> new IOException("no statuscode in response"));
 
-        response = new Response(
-                request, exchange, responseHeaders, connection(),
-                responseCode, HttpClient.Version.HTTP_2);
+        if (!finalResponseCodeReceived) {
+            responseCode = (int) responseHeaders
+                    .firstValueAsLong(":status")
+                    .orElseThrow(() -> new IOException("no statuscode in response"));
+            // If informational code, response is partially complete
+            if (responseCode < 100 || responseCode > 199) {
+                this.finalResponseCodeReceived = true;
+            } else if (hf.getFlag(HeaderFrame.END_STREAM)) {
+                // see RFC 9113 section 8.1:
+                // A HEADERS frame with the END_STREAM flag set that carries an
+                // informational status code is malformed
+                String msg = ("Stream %s PROTOCOL_ERROR: " +
+                        "HEADERS frame with status %s has END_STREAM flag set")
+                        .formatted(streamid, responseCode);
+                if (debug.on()) {
+                    debug.log(msg);
+                }
+                cancelImpl(new IOException(msg), ResetFrame.PROTOCOL_ERROR);
+            }
+
+            response = new Response(
+                    request, exchange, responseHeaders, connection(),
+                    responseCode, HttpClient.Version.HTTP_2);
 
         /* TODO: review if needs to be removed
            the value is not used, but in case `content-length` doesn't parse as
            long, there will be NumberFormatException. If left as is, make sure
            code up the stack handles NFE correctly. */
-        responseHeaders.firstValueAsLong("content-length");
+            responseHeaders.firstValueAsLong("content-length");
 
-        if (Log.headers()) {
-            StringBuilder sb = new StringBuilder("RESPONSE HEADERS:\n");
-            Log.dumpHeaders(sb, "    ", responseHeaders);
-            Log.logHeaders(sb.toString());
+            if (Log.headers()) {
+                StringBuilder sb = new StringBuilder("RESPONSE HEADERS:\n");
+                Log.dumpHeaders(sb, "    ", responseHeaders);
+                Log.logHeaders(sb.toString());
+            }
+
+            // this will clear the response headers
+            rspHeadersConsumer.reset();
+
+            completeResponse(response);
+        } else {
+            if (Log.headers()) {
+                StringBuilder sb = new StringBuilder("TRAILING HEADERS:\n");
+                Log.dumpHeaders(sb, "    ", responseHeaders);
+                Log.logHeaders(sb.toString());
+            }
+            rspHeadersConsumer.reset();
         }
 
-        // this will clear the response headers
-        rspHeadersConsumer.reset();
-
-        completeResponse(response);
     }
 
     void incoming_reset(ResetFrame frame) {
@@ -499,7 +526,7 @@ class Stream<T> extends ExchangeImpl<T> {
         } else {
             Flow.Subscriber<?> subscriber =
                     responseSubscriber == null ? pendingResponseSubscriber : responseSubscriber;
-            if (response == null && subscriber == null) {
+            if ((response == null || !finalResponseCodeReceived) && subscriber == null) {
                 // we haven't receive the headers yet, and won't receive any!
                 // handle reset now.
                 handleReset(frame, subscriber);
@@ -869,6 +896,10 @@ class Stream<T> extends ExchangeImpl<T> {
         private void onNextImpl(ByteBuffer item) {
             // Got some more request body bytes to send.
             if (requestBodyCF.isDone()) {
+                if (debug.on()) {
+                    debug.log("RequestSubscriber: requestBodyCf is done: " +
+                            "cancelling subscription");
+                }
                 // stream already cancelled, probably in timeout
                 sendScheduler.stop();
                 subscription.cancel();
@@ -1303,6 +1334,7 @@ class Stream<T> extends ExchangeImpl<T> {
         CompletableFuture<HttpResponse<T>> responseCF;
         final HttpRequestImpl pushReq;
         HttpResponse.BodyHandler<T> pushHandler;
+        private volatile boolean finalPushResponseCodeReceived;
 
         PushedStream(PushGroup<T> pushGroup,
                      Http2Connection connection,
@@ -1397,37 +1429,50 @@ class Stream<T> extends ExchangeImpl<T> {
 
         // create and return the PushResponseImpl
         @Override
-        protected void handleResponse() {
+        protected void handleResponse(HeaderFrame hf) {
             HttpHeaders responseHeaders = responseHeadersBuilder.build();
-            responseCode = (int)responseHeaders
-                .firstValueAsLong(":status")
-                .orElse(-1);
 
-            if (responseCode == -1) {
-                completeResponseExceptionally(new IOException("No status code"));
+            if (!finalPushResponseCodeReceived) {
+                responseCode = (int)responseHeaders
+                    .firstValueAsLong(":status")
+                    .orElse(-1);
+
+                if (responseCode == -1) {
+                    completeResponseExceptionally(new IOException("No status code"));
+                }
+
+                this.finalPushResponseCodeReceived = true;
+
+                this.response = new Response(
+                        pushReq, exchange, responseHeaders, connection(),
+                        responseCode, HttpClient.Version.HTTP_2);
+
+                /* TODO: review if needs to be removed
+                   the value is not used, but in case `content-length` doesn't parse
+                   as long, there will be NumberFormatException. If left as is, make
+                   sure code up the stack handles NFE correctly. */
+                responseHeaders.firstValueAsLong("content-length");
+
+                if (Log.headers()) {
+                    StringBuilder sb = new StringBuilder("RESPONSE HEADERS");
+                    sb.append(" (streamid=").append(streamid).append("):\n");
+                    Log.dumpHeaders(sb, "    ", responseHeaders);
+                    Log.logHeaders(sb.toString());
+                }
+
+                rspHeadersConsumer.reset();
+
+                // different implementations for normal streams and pushed streams
+                completeResponse(response);
+            } else {
+                if (Log.headers()) {
+                    StringBuilder sb = new StringBuilder("TRAILING HEADERS");
+                    sb.append(" (streamid=").append(streamid).append("):\n");
+                    Log.dumpHeaders(sb, "    ", responseHeaders);
+                    Log.logHeaders(sb.toString());
+                }
+                rspHeadersConsumer.reset();
             }
-
-            this.response = new Response(
-                pushReq, exchange, responseHeaders, connection(),
-                responseCode, HttpClient.Version.HTTP_2);
-
-            /* TODO: review if needs to be removed
-               the value is not used, but in case `content-length` doesn't parse
-               as long, there will be NumberFormatException. If left as is, make
-               sure code up the stack handles NFE correctly. */
-            responseHeaders.firstValueAsLong("content-length");
-
-            if (Log.headers()) {
-                StringBuilder sb = new StringBuilder("RESPONSE HEADERS");
-                sb.append(" (streamid=").append(streamid).append("):\n");
-                Log.dumpHeaders(sb, "    ", responseHeaders);
-                Log.logHeaders(sb.toString());
-            }
-
-            rspHeadersConsumer.reset();
-
-            // different implementations for normal streams and pushed streams
-            completeResponse(response);
         }
     }
 
