@@ -550,7 +550,6 @@ needs_g1gc = \
   
 jdk_core_manual = \
     :jdk_core_manual_no_input \
-    :jdk_core_manual_no_input_security
     :jdk_security_manual_no_input \
     :jdk_core_manual_interactive \
     :jdk_security_manual_interactive \
@@ -601,14 +600,12 @@ jdk_core_manual_interactive = \
     java/util/TimeZone/DefaultTimeZoneTest.java \
     java/nio/MappedByteBuffer/PmemTest.java \
     java/rmi/registry/nonLocalRegistry/NonLocalRegistryTest.java \
-    java/rmi/registry/nonLocalRegistry/NonLocalSkeletonTest.java \
-    java/security/Policy/Root/Root.java \
-    sun/security/krb5/config/native/TestDynamicStore.java
-    java/util/TimeZone/DefaultTimeZoneTest.java
+    java/rmi/registry/nonLocalRegistry/NonLocalSkeletonTest.java
 
 jdk_security_manual_interactive = \
-    sun/security/tools/keytool/i18n.java
-
+    sun/security/tools/keytool/i18n.java \
+    java/security/Policy/Root/Root.java \
+    sun/security/krb5/config/native/TestDynamicStore.java
 
 # Test sets for running inside container environment
 jdk_containers_extended = \
