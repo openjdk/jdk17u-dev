@@ -552,8 +552,7 @@ jdk_core_manual = \
     :jdk_core_manual_no_input \
     :jdk_security_manual_no_input \
     :jdk_core_manual_interactive \
-    :jdk_security_manual_interactive \
-    :jdk_core_manual_requires_human_input
+    :jdk_security_manual_interactive
 
 jdk_core_manual_no_input = \
     java/net/HugeDataTransferTest.java \
