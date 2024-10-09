@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,6 +30,8 @@
  * @library /test/lib
  * @library classes
  * @build test.Empty
+ * @build jdk.test.whitebox.WhiteBox
+ * @run driver jdk.test.lib.helpers.ClassFileInstaller jdk.test.whitebox.WhiteBox
  * @run driver ClassLoadUnloadTest
  */
 
@@ -70,8 +72,8 @@ public class ClassLoadUnloadTest {
     static OutputAnalyzer exec(String... args) throws Exception {
         List<String> argsList = new ArrayList<>();
         Collections.addAll(argsList, args);
-        Collections.addAll(argsList, "-Xmn8m", "-Dtest.class.path=" + System.getProperty("test.class.path", "."),
-                            "-XX:+ClassUnloading", ClassUnloadTestMain.class.getName());
+        Collections.addAll(argsList, "-Xmn8m", "-Xbootclasspath/a:.", "-XX:+UnlockDiagnosticVMOptions",
+                           "-XX:+WhiteBoxAPI", "-XX:+ClassUnloading", ClassUnloadTestMain.class.getName());
         ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(argsList);
         OutputAnalyzer output = new OutputAnalyzer(pb.start());
         output.shouldHaveExitValue(0);
