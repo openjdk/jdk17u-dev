@@ -26,10 +26,7 @@ package sun.security.provider.certpath;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
+import java.net.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertPathValidatorException.BasicReason;
@@ -72,13 +69,23 @@ public final class OCSP {
     private static final Debug debug = Debug.getInstance("certpath");
 
     private static final int DEFAULT_CONNECT_TIMEOUT = 15000;
+    private static final int DEFAULT_READ_TIMEOUT = 15000;
 
     /**
-     * Integer value indicating the timeout length, in seconds, to be
-     * used for the OCSP check. A timeout of zero is interpreted as
-     * an infinite timeout.
+     * Integer value indicating the timeout length, in milliseconds, to be
+     * used for establishing a connection to an OCSP responder. A timeout of
+     * zero is interpreted as an infinite timeout.
      */
-    private static final int CONNECT_TIMEOUT = initializeTimeout();
+    private static final int CONNECT_TIMEOUT = initializeTimeout(
+            "com.sun.security.ocsp.timeout", DEFAULT_CONNECT_TIMEOUT);
+
+    /**
+     * Integer value indicating the timeout length, in milliseconds, to be
+     * used for reading an OCSP response from the responder.  A timeout of
+     * zero is interpreted as an infinite timeout.
+     */
+    private static final int READ_TIMEOUT = initializeTimeout(
+            "com.sun.security.ocsp.readtimeout", DEFAULT_READ_TIMEOUT);
 
     /**
      * Boolean value indicating whether OCSP client can use GET for OCSP
@@ -107,16 +114,13 @@ public final class OCSP {
      * system property. If the property has not been set, or if its
      * value is negative, set the timeout length to the default.
      */
-    private static int initializeTimeout() {
-        @SuppressWarnings("removal")
-        Integer tmp = java.security.AccessController.doPrivileged(
-                new GetIntegerAction("com.sun.security.ocsp.timeout"));
-        if (tmp == null || tmp < 0) {
-            return DEFAULT_CONNECT_TIMEOUT;
+    private static int initializeTimeout(String prop, int def) {
+        int timeoutVal =
+                GetPropertyAction.privilegedGetTimeoutProp(prop, def, debug);
+        if (debug != null) {
+            debug.println(prop + " set to " + timeoutVal + " milliseconds");
         }
-        // Convert to milliseconds, as the system property will be
-        // specified in seconds
-        return tmp * 1000;
+        return timeoutVal;
     }
 
     private static boolean initializeBoolean(String prop, boolean def) {
@@ -277,8 +281,10 @@ public final class OCSP {
                     Base64.getEncoder().encodeToString(bytes), "UTF-8"));
 
             if (USE_GET && encodedGetReq.length() <= 255) {
-                url = new URL(encodedGetReq.toString());
+                url = new URI(encodedGetReq.toString()).toURL();
                 con = (HttpURLConnection)url.openConnection();
+                con.setConnectTimeout(CONNECT_TIMEOUT);
+                con.setReadTimeout(READ_TIMEOUT);
                 con.setDoOutput(true);
                 con.setDoInput(true);
                 con.setRequestMethod("GET");
@@ -286,7 +292,7 @@ public final class OCSP {
                 url = responderURI.toURL();
                 con = (HttpURLConnection)url.openConnection();
                 con.setConnectTimeout(CONNECT_TIMEOUT);
-                con.setReadTimeout(CONNECT_TIMEOUT);
+                con.setReadTimeout(READ_TIMEOUT);
                 con.setDoOutput(true);
                 con.setDoInput(true);
                 con.setRequestMethod("POST");
@@ -316,6 +322,8 @@ public final class OCSP {
             return (contentLength == -1) ? con.getInputStream().readAllBytes() :
                     IOUtils.readExactlyNBytes(con.getInputStream(),
                             contentLength);
+        } catch (URISyntaxException urise) {
+            throw new IOException(urise);
         } finally {
             if (con != null) {
                 con.disconnect();
