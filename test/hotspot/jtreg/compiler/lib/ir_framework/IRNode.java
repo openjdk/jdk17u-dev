@@ -133,7 +133,11 @@ public class IRNode {
 
     public static final String SCOPE_OBJECT = "(.*# ScObj.*" + END;
     public static final String MEMBAR = START + "MemBar" + MID + END;
+    public static final String MEMBAR_ACQUIRE = START + "MemBarAcquire" + MID + END;
+    public static final String MEMBAR_RELEASE = START + "MemBarRelease" + MID + END;
     public static final String MEMBAR_STORESTORE = START + "MemBarStoreStore" + MID + END;
+    public static final String MEMBAR_VOLATILE = START + "MemBarVolatile" + MID + END;
+
     public static final String SAFEPOINT = START + "SafePoint" + MID + END;
 
     public static final String CMP_U = START + "CmpU" + MID + END;
