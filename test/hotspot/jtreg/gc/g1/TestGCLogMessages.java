@@ -235,29 +235,29 @@ public class TestGCLogMessages {
     };
 
     private void testWithEvacuationFailureLogs() throws Exception {
-        ProcessBuilder pb = ProcessTools.createJavaProcessBuilder("-XX:+UseG1GC",
-                                                                  "-Xmx32M",
-                                                                  "-Xmn16M",
-                                                                  "-XX:+G1EvacuationFailureALot",
-                                                                  "-XX:G1EvacuationFailureALotCount=100",
-                                                                  "-XX:G1EvacuationFailureALotInterval=1",
-                                                                  "-XX:+UnlockDiagnosticVMOptions",
-                                                                  "-XX:-G1UsePreventiveGC",
-                                                                  "-Xlog:gc+phases=debug",
-                                                                  GCTestWithEvacuationFailure.class.getName());
+        ProcessBuilder pb = ProcessTools.createLimitedTestJavaProcessBuilder("-XX:+UseG1GC",
+                                                                             "-Xmx32M",
+                                                                             "-Xmn16M",
+                                                                             "-XX:+G1EvacuationFailureALot",
+                                                                             "-XX:G1EvacuationFailureALotCount=100",
+                                                                             "-XX:G1EvacuationFailureALotInterval=1",
+                                                                             "-XX:+UnlockDiagnosticVMOptions",
+                                                                             "-XX:-G1UsePreventiveGC",
+                                                                             "-Xlog:gc+phases=debug",
+                                                                             GCTestWithEvacuationFailure.class.getName());
 
         OutputAnalyzer output = new OutputAnalyzer(pb.start());
         checkMessagesAtLevel(output, exhFailureMessages, Level.DEBUG);
         output.shouldHaveExitValue(0);
 
-        pb = ProcessTools.createJavaProcessBuilder("-XX:+UseG1GC",
-                                                   "-Xmx32M",
-                                                   "-Xmn16M",
-                                                   "-Xms32M",
-                                                   "-XX:+UnlockDiagnosticVMOptions",
-                                                   "-XX:-G1UsePreventiveGC",
-                                                   "-Xlog:gc+phases=trace",
-                                                   GCTestWithEvacuationFailure.class.getName());
+        pb = ProcessTools.createLimitedTestJavaProcessBuilder("-XX:+UseG1GC",
+                                                              "-Xmx32M",
+                                                              "-Xmn16M",
+                                                              "-Xms32M",
+                                                              "-XX:+UnlockDiagnosticVMOptions",
+                                                              "-XX:-G1UsePreventiveGC",
+                                                              "-Xlog:gc+phases=trace",
+                                                              GCTestWithEvacuationFailure.class.getName());
 
         output = new OutputAnalyzer(pb.start());
         checkMessagesAtLevel(output, exhFailureMessages, Level.TRACE);

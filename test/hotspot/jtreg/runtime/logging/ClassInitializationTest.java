@@ -55,21 +55,21 @@ public class ClassInitializationTest {
 
         // (2)
         if (Platform.isDebugBuild()) {
-            pb = ProcessTools.createJavaProcessBuilder("-Xlog:class+init=info",
-                                                       "-Xverify:all",
-                                                       "-XX:+EagerInitialization",
-                                                       "-Xmx128m",
-                                                       InnerClass.class.getName());
+            pb = ProcessTools.createLimitedTestJavaProcessBuilder("-Xlog:class+init=info",
+                                                                  "-Xverify:all",
+                                                                  "-XX:+EagerInitialization",
+                                                                  "-Xmx128m",
+                                                                  InnerClass.class.getName());
             out = new OutputAnalyzer(pb.start());
             out.shouldContain("[Initialized").shouldContain("without side effects]");
             out.shouldHaveExitValue(0);
         }
 
         // (3) class+init should turn off.
-        pb = ProcessTools.createJavaProcessBuilder("-Xlog:class+init=off",
-                                                   "-Xverify:all",
-                                                   "-Xmx128m",
-                                                   "BadMap50");
+        pb = ProcessTools.createLimitedTestJavaProcessBuilder("-Xlog:class+init=off",
+                                                              "-Xverify:all",
+                                                              "-Xmx128m",
+                                                              "BadMap50");
         out = new OutputAnalyzer(pb.start());
         out.shouldNotHaveExitValue(0);
         out.shouldNotContain("[class,init]");

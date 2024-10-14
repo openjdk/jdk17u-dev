@@ -40,7 +40,7 @@ public class HandshakeTransitionTest {
 
     public static void main(String[] args) throws Exception {
         ProcessBuilder pb =
-            ProcessTools.createTestJvm(
+            ProcessTools.createTestJavaProcessBuilder(
                     "-Djava.library.path=" + Utils.TEST_NATIVE_PATH,
                     "-XX:+SafepointALot",
                     "-XX:+HandshakeALot",

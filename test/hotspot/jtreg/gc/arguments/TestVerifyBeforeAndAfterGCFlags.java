@@ -86,7 +86,7 @@ public class TestVerifyBeforeAndAfterGCFlags {
                                        (verifyAfterGC ? "-XX:+VerifyAfterGC"
                                                       : "-XX:-VerifyAfterGC"),
                                        GarbageProducer.class.getName() });
-        ProcessBuilder pb = GCArguments.createJavaProcessBuilder(vmOpts);
+        ProcessBuilder pb = GCArguments.createLimitedTestJavaProcessBuilder(vmOpts);
         OutputAnalyzer analyzer = new OutputAnalyzer(pb.start());
 
         analyzer.shouldHaveExitValue(0);
