@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -271,7 +271,7 @@ public abstract class CiReplayBase {
 
     private String[] getTestJvmCommandlineWithPrefix(String prefix, String... args) {
         try {
-            String cmd = ProcessTools.getCommandLine(ProcessTools.createTestJvm(args));
+            String cmd = ProcessTools.getCommandLine(ProcessTools.createTestJavaProcessBuilder(args));
             return new String[]{"sh", "-c", prefix
                 + (Platform.isWindows() ? cmd.replace('\\', '/').replace(";", "\\;").replace("|", "\\|") : cmd)};
         } catch(Throwable t) {

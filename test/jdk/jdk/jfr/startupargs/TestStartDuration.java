@@ -63,7 +63,7 @@ public class TestStartDuration {
 
 
     private static void testDurationJavaVersion(String duration, boolean inRange) throws Exception {
-        ProcessBuilder pb = ProcessTools.createTestJvm(
+        ProcessBuilder pb = ProcessTools.createTestJavaProcessBuilder(
             "-XX:StartFlightRecording:name=TestStartDuration,duration=" + duration, "-version");
         OutputAnalyzer out = ProcessTools.executeProcess(pb);
 
