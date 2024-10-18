@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@
  * questions.
  *
  */
-
 
 #include "precompiled.hpp"
 #include "cds/metaspaceShared.hpp"
@@ -53,6 +52,7 @@ uint32_t Symbol::pack_hash_and_refcount(short hash, int refcount) {
 }
 
 Symbol::Symbol(const u1* name, int length, int refcount) {
+  assert(length <= max_length(), "SymbolTable should have caught this!");
   _hash_and_refcount =  pack_hash_and_refcount((short)os::random(), refcount);
   _length = length;
   // _body[0..1] are allocated in the header just by coincidence in the current
@@ -387,11 +387,9 @@ void Symbol::print() const { print_on(tty); }
 // The print_value functions are present in all builds, to support the
 // disassembler and error reporting.
 void Symbol::print_value_on(outputStream* st) const {
-  st->print("'");
-  for (int i = 0; i < utf8_length(); i++) {
-    st->print("%c", char_at(i));
-  }
-  st->print("'");
+  st->print_raw("'", 1);
+  st->print_raw((const char*)base(), utf8_length());
+  st->print_raw("'", 1);
 }
 
 void Symbol::print_value() const { print_value_on(tty); }

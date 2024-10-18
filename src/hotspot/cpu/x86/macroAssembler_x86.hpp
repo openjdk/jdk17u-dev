@@ -196,8 +196,8 @@ class MacroAssembler: public Assembler {
   // Alignment
   void align32();
   void align64();
-  void align(int modulus);
-  void align(int modulus, int target);
+  void align(uint modulus);
+  void align(uint modulus, uint target);
 
   // A 5 byte nop that is safe for patching (see patch_verified_entry)
   void fat_nop();
@@ -555,6 +555,16 @@ class MacroAssembler: public Assembler {
                                Register scan_temp,
                                Label& no_such_interface,
                                bool return_method = true);
+
+  void lookup_interface_method_stub(Register recv_klass,
+                                    Register holder_klass,
+                                    Register resolved_klass,
+                                    Register method_result,
+                                    Register scan_temp,
+                                    Register temp_reg2,
+                                    Register receiver,
+                                    int itable_index,
+                                    Label& L_no_such_interface);
 
   // virtual method calling
   void lookup_virtual_method(Register recv_klass,

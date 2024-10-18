@@ -385,8 +385,9 @@ void os::init_system_properties_values() {
     char path[MAX_PATH];
     char buf[2 * MAX_PATH + 2 * sizeof(EXT_DIR) + sizeof(PACKAGE_DIR) + 1];
     GetWindowsDirectory(path, MAX_PATH);
-    sprintf(buf, "%s%s;%s%s%s", Arguments::get_java_home(), EXT_DIR,
-            path, PACKAGE_DIR, EXT_DIR);
+    os::snprintf_checked(buf, sizeof(buf), "%s%s;%s%s%s",
+                         Arguments::get_java_home(), EXT_DIR,
+                         path, PACKAGE_DIR, EXT_DIR);
     Arguments::set_ext_dirs(buf);
   }
   #undef EXT_DIR
@@ -3351,7 +3352,8 @@ static char* map_or_reserve_memory_aligned(size_t size, size_t alignment, int fi
                                      os::attempt_reserve_memory_at(aligned_base, size);
   }
 
-  assert(aligned_base != NULL, "Did not manage to re-map after %d attempts?", max_attempts);
+  assert(aligned_base != nullptr,
+      "Did not manage to re-map after %d attempts (size %zu, alignment %zu, file descriptor %d)", max_attempts, size, alignment, file_desc);
 
   return aligned_base;
 }
