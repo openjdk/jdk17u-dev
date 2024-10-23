@@ -72,6 +72,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import static java.util.Collections.unmodifiableList;
+import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.SwingUtilities.invokeAndWait;
 import static javax.swing.SwingUtilities.isEventDispatchThread;
 
@@ -465,6 +466,7 @@ public final class PassFailJFrame {
         JTextArea text = new JTextArea(instructions, rows, columns);
         text.setLineWrap(true);
         text.setWrapStyleWord(true);
+        text.setBorder(createEmptyBorder(4, 4, 4, 4));
         return text;
     }
 
