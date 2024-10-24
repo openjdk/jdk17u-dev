@@ -157,7 +157,7 @@ import static javax.swing.SwingUtilities.isEventDispatchThread;
  *     <li>the title of the instruction UI,</li>
  *     <li>the timeout of the test,</li>
  *     <li>the size of the instruction UI via rows and columns, and</li>
- *     <li>to add a log area</li>,
+ *     <li>to add a log area,</li>
  *     <li>to enable screenshots.</li>
  * </ul>
  */
@@ -1109,9 +1109,10 @@ public final class PassFailJFrame {
 
     /**
      * Adds a {@code message} to the log area, if enabled by
-     * {@link Builder#logArea()} or {@link Builder#logArea(int)}.
+     * {@link Builder#logArea() logArea()} or
+     * {@link Builder#logArea(int) logArea(int)}.
      *
-     * @param message to log
+     * @param message the message to log
      */
     public static void log(String message) {
         System.out.println("PassFailJFrame: " + message);
@@ -1120,7 +1121,8 @@ public final class PassFailJFrame {
 
     /**
      * Clears the log area, if enabled by
-     * {@link Builder#logArea()} or {@link Builder#logArea(int)}.
+     * {@link Builder#logArea() logArea()} or
+     * {@link Builder#logArea(int) logArea(int)}.
      */
     public static void logClear() {
         System.out.println("\nPassFailJFrame: log cleared\n");
@@ -1129,7 +1131,9 @@ public final class PassFailJFrame {
 
     /**
      * Replaces the log area content with provided {@code text}, if enabled by
-     * {@link Builder#logArea()} or {@link Builder#logArea(int)}.
+     * {@link Builder#logArea() logArea()} or
+     * {@link Builder#logArea(int) logArea(int)}.
+     *
      * @param text new text for the log area
      */
     public static void logSet(String text) {
