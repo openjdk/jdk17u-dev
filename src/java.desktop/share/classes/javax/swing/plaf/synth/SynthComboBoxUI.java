@@ -223,7 +223,7 @@ public class SynthComboBoxUI extends BasicComboBoxUI implements
     @Override
     protected void uninstallListeners() {
         editorFocusHandler.unregister();
-        dlcrEnabledHandler = new DlcrEnabledHandler(comboBox);
+        dlcrEnabledHandler.unregister();
         comboBox.removePropertyChangeListener(this);
         comboBox.removeMouseListener(buttonHandler);
         buttonHandler.pressed = false;
