@@ -25,7 +25,7 @@
  * @test
  * @bug 8337066
  * @summary Test that MergeMem is skipped when looking for stores
- * @compile -encoding UTF-8 TestAntiDependencyForPinnedLoads2.java
+ * @compile -encoding UTF-8 TestAntiDependencyForPinnedLoads.java
  * @run main/othervm -Xbatch -XX:-TieredCompilation
  *                   -XX:CompileCommand=compileonly,java.lang.StringUTF16::reverse
  *                   compiler.controldependency.TestAntiDependencyForPinnedLoads
