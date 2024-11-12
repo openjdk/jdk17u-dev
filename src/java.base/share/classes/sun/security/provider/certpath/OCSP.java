@@ -85,7 +85,7 @@ public final class OCSP {
      * zero is interpreted as an infinite timeout.
      */
     private static final int READ_TIMEOUT = initializeTimeout(
-            "com.sun.security.ocsp.readtimeout", DEFAULT_READ_TIMEOUT);
+            "com.sun.security.ocsp.readtimeout", CONNECT_TIMEOUT);
 
     /**
      * Boolean value indicating whether OCSP client can use GET for OCSP
