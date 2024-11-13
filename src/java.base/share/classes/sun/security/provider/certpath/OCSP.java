@@ -69,7 +69,6 @@ public final class OCSP {
     private static final Debug debug = Debug.getInstance("certpath");
 
     private static final int DEFAULT_CONNECT_TIMEOUT = 15000;
-    private static final int DEFAULT_READ_TIMEOUT = 15000;
 
     /**
      * Integer value indicating the timeout length, in milliseconds, to be
