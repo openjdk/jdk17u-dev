@@ -191,6 +191,7 @@ public class Spec {
                     .equals("SHA256withRSA"));
 
         kpg = KeyPairGenerator.getInstance(kpgDSA);
+        kpg.initialize(SecurityUtils.getTestKeySize(kpgDSA));
         assertTrue(JarSigner.Builder
                 .getDefaultSignatureAlgorithm(kpg.generateKeyPair().getPrivate())
                 .equals("SHA256withDSA"));
