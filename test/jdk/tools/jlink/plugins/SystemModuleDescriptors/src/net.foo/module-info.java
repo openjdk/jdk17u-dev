@@ -22,5 +22,4 @@
  */
 
 module net.foo {
-    requires jdk.jfr;
 }

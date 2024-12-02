@@ -38,12 +38,6 @@ public class Main {
 
         checkMainClass("com.foo", "com.foo.Main");
         checkMainClass("net.foo", "net.foo.Main");
-        /*
-        Stream.of("jdk.httpserver", "jdk.jfr").forEach(mn ->
-                ModuleFinder.ofSystem().find(mn).get().descriptor().mainClass()
-                            .orElseThrow(() -> new RuntimeException(mn + " no main class"))
-        );
-        */
     }
 
     static void checkMainClass(String mn, String mainClass) {

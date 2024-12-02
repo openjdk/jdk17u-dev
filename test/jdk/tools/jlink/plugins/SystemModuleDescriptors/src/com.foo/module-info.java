@@ -22,6 +22,5 @@
  */
 
 module com.foo {
-    requires jdk.httpserver;
     requires net.foo;
 }
