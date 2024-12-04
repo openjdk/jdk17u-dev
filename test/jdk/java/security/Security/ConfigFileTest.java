@@ -54,7 +54,7 @@ public class ConfigFileTest {
     private static boolean overrideDetected = false;
 
     private static Path COPY_JDK_DIR = Path.of("./jdk-8155246-tmpdir");
-    private static Path COPIED_JAVA = COPY_JDK_DIR.resolve("bin", "java");
+    private static Path COPIED_JAVA = COPY_JDK_DIR.resolve("bin").resolve("java");
 
     public static void main(String[] args) throws Exception {
         Path copyJdkDir = Path.of("./jdk-8155246-tmpdir");
