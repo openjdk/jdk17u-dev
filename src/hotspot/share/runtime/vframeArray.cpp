@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -49,11 +49,10 @@
 
 int vframeArrayElement:: bci(void) const { return (_bci == SynchronizationEntryBCI ? 0 : _bci); }
 
-void vframeArrayElement::free_monitors(JavaThread* jt) {
+void vframeArrayElement::free_monitors() {
   if (_monitors != NULL) {
      MonitorChunk* chunk = _monitors;
      _monitors = NULL;
-     jt->remove_monitor_chunk(chunk);
      delete chunk;
   }
 }
@@ -95,9 +94,16 @@ void vframeArrayElement::fill_in(compiledVFrame* vf, bool realloc_failures) {
         if (monitor->owner_is_scalar_replaced()) {
           dest->set_obj(NULL);
         } else {
-          assert(monitor->owner() == NULL || (!monitor->owner()->is_unlocked() && !monitor->owner()->has_bias_pattern()), "object must be null or locked, and unbiased");
+          assert(monitor->owner() != nullptr, "monitor owner must not be null");
+          assert(!monitor->owner()->is_unlocked() && !monitor->owner()->has_bias_pattern(), "object must be null or locked, and unbiased");
           dest->set_obj(monitor->owner());
+          assert(ObjectSynchronizer::current_thread_holds_lock(current_thread, Handle(current_thread, dest->obj())),
+                 "should be held, before move_to");
+
           monitor->lock()->move_to(monitor->owner(), dest->lock());
+
+          assert(ObjectSynchronizer::current_thread_holds_lock(current_thread, Handle(current_thread, dest->obj())),
+                 "should be held, after move_to");
         }
       }
     }
