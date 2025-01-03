@@ -37,6 +37,7 @@
 #include "runtime/handles.inline.hpp"
 #include "runtime/monitorChunk.hpp"
 #include "runtime/sharedRuntime.hpp"
+#include "runtime/synchronizer.hpp"
 #include "runtime/vframe.hpp"
 #include "runtime/vframeArray.hpp"
 #include "runtime/vframe_hp.hpp"
@@ -72,7 +73,7 @@ void vframeArrayElement::fill_in(compiledVFrame* vf, bool realloc_failures) {
   int index;
 
   {
-    Thread* current_thread = Thread::current();
+    JavaThread* current_thread = JavaThread::current();
     ResourceMark rm(current_thread);
     HandleMark hm(current_thread);
 
@@ -85,7 +86,6 @@ void vframeArrayElement::fill_in(compiledVFrame* vf, bool realloc_failures) {
 
       // Allocate monitor chunk
       _monitors = new MonitorChunk(list->length());
-      vf->thread()->add_monitor_chunk(_monitors);
 
       // Migrate the BasicLocks from the stack to the monitor chunk
       for (index = 0; index < list->length(); index++) {
@@ -308,7 +308,11 @@ void vframeArrayElement::unpack_on_stack(int caller_actual_parameters,
     top = iframe()->previous_monitor_in_interpreter_frame(top);
     BasicObjectLock* src = _monitors->at(index);
     top->set_obj(src->obj());
+    assert(src->obj() != nullptr || ObjectSynchronizer::current_thread_holds_lock(thread, Handle(thread, src->obj())),
+           "should be held, before move_to");
     src->lock()->move_to(src->obj(), top->lock());
+    assert(src->obj() != nullptr || ObjectSynchronizer::current_thread_holds_lock(thread, Handle(thread, src->obj())),
+           "should be held, after move_to");
   }
   if (ProfileInterpreter) {
     iframe()->interpreter_frame_set_mdp(0); // clear out the mdp.
@@ -615,9 +619,8 @@ void vframeArray::unpack_to_stack(frame &unpack_frame, int exec_mode, int caller
 }
 
 void vframeArray::deallocate_monitor_chunks() {
-  JavaThread* jt = JavaThread::current();
   for (int index = 0; index < frames(); index++ ) {
-     element(index)->free_monitors(jt);
+     element(index)->free_monitors();
   }
 }
 
