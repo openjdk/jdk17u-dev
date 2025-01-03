@@ -40,9 +40,6 @@ class MonitorChunk: public CHeapObj<mtSynchronizer> {
   MonitorChunk(int number_on_monitors);
   ~MonitorChunk();
 
-  // Tells whether the monitor chunk is linked into the JavaThread
-  bool is_linked() const                    { return next() != NULL; }
-
   // Returns the number of monitors
   int number_of_monitors() const { return _number_of_monitors; }
 

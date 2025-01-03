@@ -962,7 +962,7 @@ intptr_t ObjectSynchronizer::FastHashCode(Thread* current, oop obj) {
       // Fall thru so we only have one place that installs the hash in
       // the ObjectMonitor.
     } else if (current->is_Java_thread()
-               && JavaThread::cast(current)->is_lock_owned((address)mark.locker())) {
+               && current->as_Java_thread()->is_lock_owned((address)mark.locker())) {
       // This is a stack lock owned by the calling thread so fetch the
       // displaced markWord from the BasicLock on the stack.
       temp = mark.displaced_mark_helper();
