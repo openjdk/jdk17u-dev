@@ -95,7 +95,7 @@ void vframeArrayElement::fill_in(compiledVFrame* vf, bool realloc_failures) {
           dest->set_obj(NULL);
         } else {
           assert(monitor->owner() != nullptr, "monitor owner must not be null");
-          assert(!monitor->owner()->is_unlocked() && !monitor->owner()->has_bias_pattern(), "object must be null or locked, and unbiased");
+          assert(!monitor->owner()->is_unlocked() && !monitor->owner()->has_bias_pattern(), "object must be locked, and unbiased");
           dest->set_obj(monitor->owner());
           assert(ObjectSynchronizer::current_thread_holds_lock(current_thread, Handle(current_thread, dest->obj())),
                  "should be held, before move_to");
