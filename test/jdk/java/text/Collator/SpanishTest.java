@@ -25,6 +25,7 @@
  * @test
  * @library /java/text/testlib
  * @summary test Spanish Collation
+ * @run junit SpanishTest
  */
 /*
 (C) Copyright Taligent, Inc. 1996 - All Rights Reserved
@@ -41,12 +42,12 @@ attribution to Taligent may not be removed.
 import java.util.Locale;
 import java.text.Collator;
 
-// Quick dummy program for printing out test results
-public class SpanishTest extends CollatorTest {
+import org.junit.jupiter.api.Test;
 
-    public static void main(String[] args) throws Exception {
-        new SpanishTest().run(args);
-    }
+import static org.junit.jupiter.api.Assertions.fail;
+
+// Quick dummy program for printing out test results
+public class SpanishTest {
 
     /*
      * TestPrimary()
@@ -92,13 +93,15 @@ public class SpanishTest extends CollatorTest {
         -1, -1,  1, -1, -1
     };
 
+    @Test
     public void TestPrimary() {
-        doTest(myCollation, Collator.PRIMARY,
+        TestUtils.doCollatorTest(myCollation, Collator.PRIMARY,
                primarySourceData, primaryTargetData, primaryResults);
     }
 
+    @Test
     public void TestTertiary() {
-        doTest(myCollation, Collator.TERTIARY,
+        TestUtils.doCollatorTest(myCollation, Collator.TERTIARY,
                tertiarySourceData, tertiaryTargetData, tertiaryResults);
     }
 

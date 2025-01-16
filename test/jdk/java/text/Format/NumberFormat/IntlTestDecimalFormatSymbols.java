@@ -41,13 +41,14 @@ attribution to Taligent may not be removed.
 import java.text.*;
 import java.util.*;
 
-public class IntlTestDecimalFormatSymbols extends IntlTest
-{
-    public static void main(String[] args) throws Exception {
-        new IntlTestDecimalFormatSymbols().run(args);
-    }
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class IntlTestDecimalFormatSymbols
+{
     // Test the API of DecimalFormatSymbols; primarily a simple get/set set.
+    @Test
     public void TestSymbols()
     {
         DecimalFormatSymbols fr = new DecimalFormatSymbols(Locale.FRENCH);
@@ -133,7 +134,7 @@ public class IntlTestDecimalFormatSymbols extends IntlTest
         en = (DecimalFormatSymbols) fr.clone();
 
         if(! en.equals(fr)) {
-            errln("ERROR: Clone failed");
+            fail("ERROR: Clone failed");
         }
     }
 }

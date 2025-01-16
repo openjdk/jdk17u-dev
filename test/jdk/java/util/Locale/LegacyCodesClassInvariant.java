@@ -20,13 +20,14 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 /*
-    @test
-    @bug 4184873
-    @summary test that locale invariants are preserved across serialization
-    @library /java/text/testlib
-    @run main LegacyCodesClassInvariant
-*/
+ * @test
+ * @bug 4184873
+ * @summary test that locale invariants are preserved across serialization.
+ * @run junit LegacyCodesClassInvariant
+ */
+
 /*
  * This file is available under and governed by the GNU General Public
  * License version 2 only, as published by the Free Software Foundation.
@@ -63,23 +64,19 @@
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Locale;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *  A Locale can never contain the following language codes: he, yi or id.
  */
-public class LegacyCodesClassInvariant extends IntlTest {
-    public static void main(String[] args) throws Exception {
-        if (args.length == 1 && args[0].equals("prepTest")) {
-            prepTest();
-        } else {
-            new LegacyCodesClassInvariant().run(args);
-        }
-    }
-
+public class LegacyCodesClassInvariant {
+    @Test
     public void testIt() throws Exception {
         verify("he");
         verify("yi");

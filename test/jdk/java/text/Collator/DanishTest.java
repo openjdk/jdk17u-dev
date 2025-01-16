@@ -27,6 +27,7 @@
  * @library /java/text/testlib
  * @summary test Danish Collation
  * @modules jdk.localedata
+ * @run junit DanishTest
  */
 /*
 (C) Copyright Taligent, Inc. 1996 - All Rights Reserved
@@ -43,12 +44,12 @@ attribution to Taligent may not be removed.
 import java.util.Locale;
 import java.text.Collator;
 
-// Quick dummy program for printing out test results
-public class DanishTest extends CollatorTest {
+import org.junit.jupiter.api.Test;
 
-    public static void main(String[] args) throws Exception {
-        new DanishTest().run(args);
-    }
+import static org.junit.jupiter.api.Assertions.fail;
+
+// Quick dummy program for printing out test results
+public class DanishTest {
 
     /*
      * Data for TestPrimary()
@@ -196,18 +197,20 @@ public class DanishTest extends CollatorTest {
             "\u00F6BERG"  // o-diaeresis
     };
 
+    @Test
     public void TestPrimary() {
-        doTest(myCollation, Collator.PRIMARY,
+        TestUtils.doCollatorTest(myCollation, Collator.PRIMARY,
                primarySourceData, primaryTargetData, primaryResults);
     }
 
+    @Test
     public void TestTertiary() {
-        doTest(myCollation, Collator.TERTIARY,
+        TestUtils.doCollatorTest(myCollation, Collator.TERTIARY,
                tertiarySourceData, tertiaryTargetData, tertiaryResults);
 
         for (int i = 0; i < testData.length-1; i++) {
             for (int j = i+1; j < testData.length; j++) {
-                doTest(myCollation, testData[i], testData[j], -1);
+                TestUtils.doCollatorTest(myCollation, testData[i], testData[j], -1);
             }
         }
     }

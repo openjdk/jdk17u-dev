@@ -26,6 +26,7 @@
  * @library /java/text/testlib
  * @summary test Collation API
  * @modules jdk.localedata
+ * @run junit APITest
  */
 /*
 (C) Copyright Taligent, Inc. 1996 - All Rights Reserved
@@ -45,17 +46,16 @@ import java.text.RuleBasedCollator;
 import java.text.CollationKey;
 import java.text.CollationElementIterator;
 
-public class APITest extends CollatorTest {
+import org.junit.jupiter.api.Test;
 
-    public static void main(String[] args) throws Exception {
-        new APITest().run(args);
-    }
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class APITest {
 
     final void doAssert(boolean condition, String message)
     {
         if (!condition) {
-            err("ERROR: ");
-            errln(message);
+            fail("ERROR: " + message);
         }
     }
 
@@ -169,7 +169,7 @@ public class APITest extends CollatorTest {
             }
         }
 
-        logln("hashCode tests end.");
+        System.out.println("hashCode tests end.");
     }
 
     //----------------------------------------------------------------------------
@@ -177,20 +177,20 @@ public class APITest extends CollatorTest {
     //
     public final void TestCollationKey( )
     {
-        logln("testing CollationKey begins...");
+        System.out.println("testing CollationKey begins...");
         Collator col = null;
         try {
             col = Collator.getInstance(Locale.ROOT);
         } catch (Exception foo) {
-            errln("Error : " + foo.getMessage());
-            errln("Default collation creation failed.");
+            fail("Error : " + foo.getMessage()
+            + "\n Default collation creation failed.");
         }
         if (col == null) {
             return;
         }
 
         String test1 = "Abcda", test2 = "abcda";
-        logln("Use tertiary comparison level testing ....");
+        System.out.println("Use tertiary comparison level testing ....");
         CollationKey sortk1 = col.getCollationKey(test1);
         CollationKey sortk2 = col.getCollationKey(test2);
         doAssert(sortk1.compareTo(sortk2) > 0,
@@ -209,20 +209,20 @@ public class APITest extends CollatorTest {
         byte byteArray1[] = sortk1.toByteArray();
         byte byteArray2[] = sortk2.toByteArray();
         doAssert(byteArray1 != null && byteArray2 != null, "CollationKey.toByteArray failed.");
-        logln("testing sortkey ends...");
+        System.out.println("testing sortkey ends...");
     }
     //----------------------------------------------------------------------------
     // ctor -- Tests the constructor methods
     //
     public final void TestElemIter( )
     {
-        logln("testing sortkey begins...");
+        System.out.println("testing sortkey begins...");
         Collator col = null;
         try {
             col = Collator.getInstance();
         } catch (Exception foo) {
-            errln("Error : " + foo.getMessage());
-            errln("Default collation creation failed.");
+            fail("Error : " + foo.getMessage()
+            + "\n Default collation creation failed.");
         }
         RuleBasedCollator rbCol;
         if (col instanceof RuleBasedCollator) {
@@ -232,7 +232,7 @@ public class APITest extends CollatorTest {
         }
         String testString1 = "XFILE What subset of all possible test cases has the highest probability of detecting the most errors?";
         String testString2 = "Xf ile What subset of all possible test cases has the lowest probability of detecting the least errors?";
-        logln("Constructors and comparison testing....");
+        System.out.println("Constructors and comparison testing....");
         CollationElementIterator iterator1 = rbCol.getCollationElementIterator(testString1);
         CollationElementIterator iterator2 = rbCol.getCollationElementIterator(testString1);
         CollationElementIterator iterator3 = rbCol.getCollationElementIterator(testString2);
@@ -303,17 +303,17 @@ public class APITest extends CollatorTest {
                      != CollationElementIterator.secondaryOrder(order3),
                  "The secondary orders should be different");
         doAssert(order1 != CollationElementIterator.NULLORDER, "Unexpected end of iterator reached");
-        logln("testing CollationElementIterator ends...");
+        System.out.println("testing CollationElementIterator ends...");
     }
 
     public final void TestGetAll()
     {
         Locale[] list = Collator.getAvailableLocales();
         for (int i = 0; i < list.length; ++i) {
-            log("Locale name: ");
-            log(list[i].toString());
-            log(" , the display name is : ");
-            logln(list[i].getDisplayName());
+            System.out.println("Locale name: ");
+            System.out.println(list[i].toString());
+            System.out.println(" , the display name is : ");
+            System.out.println(list[i].getDisplayName());
         }
     }
 }
