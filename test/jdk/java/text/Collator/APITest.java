@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -64,103 +64,103 @@ public class APITest {
         Collator col = null;
         try {
             col = Collator.getInstance(Locale.ROOT);
-            logln("The property tests begin : ");
-            logln("Test ctors : ");
+            System.out.println("The property tests begin : ");
+            System.out.println("Test ctors : ");
             doAssert(col.compare("ab", "abc") < 0, "ab < abc comparison failed");
             doAssert(col.compare("ab", "AB") < 0, "ab < AB comparison failed");
             doAssert(col.compare("black-bird", "blackbird") > 0, "black-bird > blackbird comparison failed");
             doAssert(col.compare("black bird", "black-bird") < 0, "black bird < black-bird comparison failed");
             doAssert(col.compare("Hello", "hello") > 0, "Hello > hello comparison failed");
 
-            logln("Test ctors ends.");
-            logln("testing Collator.getStrength() method ...");
+            System.out.println("Test ctors ends.");
+            System.out.println("testing Collator.getStrength() method ...");
             doAssert(col.getStrength() == Collator.TERTIARY, "collation object has the wrong strength");
             doAssert(col.getStrength() != Collator.PRIMARY, "collation object's strength is primary difference");
 
-            logln("testing Collator.setStrength() method ...");
+            System.out.println("testing Collator.setStrength() method ...");
             col.setStrength(Collator.SECONDARY);
             doAssert(col.getStrength() != Collator.TERTIARY, "collation object's strength is secondary difference");
             doAssert(col.getStrength() != Collator.PRIMARY, "collation object's strength is primary difference");
             doAssert(col.getStrength() == Collator.SECONDARY, "collation object has the wrong strength");
 
-            logln("testing Collator.setDecomposition() method ...");
+            System.out.println("testing Collator.setDecomposition() method ...");
             col.setDecomposition(Collator.NO_DECOMPOSITION);
             doAssert(col.getDecomposition() != Collator.FULL_DECOMPOSITION, "collation object's strength is secondary difference");
             doAssert(col.getDecomposition() != Collator.CANONICAL_DECOMPOSITION, "collation object's strength is primary difference");
             doAssert(col.getDecomposition() == Collator.NO_DECOMPOSITION, "collation object has the wrong strength");
         } catch (Exception foo) {
-            errln("Error : " + foo.getMessage());
-            errln("Default Collator creation failed.");
+            fail("Error : " + foo.getMessage()
+            + "\n Default Collator creation failed.");
         }
-        logln("Default collation property test ended.");
-        logln("Collator.getRules() testing ...");
+        System.out.println("Default collation property test ended.");
+        System.out.println("Collator.getRules() testing ...");
         doAssert(((RuleBasedCollator)col).getRules().length() != 0, "getRules() result incorrect" );
-        logln("getRules tests end.");
+        System.out.println("getRules tests end.");
         try {
             col = Collator.getInstance(Locale.FRENCH);
             col.setStrength(Collator.PRIMARY);
-            logln("testing Collator.getStrength() method again ...");
+            System.out.println("testing Collator.getStrength() method again ...");
             doAssert(col.getStrength() != Collator.TERTIARY, "collation object has the wrong strength");
             doAssert(col.getStrength() == Collator.PRIMARY, "collation object's strength is not primary difference");
 
-            logln("testing French Collator.setStrength() method ...");
+            System.out.println("testing French Collator.setStrength() method ...");
             col.setStrength(Collator.TERTIARY);
             doAssert(col.getStrength() == Collator.TERTIARY, "collation object's strength is not tertiary difference");
             doAssert(col.getStrength() != Collator.PRIMARY, "collation object's strength is primary difference");
             doAssert(col.getStrength() != Collator.SECONDARY, "collation object's strength is secondary difference");
 
         } catch (Exception bar) {
-            errln("Error :  " + bar.getMessage());
-            errln("Creating French collation failed.");
+            fail("Error :  " + bar.getMessage()
+            + "\n Creating French collation failed.");
         }
 
-        logln("Create junk collation: ");
+        System.out.println("Create junk collation: ");
         Locale abcd = new Locale("ab", "CD", "");
         Collator junk = null;
         try {
             junk = Collator.getInstance(abcd);
         } catch (Exception err) {
-            errln("Error : " + err.getMessage());
-            errln("Junk collation creation failed, should at least return the collator for the base bundle.");
+            fail("Error : " + err.getMessage()
+            + "\n Junk collation creation failed, should at least return the collator for the base bundle.");
         }
         try {
             col = Collator.getInstance(Locale.ROOT);
             doAssert(col.equals(junk), "The base bundle's collation should be returned.");
         } catch (Exception exc) {
-            errln("Error : " + exc.getMessage());
-            errln("Default collation comparison, caching not working.");
+            fail("Error : " + exc.getMessage()
+            + "\n Default collation comparison, caching not working.");
         }
 
-        logln("Collator property test ended.");
+        System.out.println("Collator property test ended.");
     }
 
     public final void TestHashCode( )
     {
-        logln("hashCode tests begin.");
+        System.out.println("hashCode tests begin.");
         Collator col1 = null;
         try {
             col1 = Collator.getInstance(Locale.ROOT);
         } catch (Exception foo) {
-            errln("Error : " + foo.getMessage());
-            errln("Default collation creation failed.");
+            fail("Error : " + foo.getMessage()
+            + "\n Default collation creation failed.");
         }
         Collator col2 = null;
         Locale dk = new Locale("da", "DK", "");
         try {
             col2 = Collator.getInstance(dk);
         } catch (Exception bar) {
-            errln("Error : " + bar.getMessage());
-            errln("Danish collation creation failed.");
+            fail("Error : " + bar.getMessage()
+            + "\n Danish collation creation failed.");
             return;
         }
         Collator col3 = null;
         try {
             col3 = Collator.getInstance(Locale.ROOT);
         } catch (Exception err) {
-            errln("Error : " + err.getMessage());
-            errln("2nd default collation creation failed.");
+            fail("Error : " + err.getMessage()
+            + "\n 2nd default collation creation failed.");
         }
-        logln("Collator.hashCode() testing ...");
+        System.out.println("Collator.hashCode() testing ...");
 
         if (col1 != null) {
             doAssert(col1.hashCode() != col2.hashCode(), "Hash test1 result incorrect");

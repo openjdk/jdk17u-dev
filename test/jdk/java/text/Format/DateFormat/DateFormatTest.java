@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -403,27 +403,28 @@ public class DateFormatTest
             e.printStackTrace();
             return;
         }
-        logln( "Parsed object: " + o );
+        System.out.println( "Parsed object: " + o );
         if (!o.equals(expected)) {
-            errln("FAIL: Expected " + expected);
+            fail("FAIL: Expected " + expected);
         }
 
         String formatted = fmt.format( o );
-        logln( "Formatted string: " + formatted );
+        System.out.println( "Formatted string: " + formatted );
         if (!formatted.equals(str)) {
-            errln("FAIL: Expected " + str);
+            fail("FAIL: Expected " + str);
         }
     }
 
     // Test Czech month formatting -- this can cause a problem because the June and
     // July month names share a common prefix.
     @SuppressWarnings("deprecation")
+    @Test
     public void TestCzechMonths459()
     {
         // Use Czech, which has month names with shared prefixes for June and July
         DateFormat fmt = DateFormat.getDateInstance(DateFormat.FULL, new Locale("cs", "", ""));
         //((SimpleDateFormat)fmt).applyPattern("MMMM d yyyy");
-        logln("Pattern " + ((SimpleDateFormat)fmt).toPattern());
+        System.out.println("Pattern " + ((SimpleDateFormat)fmt).toPattern());
 
         Date june = new Date(97, Calendar.JUNE, 15);
         Date july = new Date(97, Calendar.JULY, 15);

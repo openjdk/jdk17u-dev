@@ -27,8 +27,8 @@
  *      8008577 8077685 8098547 8133321 8138716 8148446 8151876 8159684 8166875 8181157
  *      8228469 8274407 8305113
  * @modules java.base/sun.util.resources
- * @library /java/text/testlib
  * @summary test TimeZone
+ * @run junit TimeZoneTest
  */
 
 import java.io.*;
@@ -275,7 +275,7 @@ public class TimeZoneTest
             else {
                 int ioffset = zone.getRawOffset()/60000;
                 String offset = formatMinutes(ioffset);
-                logln(id + " -> " + zone.getID() + " GMT" + offset);
+                System.out.println(id + " -> " + zone.getID() + " GMT" + offset);
                 if (exp == null) {
                     throw new Exception("Expected parse failure for " + id +
                                         ", got offset of " + offset +

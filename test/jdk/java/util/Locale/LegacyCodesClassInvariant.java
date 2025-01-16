@@ -89,17 +89,12 @@ public class LegacyCodesClassInvariant {
             if (in != null) {
                 final Locale loc = (Locale)in.readObject();
                 final Locale expected = new Locale(lang, "XX");
-                if (!(expected.equals(loc))) {
-                    errln("Locale didn't maintain invariants for: "+lang);
-                    errln("         got: "+loc);
-                    errln("    excpeted: "+expected);
-                } else {
-                    logln("Locale "+lang+" worked");
-                }
+                assertEquals(expected, loc,
+                        "Locale didn't maintain invariants for: "+lang);
                 in.close();
             }
         } catch (Exception e) {
-            errln(e.toString());
+            fail(e.toString());
         }
     }
 
@@ -108,30 +103,8 @@ public class LegacyCodesClassInvariant {
             final File f = new File(System.getProperty("test.src", "."), "LegacyCodesClassInvariant_"+lang);
             return new ObjectInputStream(new FileInputStream(f));
         } catch (Exception e) {
-            errln(e.toString());
+            fail(e.toString());
             return null;
         }
     }
-
-    /**
-     * Create serialized output files of the test locales.  After they are created, these test
-     * files should be corrupted (by hand) to contain invalid locale name values.
-     */
-    private static void prepTest() {
-        outputLocale("he");
-        outputLocale("yi");
-        outputLocale("id");
-    }
-
-    private static void outputLocale(String lang) {
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(
-                    new FileOutputStream("LegacyCodesClassInvariant_"+lang));
-            out.writeObject(new Locale(lang, "XX"));
-            out.close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
-
 }

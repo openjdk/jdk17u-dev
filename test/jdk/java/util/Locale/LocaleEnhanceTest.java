@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -41,24 +41,20 @@ import java.util.Locale;
 import java.util.Locale.Builder;
 import java.util.Set;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * @test
  * @bug 6875847 6992272 7002320 7015500 7023613 7032820 7033504 7004603
  *    7044019 8008577 8176853 8255086 8263202
  * @summary test API changes to Locale
- * @library /java/text/testlib
  * @modules jdk.localedata
  * @compile LocaleEnhanceTest.java
- * @run main/othervm -Djava.locale.providers=JRE,SPI -esa LocaleEnhanceTest
+ * @run junit/othervm -Djava.locale.providers=JRE,SPI -esa LocaleEnhanceTest
  */
-public class LocaleEnhanceTest extends IntlTest {
-
-    public static void main(String[] args) throws Exception {
-        List<String> argList = new ArrayList<String>();
-        argList.addAll(Arrays.asList(args));
-        argList.add("-nothrow");
-        new LocaleEnhanceTest().run(argList.toArray(new String[argList.size()]));
-    }
+public class LocaleEnhanceTest {
 
     public LocaleEnhanceTest() {
     }
