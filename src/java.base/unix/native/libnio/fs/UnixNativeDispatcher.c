@@ -154,9 +154,10 @@ struct my_statx
 #define STATX_MODE 0x00000002U
 #endif
 
-#ifndef STATX_ALL
-#define STATX_ALL (STATX_BTIME | STATX_BASIC_STATS)
-#endif
+//
+// STATX_ALL is deprecated; use a different name to avoid confusion.
+//
+#define LOCAL_STATX_ALL (STATX_BASIC_STATS | STATX_BTIME)
 
 #ifndef AT_FDCWD
 #define AT_FDCWD -100
@@ -632,8 +633,19 @@ static void copy_statx_attributes(JNIEnv* env, struct my_statx* buf, jobject att
     (*env)->SetLongField(env, attrs, attrs_st_atime_sec, (jlong)buf->stx_atime.tv_sec);
     (*env)->SetLongField(env, attrs, attrs_st_mtime_sec, (jlong)buf->stx_mtime.tv_sec);
     (*env)->SetLongField(env, attrs, attrs_st_ctime_sec, (jlong)buf->stx_ctime.tv_sec);
-    (*env)->SetLongField(env, attrs, attrs_st_birthtime_sec, (jlong)buf->stx_btime.tv_sec);
-    (*env)->SetLongField(env, attrs, attrs_st_birthtime_nsec, (jlong)buf->stx_btime.tv_nsec);
+    if ((buf->stx_mask & STATX_BTIME) != 0) {
+        //  Birth time was filled in so use it
+        (*env)->SetLongField(env, attrs, attrs_st_birthtime_sec,
+                             (jlong)buf->stx_btime.tv_sec);
+        (*env)->SetLongField(env, attrs, attrs_st_birthtime_nsec,
+                             (jlong)buf->stx_btime.tv_nsec);
+    } else {
+        //  Birth time was not filled in: fall back to last modification time
+        (*env)->SetLongField(env, attrs, attrs_st_birthtime_sec,
+                             (jlong)buf->stx_mtime.tv_sec);
+        (*env)->SetLongField(env, attrs, attrs_st_birthtime_nsec,
+                             (jlong)buf->stx_mtime.tv_nsec);
+    }
     (*env)->SetLongField(env, attrs, attrs_st_atime_nsec, (jlong)buf->stx_atime.tv_nsec);
     (*env)->SetLongField(env, attrs, attrs_st_mtime_nsec, (jlong)buf->stx_mtime.tv_nsec);
     (*env)->SetLongField(env, attrs, attrs_st_ctime_nsec, (jlong)buf->stx_ctime.tv_nsec);
@@ -687,18 +699,20 @@ Java_sun_nio_fs_UnixNativeDispatcher_stat0(JNIEnv* env, jclass this,
 #if defined(__linux__)
     struct my_statx statx_buf;
     int flags = AT_STATX_SYNC_AS_STAT;
-    unsigned int mask = STATX_ALL;
+    unsigned int mask = LOCAL_STATX_ALL;
 
     if (my_statx_func != NULL) {
         // Prefer statx over stat64 on Linux if it's available
+        // statx is not allowed on the old Docker versions and returns EPERM,
+        // fallback to stat64 in this case
         RESTARTABLE(statx_wrapper(AT_FDCWD, path, flags, mask, &statx_buf), err);
         if (err == 0) {
             copy_statx_attributes(env, &statx_buf, attrs);
-        } else {
+            return;
+        } else if (errno != EPERM) {
             throwUnixException(env, errno);
+            return;
         }
-        // statx was available, so return now
-        return;
     }
 #endif
     RESTARTABLE(stat64(path, &buf), err);
@@ -722,10 +736,12 @@ Java_sun_nio_fs_UnixNativeDispatcher_stat1(JNIEnv* env, jclass this, jlong pathA
 
     if (my_statx_func != NULL) {
         // Prefer statx over stat64 on Linux if it's available
+        // statx is not allowed on the old Docker versions and returns EPERM,
+        // fallback to stat64 in this case
         RESTARTABLE(statx_wrapper(AT_FDCWD, path, flags, mask, &statx_buf), err);
         if (err == 0) {
             return (jint)statx_buf.stx_mode;
-        } else {
+        } else if (errno != EPERM) {
             return 0;
         }
     }
@@ -748,18 +764,20 @@ Java_sun_nio_fs_UnixNativeDispatcher_lstat0(JNIEnv* env, jclass this,
 #if defined(__linux__)
     struct my_statx statx_buf;
     int flags = AT_STATX_SYNC_AS_STAT | AT_SYMLINK_NOFOLLOW;
-    unsigned int mask = STATX_ALL;
+    unsigned int mask = LOCAL_STATX_ALL;
 
     if (my_statx_func != NULL) {
         // Prefer statx over stat64 on Linux if it's available
+        // statx is not allowed on the old Docker versions and returns EPERM,
+        // fallback to lstat64 in this case
         RESTARTABLE(statx_wrapper(AT_FDCWD, path, flags, mask, &statx_buf), err);
         if (err == 0) {
             copy_statx_attributes(env, &statx_buf, attrs);
-        } else {
+            return;
+        } else if (errno != EPERM) {
             throwUnixException(env, errno);
+            return;
         }
-        // statx was available, so return now
-        return;
     }
 #endif
     RESTARTABLE(lstat64(path, &buf), err);
@@ -779,19 +797,21 @@ Java_sun_nio_fs_UnixNativeDispatcher_fstat(JNIEnv* env, jclass this, jint fd,
 #if defined(__linux__)
     struct my_statx statx_buf;
     int flags = AT_EMPTY_PATH | AT_STATX_SYNC_AS_STAT;
-    unsigned int mask = STATX_ALL;
+    unsigned int mask = LOCAL_STATX_ALL;
 
     if (my_statx_func != NULL) {
         // statx supports FD use via dirfd iff pathname is an empty string and the
         // AT_EMPTY_PATH flag is specified in flags
+        // statx is not allowed on the old Docker versions and returns EPERM,
+        // fallback to fstat64 in this case
         RESTARTABLE(statx_wrapper((int)fd, "", flags, mask, &statx_buf), err);
         if (err == 0) {
             copy_statx_attributes(env, &statx_buf, attrs);
-        } else {
+            return;
+        } else if (errno != EPERM) {
             throwUnixException(env, errno);
+            return;
         }
-        // statx was available, so return now
-        return;
     }
 #endif
     RESTARTABLE(fstat64((int)fd, &buf), err);
@@ -812,21 +832,23 @@ Java_sun_nio_fs_UnixNativeDispatcher_fstatat0(JNIEnv* env, jclass this, jint dfd
 #if defined(__linux__)
     struct my_statx statx_buf;
     int flags = AT_STATX_SYNC_AS_STAT;
-    unsigned int mask = STATX_ALL;
+    unsigned int mask = LOCAL_STATX_ALL;
 
     if (my_statx_func != NULL) {
         // Prefer statx over stat64 on Linux if it's available
         if (((int)flag & AT_SYMLINK_NOFOLLOW) > 0) { // flag set in java code
             flags |= AT_SYMLINK_NOFOLLOW;
         }
+        // statx is not allowed on the old Docker versions and returns EPERM,
+        // fallback to fstatat64 in this case
         RESTARTABLE(statx_wrapper((int)dfd, path, flags, mask, &statx_buf), err);
         if (err == 0) {
             copy_statx_attributes(env, &statx_buf, attrs);
-        } else {
+            return;
+        } else if (errno != EPERM) {
             throwUnixException(env, errno);
+            return;
         }
-        // statx was available, so return now
-        return;
     }
 #endif
 
