@@ -25,14 +25,16 @@
  * @test id=actalisauthenticationrootca
  * @bug 8189131
  * @summary Interoperability tests with Actalis CA
+ * Before this test set to manual, the original timeout
+ * value if 180
  * @library /test/lib
  * @build jtreg.SkippedException ValidatePathWithURL CAInterop
  * @run main/othervm/manual -Djava.security.debug=certpath,ocsp
  *  CAInterop actalisauthenticationrootca OCSP
- * @run main/othervm/manual/timeout=180 -Djava.security.debug=certpath,ocsp
+ * @run main/othervm/manual -Djava.security.debug=certpath,ocsp
  *  -Dcom.sun.security.ocsp.useget=false
  *  CAInterop actalisauthenticationrootca OCSP
- * @run main/othervm/manual/timeout=180 -Djava.security.debug=certpath,ocsp
+ * @run main/othervm/manual -Djava.security.debug=certpath,ocsp
  *  CAInterop actalisauthenticationrootca CRL
  */
 
@@ -533,6 +535,28 @@
  * @run main/othervm/manual -Djava.security.debug=certpath CAInterop globalsigne46 CRL
  */
 
+/*
+ * @test id=ssltlsrootecc2022
+ * @bug 8341057
+ * @summary Interoperability tests with SSL TLS 2022 root CAs
+ * @library /test/lib
+ * @build jtreg.SkippedException ValidatePathWithURL CAInterop
+ * @run main/othervm/manual -Djava.security.debug=certpath,ocsp CAInterop ssltlsrootecc2022 DEFAULT
+ * @run main/othervm/manual -Djava.security.debug=certpath,ocsp -Dcom.sun.security.ocsp.useget=false CAInterop ssltlsrootecc2022 DEFAULT
+ * @run main/othervm/manual -Djava.security.debug=certpath CAInterop ssltlsrootecc2022 CRL
+ */
+
+/*
+ * @test id=ssltlsrootrsa2022
+ * @bug 8341057
+ * @summary Interoperability tests with SSL TLS 2022 root CAs
+ * @library /test/lib
+ * @build jtreg.SkippedException ValidatePathWithURL CAInterop
+ * @run main/othervm/manual -Djava.security.debug=certpath,ocsp CAInterop ssltlsrootrsa2022 DEFAULT
+ * @run main/othervm/manual -Djava.security.debug=certpath,ocsp -Dcom.sun.security.ocsp.useget=false CAInterop ssltlsrootrsa2022 DEFAULT
+ * @run main/othervm/manual -Djava.security.debug=certpath CAInterop ssltlsrootrsa2022 CRL
+ */
+
 /**
  * Collection of certificate validation tests for interoperability with external CAs.
  * These tests are marked as manual as they depend on external infrastructure and may fail
@@ -611,20 +635,20 @@ public class CAInterop {
                     "https://revoked.sfig2.catest.starfieldtech.com");
 
             case "globalsigneccrootcar4" ->
-                    new CATestURLs("https://good.gsr4.demo.pki.goog",
-                    "https://revoked.gsr4.demo.pki.goog");
+                    new CATestURLs("https://good.gsr4.demosite.pki.goog",
+                    "https://revoked.gsr4.demosite.pki.goog");
             case "gtsrootcar1" ->
-                    new CATestURLs("https://good.gtsr1.demo.pki.goog",
-                    "https://revoked.gtsr1.demo.pki.goog");
+                    new CATestURLs("https://good.gtsr1.demosite.pki.goog",
+                    "https://revoked.gtsr1.demosite.pki.goog");
             case "gtsrootcar2" ->
-                    new CATestURLs("https://good.gtsr2.demo.pki.goog",
-                    "https://revoked.gtsr2.demo.pki.goog");
+                    new CATestURLs("https://good.gtsr2.demosite.pki.goog",
+                    "https://revoked.gtsr2.demosite.pki.goog");
             case "gtsrootecccar3" ->
-                    new CATestURLs("https://good.gtsr3.demo.pki.goog",
-                    "https://revoked.gtsr3.demo.pki.goog");
+                    new CATestURLs("https://good.gtsr3.demosite.pki.goog",
+                    "https://revoked.gtsr3.demosite.pki.goog");
             case "gtsrootecccar4" ->
-                    new CATestURLs("https://good.gtsr4.demo.pki.goog",
-                    "https://revoked.gtsr4.demo.pki.goog");
+                    new CATestURLs("https://good.gtsr4.demosite.pki.goog",
+                    "https://revoked.gtsr4.demosite.pki.goog");
 
             case "microsoftecc2017" ->
                     new CATestURLs("https://acteccroot2017.pki.microsoft.com",
@@ -710,6 +734,13 @@ public class CAInterop {
             case "globalsigne46" ->
                     new CATestURLs("https://valid.e46.roots.globalsign.com",
                             "https://revoked.e46.roots.globalsign.com");
+
+            case "ssltlsrootecc2022" ->
+                    new CATestURLs("https://test-root-2022-ecc.ssl.com",
+                            "https://revoked-root-2022-ecc.ssl.com");
+            case "ssltlsrootrsa2022" ->
+                    new CATestURLs("https://test-root-2022-rsa.ssl.com",
+                            "https://revoked-root-2022-rsa.ssl.com");
 
             default -> throw new RuntimeException("No test setup found for: " + alias);
         };
