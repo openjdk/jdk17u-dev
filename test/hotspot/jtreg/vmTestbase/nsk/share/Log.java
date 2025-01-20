@@ -191,6 +191,7 @@ public class Log extends FinalizableObject {
      * the given <code>argsHandler</code>.
      */
     public Log(PrintStream stream, ArgumentParser argsParser) {
+        this(stream);
         traceLevel = argsParser.getTraceLevel();
     }
 
