@@ -276,7 +276,7 @@ void mutex_init() {
   def(PerfDataManager_lock         , PaddedMutex  , leaf,        true,  _safepoint_check_always); // used for synchronized access to PerfDataManager resources
 
   def(Threads_lock                 , PaddedMonitor, barrier,     true,  _safepoint_check_always);  // Used for safepoint protocol.
-  def(ThreadsLockThrottle_lock     , PaddedMonitor, barrier,     true,  _safepoint_check_always);
+  def(ThreadsLockThrottle_lock     , PaddedMonitor, nonleaf,     false, _safepoint_check_always);
   def(NonJavaThreadsList_lock      , PaddedMutex,   barrier,     true,  _safepoint_check_never);
   def(NonJavaThreadsListSync_lock  , PaddedMutex,   leaf,        true,  _safepoint_check_never);
 
