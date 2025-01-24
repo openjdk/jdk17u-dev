@@ -68,6 +68,7 @@ Mutex*   MethodData_lock              = NULL;
 Mutex*   TouchedMethodLog_lock        = NULL;
 Mutex*   RetData_lock                 = NULL;
 Monitor* VMOperation_lock             = NULL;
+Monitor* ThreadsLockThrottle_lock     = NULL;
 Monitor* Threads_lock                 = NULL;
 Mutex*   NonJavaThreadsList_lock      = NULL;
 Mutex*   NonJavaThreadsListSync_lock  = NULL;
@@ -275,6 +276,7 @@ void mutex_init() {
   def(PerfDataManager_lock         , PaddedMutex  , leaf,        true,  _safepoint_check_always); // used for synchronized access to PerfDataManager resources
 
   def(Threads_lock                 , PaddedMonitor, barrier,     true,  _safepoint_check_always);  // Used for safepoint protocol.
+  def(ThreadsLockThrottle_lock     , PaddedMonitor, barrier,     true,  _safepoint_check_always);
   def(NonJavaThreadsList_lock      , PaddedMutex,   barrier,     true,  _safepoint_check_never);
   def(NonJavaThreadsListSync_lock  , PaddedMutex,   leaf,        true,  _safepoint_check_never);
 
