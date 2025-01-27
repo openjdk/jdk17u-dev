@@ -51,7 +51,7 @@ static void assert_test_pattern(Handle object, const char* pattern) {
 static void assert_not_test_pattern(Handle object, const char* pattern) {
   stringStream st;
   object->print_on(&st);
-  ASSERT_THAT(st.base(), !testing::HasSubstr(pattern));
+  ASSERT_THAT(st.base(), testing::Not(testing::HasSubstr(pattern)));
 }
 
 class LockerThread : public JavaTestThread {
