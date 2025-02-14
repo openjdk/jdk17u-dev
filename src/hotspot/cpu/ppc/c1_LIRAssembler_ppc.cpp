@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2024, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2012, 2022 SAP SE. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -2291,6 +2291,7 @@ void LIR_Assembler::emit_alloc_obj(LIR_OpAllocObj* op) {
     }
     __ lbz(op->tmp1()->as_register(),
            in_bytes(InstanceKlass::init_state_offset()), op->klass()->as_register());
+    // acquire barrier included in membar_storestore() which follows the allocation immediately.
     __ cmpwi(CCR0, op->tmp1()->as_register(), InstanceKlass::fully_initialized);
     __ bc_far_optimized(Assembler::bcondCRbiIs0, __ bi0(CCR0, Assembler::equal), *op->stub()->entry());
   }

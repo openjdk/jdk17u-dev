@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -3933,7 +3933,7 @@ void InstanceKlass::set_init_state(ClassState state) {
   assert(good_state || state == allocated, "illegal state transition");
 #endif
   assert(_init_thread == NULL, "should be cleared before state change");
-  _init_state = (u1)state;
+  Atomic::release_store(&_init_state, (u1) state);
 }
 
 #if INCLUDE_JVMTI

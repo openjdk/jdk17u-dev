@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2014, 2020, Red Hat Inc. All rights reserved.
  * Copyright (c) 2020, 2023, Huawei Technologies Co., Ltd. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -346,6 +346,7 @@ void MacroAssembler::clinit_barrier(Register klass, Register tmp, Label* L_fast_
 
   // Fast path check: class is fully initialized
   lbu(tmp, Address(klass, InstanceKlass::init_state_offset()));
+  membar(MacroAssembler::LoadLoad | MacroAssembler::LoadStore);
   sub(tmp, tmp, InstanceKlass::fully_initialized);
   beqz(tmp, *L_fast_path);
 

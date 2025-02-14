@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2024, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2016, 2019 SAP SE. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -2375,6 +2375,7 @@ void LIR_Assembler::shift_op(LIR_Code code, LIR_Opr left, jint count, LIR_Opr de
 void LIR_Assembler::emit_alloc_obj(LIR_OpAllocObj* op) {
   if (op->init_check()) {
     // Make sure klass is initialized & doesn't have finalizer.
+    // init_state needs acquire, but S390 is TSO, and so we are already good.
     const int state_offset = in_bytes(InstanceKlass::init_state_offset());
     Register iklass = op->klass()->as_register();
     add_debug_info_for_null_check_here(op->stub()->info());
