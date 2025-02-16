@@ -162,7 +162,8 @@ final class DHPrivateKey implements PrivateKey,
     private static byte[] encode(BigInteger p, BigInteger g, int l,
             byte[] key) {
         DerOutputStream tmp = new DerOutputStream();
-
+        byte[] encoded;
+        try {
         // version
         tmp.putInteger(PKCS8_VERSION);
 
@@ -191,10 +192,13 @@ final class DHPrivateKey implements PrivateKey,
 
         // make it a SEQUENCE
         DerValue val = DerValue.wrap(DerValue.tag_Sequence, tmp);
-        byte[] encoded = val.toByteArray();
+        encoded = val.toByteArray();
         val.clear();
-
-        return encoded;
+        } catch (IOException e) {
+            // Ignore, see JDK-8297065.
+            encoded = null;
+        }
+      return encoded;
     }
 
     /**
@@ -234,6 +238,8 @@ final class DHPrivateKey implements PrivateKey,
         DerValue val = new DerValue(DerValue.tag_Integer, xbytes);
         try {
             this.key = val.toByteArray();
+        } catch (IOException e) {
+            // Ignore, see JDK-8297065.
         } finally {
             val.clear();
             Arrays.fill(xbytes, (byte) 0);
@@ -369,7 +375,11 @@ final class DHPrivateKey implements PrivateKey,
         try {
             c = decode(encodedKeyIntern);
         } catch (IOException e) {
-            throw new InvalidObjectException("Invalid encoding", e);
+            InvalidObjectException ioe = new InvalidObjectException("Invalid encoding");
+            if (ioe != null) {
+                ioe.initCause(e);
+            }
+            throw ioe;
         }
         if (!Arrays.equals(c.key, key) || !c.x.equals(x) || !c.p.equals(p)
                 || !c.g.equals(g) || c.l != l) {

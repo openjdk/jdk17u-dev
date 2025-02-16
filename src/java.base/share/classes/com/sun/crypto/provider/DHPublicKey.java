@@ -151,7 +151,9 @@ javax.crypto.interfaces.DHPublicKey, Serializable {
     private static byte[] encode(BigInteger p, BigInteger g, int l,
             byte[] key) {
         DerOutputStream algid = new DerOutputStream();
+        DerOutputStream derKey;
 
+        try {
         // store oid in algid
         algid.putOID(DH_OID);
 
@@ -177,8 +179,12 @@ javax.crypto.interfaces.DHPublicKey, Serializable {
         tmpDerKey.putBitString(key);
 
         // wrap algid and key into SEQUENCE
-        DerOutputStream derKey = new DerOutputStream();
+        derKey = new DerOutputStream();
         derKey.write(DerValue.tag_Sequence, tmpDerKey);
+        } catch (IOException e) {
+            // Ignore, see JDK-8297065.
+            derKey = null;
+        }
         return derKey.toByteArray();
     }
 
@@ -372,7 +378,11 @@ javax.crypto.interfaces.DHPublicKey, Serializable {
         try {
             c = decode(encodedKeyIntern);
         } catch (IOException e) {
-            throw new InvalidObjectException("Invalid encoding", e);
+            InvalidObjectException ioe = new InvalidObjectException("Invalid encoding");
+            if (ioe != null) {
+                ioe.initCause(e);
+            }
+            throw ioe;
         }
         if (!Arrays.equals(c.key, key) || !c.y.equals(y) || !c.p.equals(p)
                 || !c.g.equals(g) || c.l != l) {
