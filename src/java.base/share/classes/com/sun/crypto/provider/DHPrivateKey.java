@@ -32,7 +32,6 @@ import java.math.BigInteger;
 import java.security.KeyRep;
 import java.security.PrivateKey;
 import java.security.InvalidKeyException;
-import java.security.ProviderException;
 import javax.crypto.spec.DHParameterSpec;
 import sun.security.util.*;
 
@@ -208,8 +207,6 @@ final class DHPrivateKey implements PrivateKey,
      * @param x the private value
      * @param p the prime modulus
      * @param g the base generator
-     *
-     * @throws ProviderException if the key cannot be encoded
      */
     DHPrivateKey(BigInteger x, BigInteger p, BigInteger g)
             throws InvalidKeyException {
@@ -225,8 +222,6 @@ final class DHPrivateKey implements PrivateKey,
      * @param p the prime modulus
      * @param g the base generator
      * @param l the private-value length
-     *
-     * @throws ProviderException if the key cannot be encoded
      */
     DHPrivateKey(BigInteger x, BigInteger p, BigInteger g, int l) {
         this.x = x;
