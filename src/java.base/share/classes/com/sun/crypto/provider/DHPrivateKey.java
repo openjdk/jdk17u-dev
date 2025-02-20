@@ -160,9 +160,9 @@ final class DHPrivateKey implements PrivateKey,
     // Generates the ASN.1 encoding
     private static byte[] encode(BigInteger p, BigInteger g, int l,
             byte[] key) {
+        try {
         DerOutputStream tmp = new DerOutputStream();
         byte[] encoded;
-        try {
         // version
         tmp.putInteger(PKCS8_VERSION);
 
@@ -193,11 +193,12 @@ final class DHPrivateKey implements PrivateKey,
         DerValue val = DerValue.wrap(DerValue.tag_Sequence, tmp);
         encoded = val.toByteArray();
         val.clear();
+        return encoded;
         } catch (IOException e) {
-            // Ignore, see JDK-8297065.
-            encoded = null;
+            // Unreachable. The IOExceptions thrown by DerOutputStream can never
+            // happen as it outputs to a ByteArrayOutputStream. See also JDK-8297065.
+            throw new InternalError(e);
         }
-      return encoded;
     }
 
     /**
@@ -234,7 +235,8 @@ final class DHPrivateKey implements PrivateKey,
         try {
             this.key = val.toByteArray();
         } catch (IOException e) {
-            // Ignore, see JDK-8297065.
+            // Unreachable. The IOExceptions thrown by DerOutputStream can never
+            // happen as it outputs to a ByteArrayOutputStream. See also JDK-8297065.
         } finally {
             val.clear();
             Arrays.fill(xbytes, (byte) 0);
