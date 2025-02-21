@@ -380,9 +380,7 @@ javax.crypto.interfaces.DHPublicKey, Serializable {
             c = decode(encodedKeyIntern);
         } catch (IOException e) {
             InvalidObjectException ioe = new InvalidObjectException("Invalid encoding");
-            if (ioe != null) {
-                ioe.initCause(e);
-            }
+            ioe.initCause(e);
             throw ioe;
         }
         if (!Arrays.equals(c.key, key) || !c.y.equals(y) || !c.p.equals(p)

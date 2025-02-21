@@ -373,9 +373,7 @@ final class DHPrivateKey implements PrivateKey,
             c = decode(encodedKeyIntern);
         } catch (IOException e) {
             InvalidObjectException ioe = new InvalidObjectException("Invalid encoding");
-            if (ioe != null) {
-                ioe.initCause(e);
-            }
+            ioe.initCause(e);
             throw ioe;
         }
         if (!Arrays.equals(c.key, key) || !c.x.equals(x) || !c.p.equals(p)
