@@ -149,10 +149,8 @@ javax.crypto.interfaces.DHPublicKey, Serializable {
 
     // generates the ASN.1 encoding
     private static byte[] encode(BigInteger p, BigInteger g, int l,
-            byte[] key) {
-        try {
+            byte[] key) throws IOException {
         DerOutputStream algid = new DerOutputStream();
-        DerOutputStream derKey;
 
         // store oid in algid
         algid.putOID(DH_OID);
@@ -179,14 +177,9 @@ javax.crypto.interfaces.DHPublicKey, Serializable {
         tmpDerKey.putBitString(key);
 
         // wrap algid and key into SEQUENCE
-        derKey = new DerOutputStream();
+        DerOutputStream derKey = new DerOutputStream();
         derKey.write(DerValue.tag_Sequence, tmpDerKey);
         return derKey.toByteArray();
-        } catch (IOException e) {
-            // Unreachable. The IOExceptions thrown by DerOutputStream can never
-            // happen as it outputs to a ByteArrayOutputStream. See also JDK-8297065.
-            throw new InternalError(e);
-        }
     }
 
     /**

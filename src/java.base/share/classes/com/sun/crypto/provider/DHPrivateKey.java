@@ -32,6 +32,7 @@ import java.math.BigInteger;
 import java.security.KeyRep;
 import java.security.PrivateKey;
 import java.security.InvalidKeyException;
+import java.security.ProviderException;
 import javax.crypto.spec.DHParameterSpec;
 import sun.security.util.*;
 
@@ -162,7 +163,7 @@ final class DHPrivateKey implements PrivateKey,
             byte[] key) {
         try {
         DerOutputStream tmp = new DerOutputStream();
-        byte[] encoded;
+
         // version
         tmp.putInteger(PKCS8_VERSION);
 
@@ -191,13 +192,12 @@ final class DHPrivateKey implements PrivateKey,
 
         // make it a SEQUENCE
         DerValue val = DerValue.wrap(DerValue.tag_Sequence, tmp);
-        encoded = val.toByteArray();
+        byte[] encoded = val.toByteArray();
         val.clear();
+
         return encoded;
         } catch (IOException e) {
-            // Unreachable. The IOExceptions thrown by DerOutputStream can never
-            // happen as it outputs to a ByteArrayOutputStream. See also JDK-8297065.
-            throw new InternalError(e);
+            throw new AssertionError(e);
         }
     }
 
@@ -208,6 +208,8 @@ final class DHPrivateKey implements PrivateKey,
      * @param x the private value
      * @param p the prime modulus
      * @param g the base generator
+     *
+     * @throws ProviderException if the key cannot be encoded
      */
     DHPrivateKey(BigInteger x, BigInteger p, BigInteger g)
             throws InvalidKeyException {
@@ -223,6 +225,8 @@ final class DHPrivateKey implements PrivateKey,
      * @param p the prime modulus
      * @param g the base generator
      * @param l the private-value length
+     *
+     * @throws ProviderException if the key cannot be encoded
      */
     DHPrivateKey(BigInteger x, BigInteger p, BigInteger g, int l) {
         this.x = x;
@@ -235,8 +239,7 @@ final class DHPrivateKey implements PrivateKey,
         try {
             this.key = val.toByteArray();
         } catch (IOException e) {
-            // Unreachable. The IOExceptions thrown by DerOutputStream can never
-            // happen as it outputs to a ByteArrayOutputStream. See also JDK-8297065.
+            throw new ProviderException("Cannot produce ASN.1 encoding", e);
         } finally {
             val.clear();
             Arrays.fill(xbytes, (byte) 0);
