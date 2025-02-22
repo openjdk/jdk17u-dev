@@ -8,6 +8,7 @@
  */
 package jdk.internal.org.jline.reader.impl;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import jdk.internal.org.jline.reader.Buffer;
