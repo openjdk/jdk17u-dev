@@ -48,6 +48,8 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.net.ssl.SSLContext;
@@ -107,8 +109,11 @@ public class StreamFlowControlTest {
             int max = sameClient ? 10 : 3;
             String label = null;
             for (int i = 0; i < max; i++) {
-                if (!sameClient || client == null)
-                    client = HttpClient.newBuilder().sslContext(sslContext).build();
+                if (!sameClient || client == null) {
+                    client = HttpClient.newBuilder()
+                            .executor(Executors.newCachedThreadPool())
+                            .sslContext(sslContext).build();
+                }
 
                 String query = "reqId=" + reqid.incrementAndGet();
                 URI uriWithQuery = URI.create(uri + "?" + query);
@@ -142,13 +147,17 @@ public class StreamFlowControlTest {
                     assertDetailMessage(ioe, i);
                 } finally {
                     if (!sameClient && client != null) {
-                        client.close();
+                        ExecutorService exec = (ExecutorService)client.executor().get();
+                        exec.shutdown();
                         client = null;
                     }
                 }
             }
         } finally {
-            if (sameClient && client != null) client.close();
+            if (sameClient && client != null) {
+                ExecutorService exec = (ExecutorService)client.executor().get();
+                exec.shutdown();
+            }
         }
 
     }
@@ -166,8 +175,11 @@ public class StreamFlowControlTest {
             int max = sameClient ? 5 : 3;
             String label = null;
             for (int i = 0; i < max; i++) {
-                if (!sameClient || client == null)
-                    client = HttpClient.newBuilder().sslContext(sslContext).build();
+                if (!sameClient || client == null) {
+                    client = HttpClient.newBuilder()
+                            .executor(Executors.newCachedThreadPool())
+                            .sslContext(sslContext).build();
+                }
 
                 String query = "reqId=" + reqid.incrementAndGet();
                 URI uriWithQuery = URI.create(uri + "?" + query);
@@ -203,14 +215,18 @@ public class StreamFlowControlTest {
                     t = t0;
                 } finally {
                     if (!sameClient && client != null) {
-                        client.close();
+                        ExecutorService exec = (ExecutorService)client.executor().get();
+                        exec.shutdown();
                         client = null;
                     }
                 }
                 assertDetailMessage(t, i);
             }
         } finally {
-            if (sameClient && client != null) client.close();
+            if (sameClient && client != null) {
+                ExecutorService exec = (ExecutorService)client.executor().get();
+                exec.shutdown();
+            }
         }
     }
 
