@@ -176,7 +176,8 @@ public class HttpsTunnelAuthTest implements HttpServerAdapters, AutoCloseable {
         try (HttpsTunnelAuthTest test = new HttpsTunnelAuthTest()) {
             test.setUp();
 
-            try (HttpClient client = test.newHttpClient(test.proxySelector)) {
+            {
+                HttpClient client = test.newHttpClient(test.proxySelector);
                 // tests proxy and server authentication through:
                 // - plain proxy connection to plain HTTP/1.1 server,
                 test.test(client, Version.HTTP_1_1, "http", "/foo/http1");
@@ -187,7 +188,8 @@ public class HttpsTunnelAuthTest implements HttpServerAdapters, AutoCloseable {
             // so that is actually somewhat equivalent to the first case:
             // therefore we will use a new client to force re-authentication
             // of the proxy connection.
-            try (HttpClient client = test.newHttpClient(test.proxySelector)) {
+            {
+                HttpClient client = test.newHttpClient(test.proxySelector);
                 test.test(client, Version.HTTP_2, "http", "/foo/http2");
 
                 // - proxy tunnel SSL connection to HTTP/1.1 server
