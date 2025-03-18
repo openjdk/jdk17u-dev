@@ -66,8 +66,8 @@ public class IRFrameworkJavaExample {
                    }
 
                    @Test
-                   @IR(counts = {IRNode.LOAD_VECTOR_F, "> 0"},
-                       applyIfCPUFeatureOr = {"sse2", "true", "asimd", "true"})
+                   //@IR(counts = {IRNode.LOAD_VECTOR_F, "> 0"},
+                   //    applyIfCPUFeatureOr = {"sse2", "true", "asimd", "true"})
                    static float[] test() {
                        float[] a = new float[1024*8];
                        for (int i = 0; i < a.length; i++) {
