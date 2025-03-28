@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -540,14 +540,15 @@ public:
                                        TRAPS);
  public:
   // initialization state
-  bool is_loaded() const                   { return _init_state >= loaded; }
-  bool is_linked() const                   { return _init_state >= linked; }
-  bool is_initialized() const              { return _init_state == fully_initialized; }
-  bool is_not_initialized() const          { return _init_state <  being_initialized; }
-  bool is_being_initialized() const        { return _init_state == being_initialized; }
-  bool is_in_error_state() const           { return _init_state == initialization_error; }
+  bool is_loaded() const                   { return init_state() >= loaded; }
+  bool is_linked() const                   { return init_state() >= linked; }
+  bool is_initialized() const              { return init_state() == fully_initialized; }
+  bool is_not_initialized() const          { return init_state() <  being_initialized; }
+  bool is_being_initialized() const        { return init_state() == being_initialized; }
+  bool is_in_error_state() const           { return init_state() == initialization_error; }
   bool is_reentrant_initialization(Thread *thread)  { return thread == _init_thread; }
-  ClassState  init_state()                 { return (ClassState)_init_state; }
+  ClassState  init_state() const           { return (ClassState) Atomic::load_acquire(&_init_state); }
+  const char* init_state_name() const;
   bool is_rewritten() const                { return (_misc_flags & _misc_rewritten) != 0; }
 
   // is this a sealed class
