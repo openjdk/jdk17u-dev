@@ -1209,8 +1209,8 @@ class trampoline_stub_Relocation : public Relocation {
   // Return the address of the NativeCall that owns the trampoline.
   address owner() { return _owner; }
 
-  void pack_data_to(CodeSection * dest);
-  void unpack_data();
+  void pack_data_to(CodeSection * dest) override;
+  void unpack_data() override;
 
   // Find the trampoline stub for a call.
   static address get_trampoline_for(address call, nmethod* code);
