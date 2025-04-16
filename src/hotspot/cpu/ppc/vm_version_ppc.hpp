@@ -131,6 +131,8 @@ public:
 
   // POWER 8: DSCR current value.
   static uint64_t _dscr_val;
+
+  static void initialize_cpu_information(void);
 };
 
 #endif // CPU_PPC_VM_VERSION_PPC_HPP
