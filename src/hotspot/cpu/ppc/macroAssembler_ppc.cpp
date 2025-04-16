@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012, 2022 SAP SE. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024 SAP SE. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -2029,8 +2029,8 @@ void MacroAssembler::check_klass_subtype(Register sub_klass,
 void MacroAssembler::clinit_barrier(Register klass, Register thread, Label* L_fast_path, Label* L_slow_path) {
   assert(L_fast_path != NULL || L_slow_path != NULL, "at least one is required");
 
-  Label L_fallthrough;
-  if (L_fast_path == NULL) {
+  Label L_check_thread, L_fallthrough;
+  if (L_fast_path == nullptr) {
     L_fast_path = &L_fallthrough;
   } else if (L_slow_path == NULL) {
     L_slow_path = &L_fallthrough;
@@ -2038,10 +2038,14 @@ void MacroAssembler::clinit_barrier(Register klass, Register thread, Label* L_fa
 
   // Fast path check: class is fully initialized
   lbz(R0, in_bytes(InstanceKlass::init_state_offset()), klass);
+  // acquire by cmp-branch-isync if fully_initialized
   cmpwi(CCR0, R0, InstanceKlass::fully_initialized);
-  beq(CCR0, *L_fast_path);
+  bne(CCR0, L_check_thread);
+  isync();
+  b(*L_fast_path);
 
   // Fast path check: current thread is initializer thread
+  bind(L_check_thread);
   ld(R0, in_bytes(InstanceKlass::init_thread_offset()), klass);
   cmpd(CCR0, thread, R0);
   if (L_slow_path == &L_fallthrough) {
