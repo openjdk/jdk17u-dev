@@ -3482,7 +3482,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
             }
             StringBuilder buf = new StringBuilder(len);
             buf.append(str);
-            buf.repeat('0', trailingZeros);
+            for (; trailingZeros>0; trailingZeros--) {
+                buf.append('0');
+            }
             return buf.toString();
         }
         String str;
@@ -3513,7 +3515,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
             }
             buf = new StringBuilder(len);
             buf.append(signum<0 ? "-0." : "0.");
-            buf.repeat('0', -insertionPoint);  // insertionPoint != MIN_VALUE
+            for (; insertionPoint<0; insertionPoint++) {  // insertionPoint != MIN_VALUE
+                buf.append('0');
+            }
             buf.append(intString);
         }
         return buf.toString();
