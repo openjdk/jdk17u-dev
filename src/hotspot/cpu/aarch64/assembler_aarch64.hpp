@@ -383,7 +383,7 @@ class Address {
   Register _index;
   int64_t _offset;
   enum mode _mode;
-  extend _ext;
+  extend _ext = extend(0, 0, ext::uxtx); // Dummy value to prevent uninitialized field access error in copy constructor
 
   RelocationHolder _rspec;
 
