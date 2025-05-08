@@ -127,7 +127,7 @@ public class Binder extends DebugeeBinder {
      * started with launching connector.
      */
     public Debugee makeLocalDebugee(Process process) {
-        LocalLaunchedDebugee debugee = new LocalLaunchedDebugee(process, this);
+        Debugee debugee = new Debugee(process, this);
 
         Finalizer finalizer = new Finalizer(debugee);
         finalizer.activate();
@@ -694,41 +694,6 @@ public class Binder extends DebugeeBinder {
         }
 
         return makeLocalDebugee(process);
-    }
-
-    /**
-     * Launch remote debuggee process with specified command line arguments
-     * and make initial <code>Debugee</code> mirror.
-     */
-    protected RemoteLaunchedDebugee startRemoteDebugee(String[] cmdArgs) {
-        try {
-            launchRemoteProcess(cmdArgs);
-        } catch (IOException e) {
-            e.printStackTrace(log.getOutStream());
-            throw new Failure("Caught exception while launching remote debuggee VM process:\n\t"
-                            + e);
-        }
-
-        RemoteLaunchedDebugee debugee = new RemoteLaunchedDebugee(this);
-
-        Finalizer finalizer = new Finalizer(debugee);
-        finalizer.activate();
-
-        return debugee;
-    }
-
-    /**
-     * Launch manual debuggee process with specified command line arguments
-     * and make initial <code>Debugee</code> mirror.
-     */
-    protected ManualLaunchedDebugee startManualDebugee(String cmd) {
-        ManualLaunchedDebugee debugee = new ManualLaunchedDebugee(this);
-        debugee.launchDebugee(cmd);
-
-        Finalizer finalizer = new Finalizer(debugee);
-        finalizer.activate();
-
-        return debugee;
     }
 
     public static String readVMStartExceptionOutput(VMStartException e, PrintStream log) {
