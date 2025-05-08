@@ -34,15 +34,6 @@ import java.util.*;
  * debuggee VM and to make connection to it using JDI connector or
  * JDWP transport.
  * <p>
- * The present version of <code>Binder</code> allows
- * to launch debuggee VM either on local machine (<i>local</i> launch mode),
- * or on remote host using <code>BindServer</code> utility
- * (<i>remote</i> launch mode). Also there is an ability to launch
- * debuggee VM manually as a separate process on local or remote machine
- * (<i>manual</i> launch mode), which is usefull for debugging.
- * All these launching modes are specified by command line option
- * <code>-debugee.launch</code> recognized by <code>DebugeeArgumentHandler</code>.
- * <p>
  * <code>Binder</code> also makes it possible to establish TCP/IP
  * connection between debugger and debuggee throw <code>IOPipe</code>
  * object. This connection allows debugger to communicate with debuggee
@@ -104,8 +95,6 @@ public class DebugeeBinder extends Log.Logger implements Finalizable {
     }
 
     // -------------------------------------------------- //
-
-    private BindServerListener bindServerListener = null;
     private ServerSocket pipeServerSocket = null;
 
     // -------------------------------------------------- //
