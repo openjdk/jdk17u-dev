@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -3936,10 +3936,15 @@ void TemplateTable::_new() {
   __ load_resolved_klass_at_index(rcx, rcx, rdx);
   __ push(rcx);  // save the contexts of klass for initializing the header
 
-  // make sure klass is initialized & doesn't have finalizer
-  // make sure klass is fully initialized
+  // make sure klass is initialized
+  // init_state needs acquire, but x86 is TSO, and so we are already good.
+#ifdef _LP64
+  assert(VM_Version::supports_fast_class_init_checks(), "must support fast class initialization checks");
+  __ clinit_barrier(rcx, r15_thread, nullptr /*L_fast_path*/, &slow_case);
+#else
   __ cmpb(Address(rcx, InstanceKlass::init_state_offset()), InstanceKlass::fully_initialized);
   __ jcc(Assembler::notEqual, slow_case);
+#endif
 
   // get instance_size in InstanceKlass (scaled to a count of bytes)
   __ movl(rdx, Address(rcx, Klass::layout_helper_offset()));
