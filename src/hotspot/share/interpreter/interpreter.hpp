@@ -79,6 +79,15 @@ class InterpreterCodelet: public Stub {
   int         code_size() const                  { return code_end() - code_begin(); }
   const char* description() const                { return _description; }
   Bytecodes::Code bytecode() const               { return _bytecode; }
+#ifndef PRODUCT
+ ~InterpreterCodelet() {
+    // InterpreterCodelets reside in the StubQueue and should not be deleted,
+    // nor are they ever finalized (see above).
+    ShouldNotCallThis();
+  }
+  void use_remarks(AsmRemarks &remarks) { _asm_remarks.share(remarks); }
+  void use_strings(DbgStrings &strings) { _dbg_strings.share(strings); }
+#endif
 };
 
 // Define a prototype interface
