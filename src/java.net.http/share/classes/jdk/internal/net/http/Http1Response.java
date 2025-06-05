@@ -27,13 +27,10 @@ package jdk.internal.net.http;
 
 import java.io.EOFException;
 import java.lang.System.Logger.Level;
+import java.net.http.HttpResponse.BodySubscriber;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -41,7 +38,6 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
 import jdk.internal.net.http.ResponseContent.BodyParser;
 import jdk.internal.net.http.ResponseContent.UnknownLengthBodyParser;
-import jdk.internal.net.http.ResponseSubscribers.TrustedSubscriber;
 import jdk.internal.net.http.common.Log;
 import jdk.internal.net.http.common.Logger;
 import jdk.internal.net.http.common.MinimalFuture;
@@ -74,7 +70,7 @@ class Http1Response<T> {
     private final static int MAX_IGNORE = 1024;
 
     // Revisit: can we get rid of this?
-    static enum State {INITIAL, READING_HEADERS, READING_BODY, DONE}
+    enum State {INITIAL, READING_HEADERS, READING_BODY, DONE}
     private volatile State readProgress = State.INITIAL;
 
     final Logger debug = Utils.getDebugLogger(this::dbgString, Utils.DEBUG);
@@ -123,7 +119,7 @@ class Http1Response<T> {
         // state & 0x02 != 0 => tryRelease called
         byte state;
 
-        public synchronized void acquire() {
+        public synchronized boolean acquire() {
             if (state == 0) {
                 // increment the reference count on the HttpClientImpl
                 // to prevent the SelectorManager thread from exiting
@@ -132,11 +128,13 @@ class Http1Response<T> {
                     debug.log("Operation started: incrementing ref count for %s", client);
                 client.reference();
                 state = 0x01;
+                return true;
             } else {
                 if (debug.on())
                     debug.log("Operation ref count for %s is already %s",
                               client, ((state & 0x2) == 0x2) ? "released." : "incremented!" );
                 assert (state & 0x01) == 0 : "reference count already incremented";
+                return false;
             }
         }
 
@@ -398,12 +396,13 @@ class Http1Response<T> {
             debug.log("readBody: return2Cache: " + return2Cache);
             if (request.isWebSocket() && return2Cache && connection != null) {
                 debug.log("websocket connection will be returned to cache: "
-                        + connection.getClass() + "/" + connection );
+                        + connection.getClass() + "/" + connection);
             }
         }
         assert !return2Cache || !request.isWebSocket();
         this.return2Cache = return2Cache;
-        final Http1BodySubscriber<U> subscriber = new Http1BodySubscriber<>(p);
+        final BodySubscriber<U> subscriber = p;
+
 
         final CompletableFuture<U> cf = new MinimalFuture<>();
 
@@ -420,6 +419,7 @@ class Http1Response<T> {
         // tracker has been incremented.
         connection.client().reference();
         executor.execute(() -> {
+            boolean acquired = false;
             try {
                 content = new ResponseContent(
                         connection, clen, headers, subscriber,
@@ -433,7 +433,8 @@ class Http1Response<T> {
                 // increment the reference count on the HttpClientImpl
                 // to prevent the SelectorManager thread from exiting until
                 // the body is fully read.
-                refCountTracker.acquire();
+                acquired = refCountTracker.acquire();
+                assert acquired == true;
                 bodyParser = content.getBodyParser(
                     (t) -> {
                         try {
@@ -457,7 +458,7 @@ class Http1Response<T> {
                 assert bodyReaderCF != null : "parsing not started";
                 // Make sure to keep a reference to asyncReceiver from
                 // within this
-                CompletableFuture<?> trailingOp = bodyReaderCF.whenComplete((s,t) ->  {
+                CompletableFuture<?> trailingOp = bodyReaderCF.whenComplete((s, t) -> {
                     t = Utils.getCompletionCause(t);
                     try {
                         if (t == null) {
@@ -479,11 +480,12 @@ class Http1Response<T> {
                 });
                 connection.addTrailingOperation(trailingOp);
             } catch (Throwable t) {
-               if (debug.on()) debug.log("Failed reading body: " + t);
+                if (debug.on()) debug.log("Failed reading body: " + t);
                 try {
                     subscriber.onError(t);
                     cf.completeExceptionally(t);
                 } finally {
+                    if (acquired) refCountTracker.tryRelease();
                     asyncReceiver.onReadError(t);
                 }
             } finally {
@@ -492,6 +494,7 @@ class Http1Response<T> {
         });
 
         ResponseSubscribers.getBodyAsync(executor, p, cf, (t) -> {
+            subscriber.onError(t);
             cf.completeExceptionally(t);
             asyncReceiver.setRetryOnError(false);
             asyncReceiver.onReadError(t);
@@ -752,12 +755,14 @@ class Http1Response<T> {
 
         @Override
         public final void onReadError(Throwable t) {
-            if (t instanceof EOFException && bodyParser != null &&
-                    bodyParser instanceof UnknownLengthBodyParser) {
-                ((UnknownLengthBodyParser)bodyParser).complete();
+            BodyParser parser = bodyParser;
+            if (t instanceof EOFException && parser != null &&
+                    parser instanceof UnknownLengthBodyParser ulBodyParser) {
+                ulBodyParser.complete();
                 return;
             }
             t = wrapWithExtraDetail(t, parser::currentStateMessage);
+            parser.onError(t);
             Http1Response.this.onReadError(t);
         }
 
@@ -822,6 +827,20 @@ class Http1Response<T> {
                     if (debug.on())
                         debug.log("close: completing body parser CF");
                     cf.complete(State.READING_BODY);
+                }
+            }
+            if (error != null) {
+                // makes sure the parser gets the error
+                BodyParser parser = this.parser;
+                if (parser != null) {
+                    if (debug.on()) {
+                        debug.log("propagating error to parser: " + error);
+                    }
+                    parser.onError(error);
+                } else {
+                    if (debug.on()) {
+                        debug.log("no parser - error not propagated: " + error);
+                    }
                 }
             }
         }
