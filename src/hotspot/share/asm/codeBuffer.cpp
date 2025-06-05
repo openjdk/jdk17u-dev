@@ -138,18 +138,9 @@ CodeBuffer::~CodeBuffer() {
     // free any overflow storage
     delete _overflow_arena;
   }
-  // Claim is that stack allocation ensures resources are cleaned up.
-  // This is resource clean up, let's hope that all were properly copied out.
-  NOT_PRODUCT(free_strings();)
+  NOT_PRODUCT(clear_strings());
 
-#ifdef ASSERT
-  // Save allocation type to execute assert in ~ResourceObj()
-  // which is called after this destructor.
   assert(_default_oop_recorder.allocated_on_stack(), "should be embedded object");
-  ResourceObj::allocation_type at = _default_oop_recorder.get_allocation_type();
-  Copy::fill_to_bytes(this, sizeof(*this), badResourceValue);
-  ResourceObj::set_allocation_type((address)(&_default_oop_recorder), at);
-#endif
 }
 
 void CodeBuffer::initialize_oop_recorder(OopRecorder* r) {

@@ -46,17 +46,15 @@ class InterpreterCodelet: public Stub {
   friend class VMStructs;
   friend class CodeCacheDumper; // possible extension [do not remove]
  private:
-  NOT_PRODUCT(CodeStrings _strings;)              // Comments for annotating assembler output.
   const char*     _description;           // A description of the codelet, for debugging & printing
   int             _size;                  // The codelet size in bytes
   Bytecodes::Code _bytecode;              // Associated bytecode, if any
+  NOT_PRODUCT(AsmRemarks _asm_remarks;)   // Comments for annotating assembler output.
+  NOT_PRODUCT(DbgStrings _dbg_strings;)   // Debug strings used in generated code.
 
  public:
   // Initialization/finalization
-  void    initialize(int size,
-                     CodeStrings& strings)       { _size = size;
-                                                   NOT_PRODUCT(_strings = CodeStrings();)
-                                                   NOT_PRODUCT(_strings.copy(strings);) }
+  void    initialize(int size)                   { _size = size; }
   void    finalize()                             { ShouldNotCallThis(); }
 
   // General info/converters
