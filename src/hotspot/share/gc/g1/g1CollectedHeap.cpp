@@ -375,7 +375,7 @@ G1CollectedHeap::mem_allocate(size_t word_size,
   return attempt_allocation(word_size, word_size, &dummy);
 }
 
-HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
+HeapWord* G1CollectedHeap::attempt_allocation_slow(uint node_index, size_t word_size) {
   ResourceMark rm; // For retrieving the thread names in log messages.
 
   // Make sure you read the note in attempt_allocation_humongous().
@@ -403,7 +403,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
       // Now that we have the lock, we first retry the allocation in case another
       // thread changed the region while we were waiting to acquire the lock.
       size_t actual_size;
-      result = _allocator->attempt_allocation(word_size, word_size, &actual_size);
+      result = _allocator->attempt_allocation(node_index, word_size, word_size, &actual_size);
       if (result != NULL) {
         return result;
       }
@@ -412,7 +412,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
       if (!preventive_collection_required) {
         // We've already attempted a lock-free allocation above, so we don't want to
         // do it again. Let's jump straight to replacing the active region.
-        result = _allocator->attempt_allocation_using_new_region(word_size);
+        result = _allocator->attempt_allocation_using_new_region(node_index, word_size);
         if (result != NULL) {
           return result;
         }
@@ -423,7 +423,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
         if (GCLocker::is_active_and_needs_gc() && policy()->can_expand_young_list()) {
           // No need for an ergo message here, can_expand_young_list() does this when
           // it returns true.
-          result = _allocator->attempt_allocation_force(word_size);
+          result = _allocator->attempt_allocation_force(node_index, word_size);
           if (result != NULL) {
             return result;
           }
@@ -483,7 +483,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
     // follow-on attempt will be at the start of the next loop
     // iteration (after taking the Heap_lock).
     size_t dummy = 0;
-    result = _allocator->attempt_allocation(word_size, word_size, &dummy);
+    result = _allocator->attempt_allocation(node_index, word_size, word_size, &dummy);
     if (result != NULL) {
       return result;
     }
@@ -711,11 +711,14 @@ inline HeapWord* G1CollectedHeap::attempt_allocation(size_t min_word_size,
   assert(!is_humongous(desired_word_size), "attempt_allocation() should not "
          "be called for humongous allocation requests");
 
-  HeapWord* result = _allocator->attempt_allocation(min_word_size, desired_word_size, actual_word_size);
+  // Fix NUMA node association for the duration of this allocation
+  const uint node_index = _allocator->current_node_index();
+
+  HeapWord* result = _allocator->attempt_allocation(node_index, min_word_size, desired_word_size, actual_word_size);
 
   if (result == NULL) {
     *actual_word_size = desired_word_size;
-    result = attempt_allocation_slow(desired_word_size);
+    result = attempt_allocation_slow(node_index, desired_word_size);
   }
 
   assert_heap_not_locked();
