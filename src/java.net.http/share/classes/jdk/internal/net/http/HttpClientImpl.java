@@ -65,14 +65,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 import java.net.http.HttpClient;
@@ -659,28 +664,41 @@ final class HttpClientImpl extends HttpClient implements Trackable {
     }
 
     // Returns the pendingOperationCount.
+    // Incremented with any operation, whether it's HTTP/1.1, HTTP/2, or WebSocket
     final long referenceCount() {
         return pendingOperationCount.get();
     }
 
+    // Trackers are used in test to verify that an instance of
+    // HttpClient has shutdown correctly, and that all operations
+    // have terminated.
     final static class HttpClientTracker implements Tracker {
+        final AtomicLong requestCount;
         final AtomicLong httpCount;
         final AtomicLong http2Count;
         final AtomicLong websocketCount;
         final AtomicLong operationsCount;
+        final AtomicLong connnectionsCount;
         final Reference<?> reference;
+        final AtomicBoolean isAlive;
         final String name;
-        HttpClientTracker(AtomicLong http,
+        HttpClientTracker(AtomicLong request,
+                          AtomicLong http,
                           AtomicLong http2,
                           AtomicLong ws,
                           AtomicLong ops,
+                          AtomicLong conns,
                           Reference<?> ref,
+                          AtomicBoolean isAlive,
                           String name) {
+            this.requestCount = request;
             this.httpCount = http;
             this.http2Count = http2;
             this.websocketCount = ws;
             this.operationsCount = ops;
+            this.connnectionsCount = conns;
             this.reference = ref;
+            this.isAlive = isAlive;
             this.name = name;
         }
         @Override

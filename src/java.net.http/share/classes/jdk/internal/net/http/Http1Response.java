@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -275,119 +275,6 @@ class Http1Response<T> {
         }
     }
 
-    static final Flow.Subscription NOP = new Flow.Subscription() {
-        @Override
-        public void request(long n) { }
-        public void cancel() { }
-    };
-
-    /**
-     * The Http1AsyncReceiver ensures that all calls to
-     * the subscriber, including onSubscribe, occur sequentially.
-     * There could however be some race conditions that could happen
-     * in case of unexpected errors thrown at unexpected places, which
-     * may cause onError to be called multiple times.
-     * The Http1BodySubscriber will ensure that the user subscriber
-     * is actually completed only once - and only after it is
-     * subscribed.
-     * @param <U> The type of response.
-     */
-    final static class Http1BodySubscriber<U> implements TrustedSubscriber<U> {
-        final HttpResponse.BodySubscriber<U> userSubscriber;
-        final AtomicBoolean completed = new AtomicBoolean();
-        volatile Throwable withError;
-        volatile boolean subscribed;
-        Http1BodySubscriber(HttpResponse.BodySubscriber<U> userSubscriber) {
-            this.userSubscriber = userSubscriber;
-        }
-
-        @Override
-        public boolean needsExecutor() {
-            return TrustedSubscriber.needsExecutor(userSubscriber);
-        }
-
-        // propagate the error to the user subscriber, even if not
-        // subscribed yet.
-        private void propagateError(Throwable t) {
-            assert t != null;
-            try {
-                // if unsubscribed at this point, it will not
-                // get subscribed later - so do it now and
-                // propagate the error
-                if (subscribed == false) {
-                    subscribed = true;
-                    userSubscriber.onSubscribe(NOP);
-                }
-            } finally  {
-                // if onError throws then there is nothing to do
-                // here: let the caller deal with it by logging
-                // and closing the connection.
-                userSubscriber.onError(t);
-            }
-        }
-
-        // complete the subscriber, either normally or exceptionally
-        // ensure that the subscriber is completed only once.
-        private void complete(Throwable t) {
-            if (completed.compareAndSet(false, true)) {
-                t  = withError = Utils.getCompletionCause(t);
-                if (t == null) {
-                    assert subscribed;
-                    try {
-                        userSubscriber.onComplete();
-                    } catch (Throwable x) {
-                        // Simply propagate the error by calling
-                        // onError on the user subscriber, and let the
-                        // connection be reused since we should have received
-                        // and parsed all the bytes when we reach here.
-                        // If onError throws in turn, then we will simply
-                        // let that new exception flow up to the caller
-                        // and let it deal with it.
-                        // (i.e: log and close the connection)
-                        // Note that rethrowing here could introduce a
-                        // race that might cause the next send() operation to
-                        // fail as the connection has already been put back
-                        // into the cache when we reach here.
-                        propagateError(t = withError = Utils.getCompletionCause(x));
-                    }
-                } else {
-                    propagateError(t);
-                }
-            }
-        }
-
-        @Override
-        public CompletionStage<U> getBody() {
-            return userSubscriber.getBody();
-        }
-
-        @Override
-        public void onSubscribe(Flow.Subscription subscription) {
-            if (!subscribed) {
-                subscribed = true;
-                userSubscriber.onSubscribe(subscription);
-            } else {
-                // could be already subscribed and completed
-                // if an unexpected error occurred before the actual
-                // subscription - though that's not supposed
-                // happen.
-                assert completed.get();
-            }
-        }
-        @Override
-        public void onNext(List<ByteBuffer> item) {
-            assert !completed.get();
-            userSubscriber.onNext(item);
-        }
-        @Override
-        public void onError(Throwable throwable) {
-            complete(throwable);
-        }
-        @Override
-        public void onComplete() {
-            complete(null);
-        }
-    }
 
     public <U> CompletableFuture<U> readBody(HttpResponse.BodySubscriber<U> p,
                                          boolean return2Cache,
