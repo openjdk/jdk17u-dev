@@ -212,11 +212,13 @@ static char cpu_arch[] = "ppc";
   #error Add appropriate cpu_arch setting
 #endif
 
-// Compiler variant
-#ifdef COMPILER2
-  #define COMPILER_VARIANT "server"
+// JVM variant
+#if   defined(ZERO)
+  #define JVM_VARIANT "zero"
+#elif defined(COMPILER2)
+  #define JVM_VARIANT "server"
 #else
-  #define COMPILER_VARIANT "client"
+  #define JVM_VARIANT "client"
 #endif
 
 
@@ -1538,10 +1540,10 @@ void os::jvm_path(char *buf, jint buflen) {
           snprintf(jrelib_p, buflen-len, "/lib");
         }
 
-        // Add the appropriate client or server subdir
+        // Add the appropriate JVM variant subdir
         len = strlen(buf);
         jrelib_p = buf + len;
-        snprintf(jrelib_p, buflen-len, "/%s", COMPILER_VARIANT);
+        snprintf(jrelib_p, buflen-len, "/%s", JVM_VARIANT);
         if (0 != access(buf, F_OK)) {
           snprintf(jrelib_p, buflen-len, "%s", "");
         }
@@ -2091,13 +2093,12 @@ jint os::init_2(void) {
 
       // On macOS according to setrlimit(2), OPEN_MAX must be used instead
       // of RLIM_INFINITY, but testing on macOS >= 10.6, reveals that
-      // we can, in fact, use even RLIM_INFINITY, so try the max value
-      // that the system claims can be used first, same as other BSD OSes.
-      // However, some terminals (ksh) will internally use "int" type
-      // to store this value and since RLIM_INFINITY overflows an "int"
-      // we might end up with a negative value, so cap the system limit max
-      // at INT_MAX instead, just in case, for everyone.
-      nbr_files.rlim_cur = MIN(INT_MAX, nbr_files.rlim_max);
+      // we can, in fact, use even RLIM_INFINITY.
+      // However, we need to limit the value to 0x100000 (which is the max value
+      // allowed on Linux) so that any existing code that iterates over all allowed
+      // file descriptors, finishes in a reasonable time, without appearing
+      // to hang.
+      nbr_files.rlim_cur = MIN(0x100000, nbr_files.rlim_max);
 
       status = setrlimit(RLIMIT_NOFILE, &nbr_files);
       if (status != 0) {

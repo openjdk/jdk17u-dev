@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import jdk.test.lib.Platform;
-import jdk.test.lib.OSVersion;
+import jdk.internal.util.StaticProperty;
 
 /**
  * Uses Files.probeContentType to probe html file, custom file type, and minimal
@@ -82,7 +82,7 @@ public class Basic {
         if (!expected.equals(actual)) {
             if (!Platform.isWindows()) {
                 Path userMimeTypes =
-                    Paths.get(System.getProperty("user.home"), ".mime.types");
+                    Paths.get(StaticProperty.userHome(), ".mime.types");
                 checkMimeTypesFile(userMimeTypes);
 
                 Path etcMimeTypes = Paths.get("/etc/mime.types");
@@ -187,17 +187,8 @@ public class Basic {
         exTypes.add(new ExType("xlsx", List.of("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")));
         // exTypes.add(new ExType("wasm", List.of("application/wasm")));  Note. "wasm" is added via JDK-8297609 (Java 20) which not exist in current java version yet
 
-        // extensions with content type that differs on Windows 11+
-        if (Platform.isWindows() &&
-            (System.getProperty("os.name").endsWith("11") ||
-                new OSVersion(10, 0).compareTo(OSVersion.current()) > 0)) {
-            System.out.println("Windows 11+ detected: using different types");
-            exTypes.add(new ExType("bz2", List.of("application/bz2", "application/x-bzip2", "application/x-bzip", "application/x-compressed")));
-            exTypes.add(new ExType("csv", List.of("text/csv", "application/vnd.ms-excel")));
-            exTypes.add(new ExType("rar", List.of("application/rar", "application/vnd.rar", "application/x-rar", "application/x-rar-compressed", "application/x-compressed")));
-            exTypes.add(new ExType("rtf", List.of("application/rtf", "text/rtf", "application/msword")));
-            exTypes.add(new ExType("7z", List.of("application/x-7z-compressed", "application/x-compressed")));
-        } else {
+        // extensions with consistent content type on Unix (but not on Windows)
+        if (!Platform.isWindows()) {
             exTypes.add(new ExType("bz2", List.of("application/bz2", "application/x-bzip2", "application/x-bzip")));
             exTypes.add(new ExType("csv", List.of("text/csv")));
             exTypes.add(new ExType("rar", List.of("application/rar", "application/vnd.rar", "application/x-rar", "application/x-rar-compressed")));

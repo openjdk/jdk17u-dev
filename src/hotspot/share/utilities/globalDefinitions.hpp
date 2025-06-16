@@ -94,10 +94,12 @@ class oopDesc;
 #define BOOL_TO_STR(_b_) ((_b_) ? "true" : "false")
 
 // Format 32-bit quantities.
-#define INT32_FORMAT           "%" PRId32
-#define UINT32_FORMAT          "%" PRIu32
-#define INT32_FORMAT_W(width)  "%" #width PRId32
-#define UINT32_FORMAT_W(width) "%" #width PRIu32
+#define INT32_FORMAT             "%"          PRId32
+#define INT32_FORMAT_X_0         "0x%08"      PRIx32
+#define INT32_FORMAT_W(width)    "%"   #width PRId32
+#define UINT32_FORMAT            "%"          PRIu32
+#define UINT32_FORMAT_X_0        "0x%08"      PRIx32
+#define UINT32_FORMAT_W(width)   "%"   #width PRIu32
 
 #define PTR32_FORMAT           "0x%08" PRIx32
 #define PTR32_FORMAT_W(width)  "0x%" #width PRIx32
@@ -1062,7 +1064,7 @@ inline bool is_even(intx x) { return !is_odd(x); }
 
 // abs methods which cannot overflow and so are well-defined across
 // the entire domain of integer types.
-static inline unsigned int uabs(unsigned int n) {
+static inline unsigned int g_uabs(unsigned int n) {
   union {
     unsigned int result;
     int value;
@@ -1071,7 +1073,7 @@ static inline unsigned int uabs(unsigned int n) {
   if (value < 0) result = 0-result;
   return result;
 }
-static inline julong uabs(julong n) {
+static inline julong g_uabs(julong n) {
   union {
     julong result;
     jlong value;
@@ -1080,8 +1082,8 @@ static inline julong uabs(julong n) {
   if (value < 0) result = 0-result;
   return result;
 }
-static inline julong uabs(jlong n) { return uabs((julong)n); }
-static inline unsigned int uabs(int n) { return uabs((unsigned int)n); }
+static inline julong g_uabs(jlong n) { return g_uabs((julong)n); }
+static inline unsigned int g_uabs(int n) { return g_uabs((unsigned int)n); }
 
 // "to" should be greater than "from."
 inline intx byte_size(void* from, void* to) {
