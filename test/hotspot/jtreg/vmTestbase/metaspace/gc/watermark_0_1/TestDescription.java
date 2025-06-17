@@ -30,6 +30,9 @@
  * VM Testbase keywords: [nonconcurrent, no_cds]
  *
  * @comment Don't run test in configurations where we can't reliably count number of metaspace triggered GCs
+ * @requires vm.gc != null | !vm.opt.final.ClassUnloadingWithConcurrentMark
+ * @requires vm.gc != "G1" | !vm.opt.final.ClassUnloadingWithConcurrentMark
+ * @requires vm.gc != "Z"
  * @requires vm.compMode != "Xcomp"
  * @library /vmTestbase /test/lib
  * @run main/othervm
