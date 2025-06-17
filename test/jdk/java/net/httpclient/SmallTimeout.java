@@ -181,7 +181,30 @@ public class SmallTimeout {
             checkReturn(requests);
 
             // shuts down the executor and awaits its termination
-            executor.close();
+            //executor.close();
+            // In 17, ExecutorService does not implement close().
+            // I derived this from the implementation of the method
+            // in 21.
+            {
+                boolean terminated = executor.isTerminated();
+                if (!terminated) {
+                    executor.shutdown();
+                    boolean interrupted = false;
+                    while (!terminated) {
+                        try {
+                            terminated = executor.awaitTermination(1L, TimeUnit.DAYS);
+                        } catch (InterruptedException e) {
+                            if (!interrupted) {
+                                executor.shutdownNow();
+                                interrupted = true;
+                            }
+                        }
+                    }
+                    if (interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
 
             if (error)
                 throw new RuntimeException("Failed. Check output");
