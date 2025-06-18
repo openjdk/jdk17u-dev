@@ -43,6 +43,6 @@ public class TestUseMD5IntrinsicsOptionOnUnsupportedCPU {
     public static void main(String args[]) throws Throwable {
         new DigestOptionsBase(
                 new GenericTestCaseForUnsupportedCPU(
-                         DigestOptionsBase.USE_MD5_INTRINSICS_OPTION, /* checkUseSHA = */ false)).test();
+                        DigestOptionsBase.USE_MD5_INTRINSICS_OPTION, /* checkUseSHA = */ false)).test();
     }
 }
