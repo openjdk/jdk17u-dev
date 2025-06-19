@@ -3137,7 +3137,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
                         current = n;
                         Index<K,V> r = q.down;
                         row = (s.right != null) ? s : s.down;
-                        est -= est >>> 2;
+                        est >>>= 1;
                         return new KeySpliterator<K,V>(cmp, r, e, sk, est);
                     }
                 }
@@ -3227,7 +3227,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
                         current = n;
                         Index<K,V> r = q.down;
                         row = (s.right != null) ? s : s.down;
-                        est -= est >>> 2;
+                        est >>>= 1;
                         return new ValueSpliterator<K,V>(cmp, r, e, sk, est);
                     }
                 }
@@ -3313,7 +3313,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
                         current = n;
                         Index<K,V> r = q.down;
                         row = (s.right != null) ? s : s.down;
-                        est -= est >>> 2;
+                        est >>>= 1;
                         return new EntrySpliterator<K,V>(cmp, r, e, sk, est);
                     }
                 }
