@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,9 +62,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @test
  * @bug 8316580
  * @library /test/lib
- * @run junit/othervm -Djdk.tracePinnedThreads=full
- *                   -DuseReferenceTracker=false
- *                   HttpGetInCancelledFuture
  * @run junit/othervm -Djdk.tracePinnedThreads=full
  *                   -DuseReferenceTracker=true
  *                   HttpGetInCancelledFuture
@@ -236,7 +234,9 @@ public class HttpGetInCancelledFuture {
         }
 
         public void close() {
-            pool.close();
+            // ForkJoinPool does not implement AutoClosable in 17.
+            //pool.close();
+            pool.shutdownNow();
         }
     }
 
@@ -246,8 +246,10 @@ public class HttpGetInCancelledFuture {
 
     void runTest(String url, int reqCount, Version version) {
         final var dest = URI.create(url);
-        try (final var executor = testExecutor()) {
-            var httpClient = makeClient(dest, version, executor);
+        ExecutorService executor = null;
+        try {
+            executor = testExecutor();
+            HttpClient httpClient = makeClient(dest, version, executor);
             TRACKER.track(httpClient);
             Tracker tracker = TRACKER.getTracker(httpClient);
             Throwable failed = null;
@@ -290,11 +292,35 @@ public class HttpGetInCancelledFuture {
                     // if not all operations terminate, close() will block
                     // forever and the test will fail in jtreg timeout.
                     // there will be no diagnostic.
-                    httpClient.close();
+                    //httpClient.close();
+                    // HttpClient does not implement AutoClosable in 17.
+                    // Omitting this test variant.
                 }
                 System.out.println("HttpClient closed");
             }
         } finally {
+            // ExecutorService does not implement AutoClosable in 17.
+            // Taken from ExecutorService close() implementation in 21.
+            if (executor != null) {
+                boolean terminated = executor.isTerminated();
+                if (!terminated) {
+                    executor.shutdown();
+                    boolean interrupted = false;
+                    while (!terminated) {
+                        try {
+                            terminated = executor.awaitTermination(1L, TimeUnit.DAYS);
+                        } catch (InterruptedException e) {
+                            if (!interrupted) {
+                                executor.shutdownNow();
+                                interrupted = true;
+                            }
+                        }
+                    }
+                    if (interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
             System.out.println("ThreadExecutor closed");
         }
         // not all tasks may have been started before the scope was cancelled
