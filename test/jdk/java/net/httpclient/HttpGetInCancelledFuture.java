@@ -236,7 +236,13 @@ public class HttpGetInCancelledFuture {
         public void close() {
             // ForkJoinPool does not implement AutoClosable in 17.
             //pool.close();
-            pool.shutdownNow();
+            //pool.shutdownNow();
+            pool.shutdown();
+            try {
+                pool.awaitTermination(1, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
