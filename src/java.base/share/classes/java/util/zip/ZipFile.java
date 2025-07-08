@@ -1,11 +1,5 @@
 /*
-<<<<<<< HEAD
- * Copyright (c) 1995, 2021, Oracle and/or its affiliates. All rights reserved.
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
- * Copyright (c) 1995, 2024, Oracle and/or its affiliates. All rights reserved.
-=======
  * Copyright (c) 1995, 2025, Oracle and/or its affiliates. All rights reserved.
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -101,17 +95,9 @@ import static java.util.zip.ZipUtils.*;
  */
 public class ZipFile implements ZipConstants, Closeable {
 
-<<<<<<< HEAD
     private final String name;     // zip file name
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-    private final String filePath;     // ZIP file path
-    private final String fileName;     // name of the file
-=======
-    private final String filePath;     // ZIP file path
-    private final String fileName;     // name of the file
     // Used when decoding entry names and comments
     private final ZipCoder zipCoder;
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
     private volatile boolean closeRequested;
 
     // The "resource" used by this zip file that needs to be
@@ -336,25 +322,7 @@ public class ZipFile implements ZipConstants, Closeable {
             if (res.zsrc.comment == null) {
                 return null;
             }
-<<<<<<< HEAD
-            return res.zsrc.zc.toString(res.zsrc.comment);
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-            // If there is a problem decoding the byte array which represents
-            // the ZIP file comment, return null;
-            try {
-                return res.zsrc.zc.toString(res.zsrc.comment);
-            } catch (IllegalArgumentException iae) {
-                return null;
-            }
-=======
-            // If there is a problem decoding the byte array which represents
-            // the ZIP file comment, return null;
-            try {
-                return zipCoder.toString(res.zsrc.comment);
-            } catch (IllegalArgumentException iae) {
-                return null;
-            }
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
+            return zipCoder.toString(res.zsrc.comment);
         }
     }
 
@@ -371,25 +339,12 @@ public class ZipFile implements ZipConstants, Closeable {
         ZipEntry entry = null;
         synchronized (this) {
             ensureOpen();
-<<<<<<< HEAD
-            int pos = res.zsrc.getEntryPos(name, true);
+            // Look up the name and CEN header position of the entry.
+            // The resolved name may include a trailing slash.
+            // See Source::getEntryPos for details.
+            int pos = res.zsrc.getEntryPos(name, true, zipCoder);
             if (pos != -1) {
                 entry = getZipEntry(name, pos);
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-            // Look up the name and CEN header position of the entry.
-            // The resolved name may include a trailing slash.
-            // See Source::getEntryPos for details.
-            EntryPos pos = res.zsrc.getEntryPos(name, true);
-            if (pos != null) {
-                entry = getZipEntry(pos.name, pos.pos);
-=======
-            // Look up the name and CEN header position of the entry.
-            // The resolved name may include a trailing slash.
-            // See Source::getEntryPos for details.
-            EntryPos pos = res.zsrc.getEntryPos(name, true, zipCoder);
-            if (pos != null) {
-                entry = getZipEntry(pos.name, pos.pos);
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
             }
         }
         return entry;
@@ -420,23 +375,7 @@ public class ZipFile implements ZipConstants, Closeable {
             if (Objects.equals(lastEntryName, entry.name)) {
                 pos = lastEntryPos;
             } else {
-<<<<<<< HEAD
-                pos = zsrc.getEntryPos(entry.name, false);
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-                EntryPos entryPos = zsrc.getEntryPos(entry.name, false);
-                if (entryPos != null) {
-                    pos = entryPos.pos;
-                } else {
-                    pos = -1;
-                }
-=======
-                EntryPos entryPos = zsrc.getEntryPos(entry.name, false, zipCoder);
-                if (entryPos != null) {
-                    pos = entryPos.pos;
-                } else {
-                    pos = -1;
-                }
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
+                pos = zsrc.getEntryPos(entry.name, false, zipCoder);
             }
             if (pos == -1) {
                 return null;
@@ -738,7 +677,7 @@ public class ZipFile implements ZipConstants, Closeable {
         int elen = CENEXT(cen, pos);
         int clen = CENCOM(cen, pos);
 
-        ZipCoder zc = res.zsrc.zipCoderForPos(pos);
+        ZipCoder zc = zipCoderFor(cen, pos, zipCoder);
         if (name != null) {
             // only need to check for mismatch of trailing slash
             if (nlen > 0 &&
@@ -775,12 +714,6 @@ public class ZipFile implements ZipConstants, Closeable {
         }
         if (clen != 0) {
             int start = pos + CENHDR + nlen + elen;
-<<<<<<< HEAD
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-            ZipCoder zc = res.zsrc.zipCoderForPos(pos);
-=======
-            ZipCoder zc = zipCoderFor(cen, pos, zipCoder);
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
             e.comment = zc.toString(cen, start, clen);
         }
         lastEntryName = e.name;
@@ -1265,12 +1198,6 @@ public class ZipFile implements ZipConstants, Closeable {
         private static final int[] EMPTY_META_VERSIONS = new int[0];
 
         private final Key key;               // the key in files
-<<<<<<< HEAD
-        private final @Stable ZipCoder zc;   // zip coder used to decode/encode
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-        private final @Stable ZipCoder zc;   // ZIP coder used to decode/encode
-=======
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
 
         private int refs = 1;
 
@@ -1344,33 +1271,9 @@ public class ZipFile implements ZipConstants, Closeable {
                 int next = table[hsh];
                 table[hsh] = index;
                 // Record the CEN offset and the name hash in our hash cell.
-<<<<<<< HEAD
-                entries[index++] = hash;
-                entries[index++] = next;
-                entries[index  ] = pos;
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-                entries[index++] = hash;
-                entries[index++] = next;
-                entries[index  ] = pos;
-                // Validate comment if it exists.
-                // If the bytes representing the comment cannot be converted to
-                // a String via zcp.toString, an Exception will be thrown
-                if (clen > 0) {
-                    int start = entryPos + nlen + elen;
-                    zcp.toString(cen, start, clen);
-                }
-=======
                 entries[index] = hash;
                 entries[index + 1] = next;
                 entries[index + 2] = pos;
-                // Validate comment if it exists.
-                // If the bytes representing the comment cannot be converted to
-                // a String via zcp.toString, an Exception will be thrown
-                if (clen > 0) {
-                    int start = entryPos + nlen + elen;
-                    zipCoder.toString(cen, start, clen);
-                }
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
             } catch (Exception e) {
                 zerror("invalid CEN header (bad entry name)");
             }
@@ -1515,16 +1418,6 @@ public class ZipFile implements ZipConstants, Closeable {
         private int[] table;                 // Hash chain heads: indexes into entries
         private int tablelen;                // number of hash heads
 
-<<<<<<< HEAD
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-        /**
-         * A class representing a key to a ZIP file. A key is based
-         * on the file key if available, or the path value if the
-         * file key is not available. The key is also based on the
-         * file's last modified time to allow for cases where a ZIP
-         * file is re-opened after it has been modified.
-         */
-=======
         /**
          * A class representing a key to the Source of a ZipFile.
          * The Key is composed of:
@@ -1535,7 +1428,6 @@ public class ZipFile implements ZipConstants, Closeable {
          * - The Charset that was provided when constructing the ZipFile instance.
          * The unique combination of these components identifies a Source of a ZipFile.
          */
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
         private static class Key {
             private final BasicFileAttributes attrs;
             private final File file;
@@ -1800,16 +1692,8 @@ public class ZipFile implements ZipConstants, Closeable {
             throw new ZipException("zip END header not found");
         }
 
-<<<<<<< HEAD
-        // Reads zip file central directory.
-        private void initCEN(int knownTotal) throws IOException {
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-        // Reads ZIP file central directory.
-        private void initCEN(int knownTotal) throws IOException {
-=======
         // Reads ZIP file central directory.
         private void initCEN(final int knownTotal, final ZipCoder zipCoder) throws IOException {
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
             // Prefer locals for better performance during startup
             byte[] cen;
             if (knownTotal == -1) {
@@ -1871,24 +1755,12 @@ public class ZipFile implements ZipConstants, Closeable {
                     // This will only happen if the zip file has an incorrect
                     // ENDTOT field, which usually means it contains more than
                     // 65535 entries.
-<<<<<<< HEAD
-                    initCEN(countCENHeaders(cen, limit));
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-                    initCEN(countCENHeaders(cen));
-=======
-                    initCEN(countCENHeaders(cen), zipCoder);
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
+                    initCEN(countCENHeaders(cen, limit), zipCoder);
                     return;
                 }
 
-<<<<<<< HEAD
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-                int entryPos = pos + CENHDR;
-=======
-                int entryPos = pos + CENHDR;
                 // the ZipCoder for any non-UTF8 entries
                 final ZipCoder entryZipCoder = zipCoderFor(cen, pos, zipCoder);
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
                 // Checks the entry and adds values to entries[idx ... idx+2]
                 int nlen = checkAndAddEntry(pos, idx, entryZipCoder);
                 idx += 3;
@@ -1911,39 +1783,9 @@ public class ZipFile implements ZipConstants, Closeable {
                         // performance in multi-release jar files
                         int version = getMetaVersion(entryPos + META_INF_LEN, nlen - META_INF_LEN);
                         if (version > 0) {
-<<<<<<< HEAD
                             if (metaVersionsSet == null)
                                 metaVersionsSet = new TreeSet<>();
                             metaVersionsSet.add(version);
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-                            try {
-                                // Compute hash code of name from "META-INF/versions/{version)/{name}
-                                int prefixLen = META_INF_VERSIONS_LEN + DecimalDigits.stringSize(version);
-                                int hashCode = zipCoderForPos(pos).checkedHash(cen,
-                                        entryPos + prefixLen,
-                                        nlen - prefixLen);
-                                // Register version for this hash code
-                                if (metaVersions == null)
-                                    metaVersions = new HashMap<>();
-                                metaVersions.computeIfAbsent(hashCode, _ -> new BitSet()).set(version);
-                            } catch (Exception e) {
-                                zerror("invalid CEN header (bad entry name or comment)");
-                            }
-=======
-                            try {
-                                // Compute hash code of name from "META-INF/versions/{version)/{name}
-                                int prefixLen = META_INF_VERSIONS_LEN + DecimalDigits.stringSize(version);
-                                int hashCode = entryZipCoder.checkedHash(cen,
-                                        entryPos + prefixLen,
-                                        nlen - prefixLen);
-                                // Register version for this hash code
-                                if (metaVersions == null)
-                                    metaVersions = new HashMap<>();
-                                metaVersions.computeIfAbsent(hashCode, _ -> new BitSet()).set(version);
-                            } catch (Exception e) {
-                                zerror("invalid CEN header (bad entry name or comment)");
-                            }
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
                         }
                     }
                 }
@@ -1985,25 +1827,11 @@ public class ZipFile implements ZipConstants, Closeable {
         }
 
         /*
-<<<<<<< HEAD
-         * Returns the {@code pos} of the zip cen entry corresponding to the
-         * specified entry name, or -1 if not found.
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-         * Returns the resolved name and position of the ZIP cen entry corresponding
-         *  to the specified entry name, or {@code null} if not found.
-=======
          * Returns the resolved name and position of the ZIP cen entry corresponding
          * to the specified entry name, or {@code null} if not found.
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
          */
-<<<<<<< HEAD
-        private int getEntryPos(String name, boolean addSlash) {
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-        private EntryPos getEntryPos(String name, boolean addSlash) {
-=======
-        private EntryPos getEntryPos(final String name, final boolean addSlash,
-                                     final ZipCoder zipCoder) {
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
+        private int getEntryPos(final String name, final boolean addSlash,
+                                final ZipCoder zipCoder) {
             if (total == 0) {
                 return -1;
             }
@@ -2018,9 +1846,8 @@ public class ZipFile implements ZipConstants, Closeable {
                     // The CEN name must match the specfied one
                     int pos = getEntryPos(idx);
 
-<<<<<<< HEAD
                     try {
-                        ZipCoder zc = zipCoderForPos(pos);
+                        final ZipCoder zc = zipCoderFor(cen, pos, zipCoder);
                         String entry = zc.toString(cen, pos + CENHDR, CENNAM(cen, pos));
 
                         // If addSlash is true we'll test for name+/ in addition to
@@ -2037,41 +1864,11 @@ public class ZipFile implements ZipConstants, Closeable {
                                 && entry.startsWith(name) &&
                                 entry.charAt(entryLen - 1) == '/') {
                             // Found the entry "name+/", now find the CEN entry pos
-                            int exactPos = getEntryPos(name, false);
+                            int exactPos = getEntryPos(name, false, zipCoder);
                             return exactPos == -1 ? pos : exactPos;
                         }
                     } catch (IllegalArgumentException iae) {
                         // Ignore
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
-                    ZipCoder zc = zipCoderForPos(pos);
-
-                    // Compare the lookup name with the name encoded in the CEN
-                    switch (zc.compare(name, cen, noff, nlen, addSlash)) {
-                        case ZipCoder.EXACT_MATCH:
-                            // We found an exact match for "name"
-                            return new EntryPos(name, pos);
-                        case ZipCoder.DIRECTORY_MATCH:
-                            // We found the directory "name/"
-                            // Track its position, then continue the search for "name"
-                            dirPos = pos;
-                            break;
-                        case ZipCoder.NO_MATCH:
-                            // Hash collision, continue searching
-=======
-                    final ZipCoder zc = zipCoderFor(cen, pos, zipCoder);
-                    // Compare the lookup name with the name encoded in the CEN
-                    switch (zc.compare(name, cen, noff, nlen, addSlash)) {
-                        case ZipCoder.EXACT_MATCH:
-                            // We found an exact match for "name"
-                            return new EntryPos(name, pos);
-                        case ZipCoder.DIRECTORY_MATCH:
-                            // We found the directory "name/"
-                            // Track its position, then continue the search for "name"
-                            dirPos = pos;
-                            break;
-                        case ZipCoder.NO_MATCH:
-                            // Hash collision, continue searching
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
                     }
                 }
                 idx = getEntryNext(idx);

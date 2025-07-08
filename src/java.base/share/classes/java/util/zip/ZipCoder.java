@@ -1,11 +1,5 @@
 /*
-<<<<<<< HEAD
- * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
- * Copyright (c) 2009, 2024, Oracle and/or its affiliates. All rights reserved.
-=======
  * Copyright (c) 2009, 2025, Oracle and/or its affiliates. All rights reserved.
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -43,16 +37,10 @@ import java.util.Arrays;
 import sun.nio.cs.UTF_8;
 
 /**
-<<<<<<< HEAD
- * Utility class for zipfile name and comment decoding and encoding
-||||||| parent of 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
- * Utility class for ZIP file entry name and comment decoding and encoding
-=======
  * Utility class for ZIP file entry name and comment decoding and encoding.
  * <p>
  * The {@code ZipCoder} for UTF-8 charset is thread safe, {@code ZipCoder}
  * for other charsets require external synchronization.
->>>>>>> 2c4e8d211a0 (8347712: IllegalStateException on multithreaded ZipFile access with non-UTF8 charset)
  */
 class ZipCoder {
 
