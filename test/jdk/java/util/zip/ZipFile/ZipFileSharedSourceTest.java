@@ -89,8 +89,9 @@ public class ZipFileSharedSourceTest {
         final int numTasks = 200;
         final CountDownLatch startLatch = new CountDownLatch(numTasks);
         final List<Future<Void>> results = new ArrayList<>();
-        try (final ExecutorService executor =
-                     Executors.newThreadPerTaskExecutor(Thread.ofPlatform().factory())) {
+        ExecutorService executor = Executors.newFixedThreadPool(
+            numTasks, Executors.defaultThreadFactory());
+        try {
             for (int i = 0; i < numTasks; i++) {
                 final var task = new ZipEntryIteratingTask(zipFilePath, charset,
                         startLatch);
@@ -100,6 +101,8 @@ public class ZipFileSharedSourceTest {
             for (final Future<Void> f : results) {
                 f.get();
             }
+        } finally {
+            executor.shutdown();
         }
         System.out.println("All " + numTasks + " tasks completed successfully");
     }
