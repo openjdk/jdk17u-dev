@@ -193,11 +193,6 @@ class JNIHandleBlock : public CHeapObj<mtInternal> {
   // Traversal of handles
   void oops_do(OopClosure* f);
 
-  // Checked JNI support
-  void set_planned_capacity(size_t planned_capacity) { _planned_capacity = planned_capacity; }
-  const size_t get_planned_capacity() { return _planned_capacity; }
-  const size_t get_number_of_live_handles();
-
   // Debugging
   bool chain_contains(jobject handle) const;    // Does this block or following blocks contain handle
   bool contains(jobject handle) const;          // Does this block contain handle
