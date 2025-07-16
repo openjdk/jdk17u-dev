@@ -154,9 +154,6 @@ class JNIHandleBlock : public CHeapObj<mtInternal> {
   uintptr_t*      _free_list;                   // Handle free list
   int             _allocate_before_rebuild;     // Number of blocks to allocate before rebuilding free list
 
-  // Check JNI, "planned capacity" for current frame (or push/ensure)
-  size_t          _planned_capacity;
-
   #ifndef PRODUCT
   JNIHandleBlock* _block_list_link;             // Link for list below
   static JNIHandleBlock* _block_list;           // List of all allocated blocks (for debugging only)
