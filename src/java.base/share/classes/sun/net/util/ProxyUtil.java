@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2013, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -20,19 +22,28 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package metaspace.share;
 
+package sun.net.util;
 
-import jdk.test.whitebox.WhiteBox;
-import nsk.share.test.ExecutionController;
+import sun.net.ApplicationProxy;
 
-public class TriggerUnloadingWithWhiteBox implements TriggerUnloadingHelper {
+import java.net.Proxy;
 
-        private final static WhiteBox wb = WhiteBox.getWhiteBox();
+public final class ProxyUtil {
 
-        @Override
-        public void triggerUnloading(ExecutionController stresser) {
-                wb.fullGC();
-        }
+    private ProxyUtil() {}
+
+    /**
+     * Creates a new {@link Proxy} instance for the given proxy iff it is
+     * neither null, {@link Proxy#NO_PROXY Proxy.NO_PROXY}, an
+     * {@link ApplicationProxy} instance, nor already a {@code Proxy} instance.
+     */
+    public static Proxy copyProxy(Proxy proxy) {
+        return proxy == null
+                || proxy.getClass() == Proxy.class
+                || proxy instanceof ApplicationProxy
+                ? proxy
+                : new Proxy(proxy.type(), proxy.address());
+    }
 
 }

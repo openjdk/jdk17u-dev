@@ -186,7 +186,6 @@ java/awt/Mixing/AWT_Mixing/JTextFieldInGlassPaneOverlapping.java 8158801 windows
 java/awt/Mixing/AWT_Mixing/JTextFieldOverlapping.java 8158801 windows-all
 java/awt/Mixing/AWT_Mixing/JToggleButtonInGlassPaneOverlapping.java 8158801 windows-all
 java/awt/Mixing/AWT_Mixing/JToggleButtonOverlapping.java 8158801 windows-all
-java/awt/Mixing/MixingOnDialog.java 8225777 linux-all
 java/awt/Mixing/NonOpaqueInternalFrame.java 7124549 macosx-all
 java/awt/Mouse/GetMousePositionTest/GetMousePositionWithOverlay.java 8168388 linux-all
 java/awt/Focus/ActualFocusedWindowTest/ActualFocusedWindowRetaining.java 6829264 generic-all
@@ -212,7 +211,6 @@ java/awt/dnd/DnDClipboardDeadlockTest.java 8079553 linux-all
 java/awt/dnd/URIListToFileListBetweenJVMsTest/URIListToFileListBetweenJVMsTest.java 8194947 generic-all
 java/awt/Frame/FramesGC/FramesGC.java 8079069 macosx-all
 java/awt/GridLayout/LayoutExtraGaps/LayoutExtraGaps.java 8000171 windows-all
-java/awt/Mouse/GetMousePositionTest/GetMousePositionWithPopup.java 8196017 windows-all
 java/awt/Scrollbar/ScrollbarMouseWheelTest/ScrollbarMouseWheelTest.java 8196018 windows-all,linux-all
 java/awt/TrayIcon/ActionCommand/ActionCommand.java 8150540 windows-all
 java/awt/TrayIcon/ActionEventMask/ActionEventMask.java 8150540 windows-all
