@@ -894,8 +894,7 @@ public final class Pattern
      * <p> There is no embedded flag character for enabling canonical
      * equivalence.
      *
-     * <p> Specifying this flag may impose a performance penalty
-     * and a moderate risk of memory exhaustion.</p>
+     * <p> Specifying this flag may impose a performance penalty.  </p>
      */
     public static final int CANON_EQ = 0x80;
 
@@ -1073,9 +1072,6 @@ public final class Pattern
     /**
      * Compiles the given regular expression into a pattern with the given
      * flags.
-     *
-     * <p>Setting {@link #CANON_EQ} among the flags may impose a moderate risk
-     * of memory exhaustion.</p>
      *
      * @param  regex
      *         The expression to be compiled
