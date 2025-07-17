@@ -25,6 +25,8 @@
 
 #ifndef PRODUCT
 #ifndef ZERO
+// Neither ppc nor s390 compilers use code strings.
+#if !defined(PPC) && !defined(S390)
 
 #include "asm/macroAssembler.inline.hpp"
 #include "compiler/disassembler.hpp"
@@ -37,10 +39,14 @@ static const char* replace_addr_expr(const char* str)
 {
     // Remove any address expression "0x0123456789abcdef" found in order to
     // aid string comparison. Also remove any trailing printout from a padded
-    // buffer.
+    // buffer (too brittle?).
 
-    std::basic_string<char> tmp = std::regex_replace(str, std::regex("0x[0-9a-fA-F]+"), "<addr>");
-    std::basic_string<char> red = std::regex_replace(tmp, std::regex("\\s+<addr>:\\s+\\.inst\\t<addr> ; undefined"), "");
+    std::basic_string<char> tmp1 = std::regex_replace(str, std::regex("0x[0-9a-fA-F]+"), "<addr>");
+    // Padding: aarch64
+    std::basic_string<char> tmp2 = std::regex_replace(tmp1, std::regex("\\s+<addr>:\\s+\\.inst\\t<addr> ; undefined"), "");
+    std::basic_string<char> tmp3 = std::regex_replace(tmp2, std::regex("\\s+<addr>:\\s+udf\\t#0"), "");
+    // Padding: x64
+    std::basic_string<char> red  = std::regex_replace(tmp3, std::regex("\\s+<addr>:\\s+hlt[ \\t]+(?!\\n\\s+;;)"), "");
 
     return os::strdup(red.c_str());
 }
@@ -264,5 +270,6 @@ TEST_VM(codestrings, validate)
     buffer_blob_test();
 }
 
+#endif // not S390 not PPC
 #endif // not ZERO
 #endif // not PRODUCT
