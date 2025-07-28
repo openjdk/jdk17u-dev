@@ -1366,7 +1366,7 @@ public class Http2TestServerConnection {
      *
      * @param amount
      */
-    synchronized void obtainConnectionWindow(int amount) throws InterruptedException {
+    public synchronized void obtainConnectionWindow(int amount) throws InterruptedException {
         while (amount > 0) {
             int n = Math.min(amount, sendWindow);
             amount -= n;
@@ -1376,9 +1376,13 @@ public class Http2TestServerConnection {
         }
     }
 
-    synchronized void updateConnectionWindow(int amount) {
-        sendWindow += amount;
-        notifyAll();
+    void updateConnectionWindow(int amount) {
+        System.out.printf("sendWindow (window=%s, amount=%s) is now: %s%n",
+                sendWindow, amount, sendWindow + amount);
+        synchronized (this) {
+            sendWindow += amount;
+            notifyAll();
+        }
     }
 
     // simplified output headers class. really just a type safe container

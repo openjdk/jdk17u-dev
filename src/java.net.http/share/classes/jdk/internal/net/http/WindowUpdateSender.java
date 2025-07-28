@@ -51,6 +51,7 @@ abstract class WindowUpdateSender {
 
     WindowUpdateSender(Http2Connection connection, int maxFrameSize, int initWindowSize) {
         this.connection = connection;
+        this.windowSize = initWindowSize;
         int v0 = Math.max(0, initWindowSize - maxFrameSize);
         int v1 = (initWindowSize + (maxFrameSize - 1)) / maxFrameSize;
         v1 = v1 * maxFrameSize / 2;
@@ -82,6 +83,7 @@ abstract class WindowUpdateSender {
 
     void sendWindowUpdate(int delta) {
         if (debug.on()) debug.log("sending window update: %d", delta);
+        assert delta > 0 : "illegal window update delta: " + delta;
         connection.sendUnorderedFrame(new WindowUpdateFrame(getStreamId(), delta));
     }
 
@@ -98,5 +100,17 @@ abstract class WindowUpdateSender {
             return streamId == 0 ? dbg : (dbgString = dbg);
         }
     }
+
+    /**
+     * Called when the flow control window size is exceeded
+     * This method may return false if flow control is disabled
+     * in this endpoint.
+     *
+     * @param received the amount of data received, which is greater
+     *                 than {@code windowSize}
+     * @return {@code true} if the error was reported to the peer
+     *         and no further window update should be sent.
+     */
+    protected abstract boolean windowSizeExceeded(long received);
 
 }
