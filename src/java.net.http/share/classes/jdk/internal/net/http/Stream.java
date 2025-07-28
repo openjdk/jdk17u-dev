@@ -157,14 +157,13 @@ class Stream<T> extends ExchangeImpl<T> {
 
     // send lock: prevent sending DataFrames after reset occurred.
     private final Object sendLock = new Object();
-
     /**
      * A reference to this Stream's connection Send Window controller. The
      * stream MUST acquire the appropriate amount of Send Window before
      * sending any data. Will be null for PushStreams, as they cannot send data.
      */
     private final WindowController windowController;
-    private final WindowUpdateSender windowUpdater;
+    private final WindowUpdateSender streamWindowUpdater;
 
     @Override
     HttpConnection connection() {
@@ -510,6 +509,8 @@ class Stream<T> extends ExchangeImpl<T> {
                 if (debug.on()) {
                     debug.log("request cancelled or stream closed: dropping data frame");
                 }
+                // Data frames that have not been added to the inputQ
+                // can be released using dropDataFrame
                 connection.dropDataFrame((DataFrame) frame);
             } else {
                 receiveDataFrame((DataFrame) frame);
