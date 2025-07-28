@@ -103,8 +103,9 @@ public class H2GoAwayTest {
     public void testSequential() throws Exception {
         final LimitedPerConnRequestApprover reqApprover = new LimitedPerConnRequestApprover();
         server.setRequestApprover(reqApprover::allowNewRequest);
-        try (final HttpClient client = HttpClient.newBuilder().version(HTTP_2)
-                .sslContext(sslCtx).build()) {
+        final HttpClient client = HttpClient.newBuilder().version(HTTP_2)
+            .sslContext(sslCtx).build();
+        try {
             final String[] reqMethods = {"HEAD", "GET", "POST"};
             for (final String reqMethod : reqMethods) {
                 final int numReqs = LimitedPerConnRequestApprover.MAX_REQS_PER_CONN + 3;
@@ -144,8 +145,9 @@ public class H2GoAwayTest {
      */
     @Test
     public void testUnprocessedRaisesException() throws Exception {
-        try (final HttpClient client = HttpClient.newBuilder().version(HTTP_2)
-                .sslContext(sslCtx).build()) {
+        final HttpClient client = HttpClient.newBuilder().version(HTTP_2)
+            .sslContext(sslCtx).build();
+        {
             final Random random = new Random();
             final String[] reqMethods = {"HEAD", "GET", "POST"};
             for (final String reqMethod : reqMethods) {
@@ -210,8 +212,9 @@ public class H2GoAwayTest {
      */
     @Test
     public void testUnprocessedRaisesExceptionAsync() throws Throwable {
-        try (final HttpClient client = HttpClient.newBuilder().version(HTTP_2)
-                .sslContext(sslCtx).build()) {
+        final HttpClient client = HttpClient.newBuilder().version(HTTP_2)
+            .sslContext(sslCtx).build();
+        {
             final Random random = new Random();
             final String[] reqMethods = {"HEAD", "GET", "POST"};
             for (final String reqMethod : reqMethods) {
