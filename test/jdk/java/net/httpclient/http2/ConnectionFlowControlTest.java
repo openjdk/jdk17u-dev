@@ -123,7 +123,8 @@ public class ConnectionFlowControlTest {
         System.out.printf("connection window: %s, stream window: %s, will make %s requests%n",
                 connectionWindowSize, windowSize, max);
 
-        try (HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build()) {
+        HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
+        {
             String label = null;
 
             Throwable t = null;
@@ -153,7 +154,8 @@ public class ConnectionFlowControlTest {
                     } catch (AssertionError ass) {
                         // since we won't pull all responses, the client
                         // will not exit unless we ask it to shutdown now.
-                        client.shutdownNow();
+                        // HttpClient does not implement shutdownNow in 17.
+                        //client.shutdownNow();
                         throw ass;
                     }
                 }
@@ -181,7 +183,8 @@ public class ConnectionFlowControlTest {
                     } catch (AssertionError t1) {
                         // since we won't pull all responses, the client
                         // will not exit unless we ask it to shutdown now.
-                        client.shutdownNow();
+                        // HttpClient does not implement shutdownNow in 17.
+                        //client.shutdownNow();
                         throw t1;
                     } catch (Throwable t0) {
                         System.out.println("Got EXPECTED: " + t0);
@@ -194,7 +197,8 @@ public class ConnectionFlowControlTest {
                         } catch (AssertionError e) {
                             // since we won't pull all responses, the client
                             // will not exit unless we ask it to shutdown now.
-                            client.shutdownNow();
+                            // HttpClient does not implement shutdownNow in 17.
+                            //client.shutdownNow();
                             throw e;
                         }
                     }

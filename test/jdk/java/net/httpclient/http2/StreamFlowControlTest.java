@@ -26,6 +26,7 @@
  * @bug 8342075
  * @library /test/lib /test/jdk/java/net/httpclient/lib
  * @build jdk.httpclient.test.lib.http2.Http2TestServer jdk.test.lib.net.SimpleSSLContext
+ *        jdk.httpclient.test.lib.common.TestServerConfigurator
  * @run testng/othervm  -Djdk.internal.httpclient.debug=true
  *                      -Djdk.httpclient.connectionWindowSize=65535
  *                      -Djdk.httpclient.windowsize=16384
@@ -142,13 +143,15 @@ public class StreamFlowControlTest {
                     assertDetailMessage(ioe, i);
                 } finally {
                     if (!sameClient && client != null) {
-                        client.close();
+                        // HttpClient does not implement close in 17.
+                        //client.close();
                         client = null;
                     }
                 }
             }
         } finally {
-            if (sameClient && client != null) client.close();
+            // HttpClient does not implement close in 17.
+            //if (sameClient && client != null) client.close();
         }
 
     }
@@ -203,14 +206,16 @@ public class StreamFlowControlTest {
                     t = t0;
                 } finally {
                     if (!sameClient && client != null) {
-                        client.close();
+                        // HttpClient does not implement close in 17.
+                        //client.close();
                         client = null;
                     }
                 }
                 assertDetailMessage(t, i);
             }
         } finally {
-            if (sameClient && client != null) client.close();
+            // HttpClient does not implement close in 17.
+            //if (sameClient && client != null) client.close();
         }
     }
 
