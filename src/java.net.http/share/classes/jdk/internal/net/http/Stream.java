@@ -184,12 +184,11 @@ class Stream<T> extends ExchangeImpl<T> {
                 if (subscriber == null) {
                     // can't process anything yet
                     return;
-                } else {
-                    if (debug.on()) debug.log("subscribing user subscriber");
-                    subscriber.onSubscribe(userSubscription);
                 }
+                if (debug.on()) debug.log("subscribing user subscriber");
+                subscriber.onSubscribe(userSubscription);
             }
-            while (!inputQ.isEmpty()) {
+            while (!inputQ.isEmpty() && errorRef.get() == null) {
                 Http2Frame frame = inputQ.peek();
                 if (frame instanceof ResetFrame) {
                     inputQ.remove();
@@ -311,6 +310,13 @@ class Stream<T> extends ExchangeImpl<T> {
         return endStream;
     }
 
+    @Override
+    void expectContinueFailed(int rcode) {
+        // Have to mark request as sent, due to no request body being sent in the
+        // event of a 417 Expectation Failed or some other non 100 response code
+        requestSent();
+    }
+
     // This method is called by Http2Connection::decrementStreamCount in order
     // to make sure that the stream count is decremented only once for
     // a given stream.
@@ -353,12 +359,12 @@ class Stream<T> extends ExchangeImpl<T> {
     // The Http2StreamResponseSubscriber is registered with the HttpClient
     // to ensure that it gets completed if the SelectorManager aborts due
     // to unexpected exceptions.
-    private void registerResponseSubscriber(Http2StreamResponseSubscriber<?> subscriber) {
-        client().registerSubscriber(subscriber);
+    private boolean registerResponseSubscriber(Http2StreamResponseSubscriber<?> subscriber) {
+        return client().registerSubscriber(subscriber);
     }
 
-    private void unregisterResponseSubscriber(Http2StreamResponseSubscriber<?> subscriber) {
-        client().unregisterSubscriber(subscriber);
+    private boolean unregisterResponseSubscriber(Http2StreamResponseSubscriber<?> subscriber) {
+        return client().unregisterSubscriber(subscriber);
     }
 
     @Override
@@ -410,6 +416,10 @@ class Stream<T> extends ExchangeImpl<T> {
     // pushes entire response body into response subscriber
     // blocking when required by local or remote flow control
     CompletableFuture<T> receiveData(BodySubscriber<T> bodySubscriber, Executor executor) {
+        // ensure that the body subscriber will be subscribed and onError() is
+        // invoked
+        pendingResponseSubscriber = bodySubscriber;
+
         // We want to allow the subscriber's getBody() method to block so it
         // can work with InputStreams. So, we offload execution.
         responseBodyCF = ResponseSubscribers.getBodyAsync(executor, bodySubscriber,
@@ -420,9 +430,6 @@ class Stream<T> extends ExchangeImpl<T> {
             responseBodyCF.completeExceptionally(t);
         }
 
-        // ensure that the body subscriber will be subsribed and onError() is
-        // invoked
-        pendingResponseSubscriber = bodySubscriber;
         sched.runOrSchedule(); // in case data waiting already to be processed, or error
 
         return responseBodyCF;
@@ -600,9 +607,9 @@ class Stream<T> extends ExchangeImpl<T> {
             Flow.Subscriber<?> subscriber =
                     responseSubscriber == null ? pendingResponseSubscriber : responseSubscriber;
             if (response == null && subscriber == null) {
-                // we haven't receive the headers yet, and won't receive any!
+                // we haven't received the headers yet, and won't receive any!
                 // handle reset now.
-                handleReset(frame, subscriber);
+                handleReset(frame, null);
             } else {
                 // put it in the input queue in order to read all
                 // pending data frames first. Indeed, a server may send
@@ -1693,21 +1700,12 @@ class Stream<T> extends ExchangeImpl<T> {
         }
 
         @Override
-        protected void onSubscribed() {
+        protected void register() {
             registerResponseSubscriber(this);
         }
 
         @Override
-        protected void complete(Throwable t) {
-            try {
-                unregisterResponseSubscriber(this);
-            } finally {
-                super.complete(t);
-            }
-        }
-
-        @Override
-        protected void onCancel() {
+        protected void unregister() {
             unregisterResponseSubscriber(this);
         }
 
