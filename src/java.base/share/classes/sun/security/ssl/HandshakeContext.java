@@ -82,7 +82,7 @@ abstract class HandshakeContext implements ConnectionContext {
     // consolidated parameters
     final List<ProtocolVersion>             activeProtocols;
     final List<CipherSuite>                 activeCipherSuites;
-    final AlgorithmConstraints              algorithmConstraints;
+    final SSLAlgorithmConstraints           algorithmConstraints;
     final ProtocolVersion                   maximumActiveProtocol;
 
     // output stream
@@ -137,6 +137,7 @@ abstract class HandshakeContext implements ConnectionContext {
 
     // SignatureScheme
     List<SignatureScheme>                   localSupportedSignAlgs;
+    List<SignatureScheme>                   localSupportedCertSignAlgs;
     List<SignatureScheme>                   peerRequestedSignatureSchemes;
     List<SignatureScheme>                   peerRequestedCertSignSchemes;
 

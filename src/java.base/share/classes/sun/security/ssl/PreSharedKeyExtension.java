@@ -45,6 +45,7 @@ import sun.security.ssl.SessionTicketExtension.SessionTicketSpec;
 import sun.security.util.HexDumpEncoder;
 
 import static sun.security.ssl.SSLExtension.*;
+import static sun.security.ssl.SignatureScheme.CERTIFICATE_SCOPE;
 
 /**
  * Pack of the "pre_shared_key" extension.
@@ -472,7 +473,7 @@ final class PreSharedKeyExtension {
             Collection<SignatureScheme> sessionSigAlgs =
                 s.getLocalSupportedSignatureSchemes();
             if (result &&
-                !shc.localSupportedSignAlgs.containsAll(sessionSigAlgs)) {
+                !shc.localSupportedCertSignAlgs.containsAll(sessionSigAlgs)) {
 
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                     SSLLogger.fine("Can't resume. Session uses different " +
@@ -666,7 +667,7 @@ final class PreSharedKeyExtension {
             // Make sure the list of supported signature algorithms matches
             Collection<SignatureScheme> sessionSigAlgs =
                 chc.resumingSession.getLocalSupportedSignatureSchemes();
-            if (!chc.localSupportedSignAlgs.containsAll(sessionSigAlgs)) {
+            if (!chc.localSupportedCertSignAlgs.containsAll(sessionSigAlgs)) {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                     SSLLogger.fine("Existing session uses different " +
                         "signature algorithms");
