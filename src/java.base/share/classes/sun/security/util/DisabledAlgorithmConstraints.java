@@ -48,6 +48,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -447,7 +448,7 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
                         denyAfterLimit = true;
                     } else if (entry.startsWith("usage")) {
                         String s[] = (entry.substring(5)).trim().split(" ");
-                        c = new UsageConstraint(algorithm, s);
+                        c = new UsageConstraint(algorithm, s, propertyName);
                         if (debug != null) {
                             debug.println("Constraints usage length is " + s.length);
                         }

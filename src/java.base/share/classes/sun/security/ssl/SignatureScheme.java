@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -444,11 +444,9 @@ enum SignatureScheme {
                             "Unsupported signature scheme: " +
                             SignatureScheme.nameOf(ssid));
                 }
-            } else if (ss.isAvailable &&
-                    ss.supportedProtocols.contains(protocolVersion) &&
-                    (config.signatureSchemes.isEmpty() ||
-                        config.signatureSchemes.contains(ss)) &&
-                    ss.isPermitted(constraints)) {
+            } else if ((config.signatureSchemes.isEmpty()
+                        || config.signatureSchemes.contains(ss))
+                    && ss.isAllowed(constraints, protocolVersion, scopes)) {
                 supported.add(ss);
             } else {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
@@ -478,7 +476,7 @@ enum SignatureScheme {
     }
 
     static Map.Entry<SignatureScheme, Signature> getSignerOfPreferableAlgorithm(
-            AlgorithmConstraints constraints,
+            SSLAlgorithmConstraints constraints,
             List<SignatureScheme> schemes,
             X509Possession x509Possession,
             ProtocolVersion version) {

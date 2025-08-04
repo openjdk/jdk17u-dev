@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -443,15 +443,16 @@ final class PreSharedKeyExtension {
             result = false;
         }
 
-        // Make sure that the server handshake context's localSupportedSignAlgs
-        // field is populated.  This is particularly important when
-        // client authentication was used in an initial session and it is
-        // now being resumed.
-        if (shc.localSupportedSignAlgs == null) {
-            shc.localSupportedSignAlgs =
+        // Make sure that the server handshake context's
+        // localSupportedCertSignAlgs field is populated.  This is particularly
+        // important when client authentication was used in an initial session,
+        // and it is now being resumed.
+        if (shc.localSupportedCertSignAlgs == null) {
+            shc.localSupportedCertSignAlgs =
                     SignatureScheme.getSupportedAlgorithms(
                             shc.sslConfig,
-                            shc.algorithmConstraints, shc.activeProtocols);
+                            shc.algorithmConstraints, shc.activeProtocols,
+                            CERTIFICATE_SCOPE);
         }
 
         // Validate the required client authentication.
