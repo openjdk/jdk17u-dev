@@ -47,12 +47,12 @@ public class VerifyCACerts {
             + File.separator + "security" + File.separator + "cacerts";
 
     // The numbers of certs now.
-    private static final int COUNT = 113;
+    private static final int COUNT = 109;
 
     // SHA-256 of cacerts, can be generated with
     // shasum -a 256 cacerts | sed -e 's/../&:/g' | tr '[:lower:]' '[:upper:]' | cut -c1-95
     private static final String CHECKSUM
-            = "1E:63:88:DF:34:AD:7E:61:3F:06:BD:C4:DC:FE:05:52:9B:0D:86:6E:64:DA:E8:25:7C:C0:15:8F:31:C0:2C:78";
+            = "F2:0C:60:47:49:FA:13:2A:03:A4:52:20:AD:46:7C:D0:3F:3D:A7:59:D6:27:E9:9B:CC:D4:5A:04:8D:2A:DE:9F";
 
     // Hex formatter to upper case with ":" delimiter
     private static final HexFormat HEX = HexFormat.ofDelimiter(":").withUpperCase();
