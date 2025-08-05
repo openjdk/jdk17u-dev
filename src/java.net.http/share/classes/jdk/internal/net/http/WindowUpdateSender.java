@@ -83,6 +83,7 @@ abstract class WindowUpdateSender {
     // O for the connection window, > 0 for a stream window
     abstract int getStreamId();
 
+
     /**
      * {@return {@code true} if buffering the given amount of
      * flow controlled data would not exceed the flow control
