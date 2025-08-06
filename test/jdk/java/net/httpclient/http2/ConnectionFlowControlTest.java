@@ -57,6 +57,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -123,8 +125,8 @@ public class ConnectionFlowControlTest {
         System.out.printf("connection window: %s, stream window: %s, will make %s requests%n",
                 connectionWindowSize, windowSize, max);
 
-        HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
-        {
+        HttpClient client = HttpClient.newBuilder().executor(Executors.newCachedThreadPool()).sslContext(sslContext).build();
+        try {
             String label = null;
 
             Throwable t = null;
@@ -154,8 +156,8 @@ public class ConnectionFlowControlTest {
                     } catch (AssertionError ass) {
                         // since we won't pull all responses, the client
                         // will not exit unless we ask it to shutdown now.
-                        // HttpClient does not implement shutdownNow in 17.
-                        //client.shutdownNow();
+                        ExecutorService exec = (ExecutorService)client.executor().get();
+                        exec.shutdownNow();
                         throw ass;
                     }
                 }
@@ -183,8 +185,8 @@ public class ConnectionFlowControlTest {
                     } catch (AssertionError t1) {
                         // since we won't pull all responses, the client
                         // will not exit unless we ask it to shutdown now.
-                        // HttpClient does not implement shutdownNow in 17.
-                        //client.shutdownNow();
+                        ExecutorService exec = (ExecutorService)client.executor().get();
+                        exec.shutdownNow();
                         throw t1;
                     } catch (Throwable t0) {
                         System.out.println("Got EXPECTED: " + t0);
@@ -197,8 +199,8 @@ public class ConnectionFlowControlTest {
                         } catch (AssertionError e) {
                             // since we won't pull all responses, the client
                             // will not exit unless we ask it to shutdown now.
-                            // HttpClient does not implement shutdownNow in 17.
-                            //client.shutdownNow();
+                            ExecutorService exec = (ExecutorService)client.executor().get();
+                            exec.shutdownNow();
                             throw e;
                         }
                     }
@@ -231,6 +233,9 @@ public class ConnectionFlowControlTest {
                 System.out.printf("last request %s sent on different connection as expected:" +
                         "\n\tlast: %s\n\tprevious: %s%n", query, ckey, label);
             }
+        } finally {
+            ExecutorService exec = (ExecutorService)client.executor().get();
+            exec.shutdownNow();
         }
     }
 
