@@ -1153,14 +1153,13 @@ JNIEXPORT jint JNICALL Java_sun_awt_screencast_ScreencastHelper_remoteDesktopKey
     AWT_LOCK();
     int key = awt_getX11KeySym(jkey);
     AWT_UNLOCK();
-
     if (key == NoSymbol || (*env)->ExceptionCheck(env)) {
         return RESULT_ERROR;
     }
 
     const gchar *token = jtoken
                          ? (*env)->GetStringUTFChars(env, jtoken, NULL)
-                         : NULL;
+                         : NULL;=
     JNU_CHECK_EXCEPTION_RETURN(env, RESULT_ERROR);
 
     gboolean result = initPortal(token, NULL, 0);
