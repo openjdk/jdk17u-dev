@@ -957,6 +957,7 @@ class IterateOverHeapObjectClosure: public ObjectClosure {
 
 // invoked for each object in the heap
 void IterateOverHeapObjectClosure::do_object(oop o) {
+  assert(o != nullptr, "Heap iteration should never produce null!");
   // check if iteration has been halted
   if (is_iteration_aborted()) return;
 
@@ -966,7 +967,7 @@ void IterateOverHeapObjectClosure::do_object(oop o) {
   }
 
   // skip if object is a dormant shared object whose mirror hasn't been loaded
-  if (o != NULL && o->klass()->java_mirror() == NULL) {
+  if (o->klass()->java_mirror() == NULL) {
     log_debug(cds, heap)("skipped dormant archived object " INTPTR_FORMAT " (%s)", p2i(o),
                          o->klass()->external_name());
     return;
@@ -1045,6 +1046,7 @@ class IterateThroughHeapObjectClosure: public ObjectClosure {
 
 // invoked for each object in the heap
 void IterateThroughHeapObjectClosure::do_object(oop obj) {
+  assert(obj != nullptr, "Heap iteration should never produce null!");
   // check if iteration has been halted
   if (is_iteration_aborted()) return;
 
@@ -1052,7 +1054,7 @@ void IterateThroughHeapObjectClosure::do_object(oop obj) {
   if (is_filtered_by_klass_filter(obj, klass())) return;
 
   // skip if object is a dormant shared object whose mirror hasn't been loaded
-  if (obj != NULL &&   obj->klass()->java_mirror() == NULL) {
+  if (obj->klass()->java_mirror() == NULL) {
     log_debug(cds, heap)("skipped dormant archived object " INTPTR_FORMAT " (%s)", p2i(obj),
                          obj->klass()->external_name());
     return;
