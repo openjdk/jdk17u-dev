@@ -41,6 +41,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
@@ -296,10 +297,14 @@ public class StreamFlowControlTest {
         this.https2TestServer.start();
 
         // warmup to eliminate delay due to SSL class loading and initialization.
-        try (var client = HttpClient.newBuilder().sslContext(sslContext).build()) {
-            var request = HttpRequest.newBuilder(URI.create(h2Head)).HEAD().build();
+        HttpClient client = HttpClient.newBuilder().executor(Executors.newCachedThreadPool()).sslContext(sslContext).build();
+        try {
+            var request = HttpRequest.newBuilder(URI.create(h2Head)).method("HEAD", BodyPublishers.noBody()).build();
             var resp = client.send(request, BodyHandlers.discarding());
             assertEquals(resp.statusCode(), 200);
+        } finally {
+            ExecutorService exec = (ExecutorService)client.executor().get();
+            exec.shutdownNow();
         }
     }
 

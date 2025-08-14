@@ -46,6 +46,8 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiPredicate;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
@@ -431,13 +433,10 @@ class Stream<T> extends ExchangeImpl<T> {
     // is OK.
     private void pushDataFrame(int len, DataFrame df) {
         boolean closed = false;
-        stateLock.lock();
-        try {
+        synchronized(this) {
             if (!(closed = this.closed)) {
                 inputQ.add(df);
             }
-        } finally {
-            stateLock.unlock();
         }
         if (closed && len > 0) connection.releaseUnconsumed(df);
     }
