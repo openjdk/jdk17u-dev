@@ -67,7 +67,11 @@ public class Http2TestServer implements AutoCloseable {
 
     private static ExecutorService createExecutor(String name) {
         String threadNamePrefix = "%s-pool".formatted(name);
-        ThreadFactory threadFactory = Thread.ofPlatform().name(threadNamePrefix, 0).factory();
+        ThreadFactory threadFactory = (Runnable r) -> {
+            Thread t = new Thread(r);
+            t.setName(threadNamePrefix);
+            return t;
+        };
         return Executors.newCachedThreadPool(threadFactory);
     }
 
