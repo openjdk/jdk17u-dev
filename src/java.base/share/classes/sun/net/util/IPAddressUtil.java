@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2004, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -41,6 +41,9 @@ import java.security.PrivilegedActionException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static jdk.internal.util.Exceptions.formatMsg;
+import static jdk.internal.util.Exceptions.filterNonSocketInfo;
 
 public class IPAddressUtil {
     private static final int INADDR4SZ = 4;
@@ -145,7 +148,8 @@ public class IPAddressUtil {
         byte[] parsedBytes = textToNumericFormatV4(src);
         if (!ALLOW_AMBIGUOUS_IPADDRESS_LITERALS_SP_VALUE
                 && parsedBytes == null && isBsdParsableV4(src)) {
-            throw new IllegalArgumentException("Invalid IP address literal: " + src);
+            throw new IllegalArgumentException(
+                formatMsg("Invalid IP address literal%s", filterNonSocketInfo(src).prefixWith(": ")));
         }
         return parsedBytes;
     }

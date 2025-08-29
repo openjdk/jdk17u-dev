@@ -336,9 +336,13 @@ module java.base {
         java.security.jgss,
         java.security.sasl,
         java.smartcardio,
+        java.naming,
+        java.rmi,
+        java.net.http,
         java.xml.crypto,
         jdk.crypto.ec,
         jdk.crypto.cryptoki,
+        jdk.httpserver,
         jdk.jartool,
         jdk.security.auth,
         jdk.security.jgss;
