@@ -378,7 +378,7 @@ public class SSLSocketTemplate extends SSLContextTemplate {
          * Check various exception conditions.
          */
         if ((local != null) && (remote != null)) {
-            // If both failed, return the curthread's exception.
+            // If both failed, return the current thread's exception.
             local.initCause(remote);
             exception = local;
         } else if (local != null) {
