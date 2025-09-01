@@ -380,6 +380,7 @@ public class SSLSocketTemplate extends SSLContextTemplate {
         if ((local != null) && (remote != null)) {
             // If both failed, return the current thread's exception.
             local.initCause(remote);
+            local.addSuppressed(remote);
             exception = local;
         } else if (local != null) {
             exception = local;
