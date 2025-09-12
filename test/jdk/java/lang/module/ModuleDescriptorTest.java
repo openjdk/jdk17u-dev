@@ -24,7 +24,8 @@
 /**
  * @test
  * @modules java.base/jdk.internal.access
- *          java.base/jdk.internal.classfile.constantpool
+ *          java.base/jdk.internal.org.objectweb.asm
+ *          java.base/jdk.internal.org.objectweb.asm.commons
  *          java.base/jdk.internal.module
  * @library /test/lib
  * @build jdk.test.lib.util.ModuleInfoWriter

@@ -28,10 +28,8 @@
  * @bug 8174718
  * @bug 8189671
  * @author Andrei Eremeev
- * @modules java.base/jdk.internal.classfile
- *          java.base/jdk.internal.classfile.attribute
- *          java.base/jdk.internal.classfile.constantpool
- *          java.base/jdk.internal.classfile.java.lang.constant
+ * @modules java.base/jdk.internal.org.objectweb.asm
+ *          java.base/jdk.internal.org.objectweb.asm.commons
  *          java.base/jdk.internal.jimage
  *          java.base/jdk.internal.module
  *          jdk.jdeps/com.sun.tools.classfile

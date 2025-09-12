@@ -55,10 +55,8 @@ import jdk.test.lib.util.ModuleInfoWriter;
  * @requires vm.flagless
  * @requires os.family == "linux"
  * @modules jdk.jcmd/sun.tools.common:+open
- *          java.base/jdk.internal.classfile
- *          java.base/jdk.internal.classfile.attribute
- *          java.base/jdk.internal.classfile.constantpool
- *          java.base/jdk.internal.classfile.java.lang.constant
+ *          java.base/jdk.internal.org.objectweb.asm
+ *          java.base/jdk.internal.org.objectweb.asm.commons
  *          java.base/jdk.internal.module
  * @library /test/lib
  * @build test.TestProcess

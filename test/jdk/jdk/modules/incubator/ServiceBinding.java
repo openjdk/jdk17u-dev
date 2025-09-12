@@ -24,10 +24,8 @@
 /**
  * @test
  * @bug 8233922
- * @modules java.base/jdk.internal.classfile
- *          java.base/jdk.internal.classfile.attribute
- *          java.base/jdk.internal.classfile.constantpool
- *          java.base/jdk.internal.classfile.java.lang.constant
+ * @modules java.base/jdk.internal.org.objectweb.asm
+ *          java.base/jdk.internal.org.objectweb.asm.commons
  *          java.base/jdk.internal.module
  * @library /test/lib
  * @build ServiceBinding TestBootLayer jdk.test.lib.util.ModuleInfoWriter
