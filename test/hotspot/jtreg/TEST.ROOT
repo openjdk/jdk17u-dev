@@ -79,6 +79,7 @@ requires.properties= \
     vm.musl \
     vm.flagless \
     docker.support \
+    systemd.support \
     jdk.containerized
 
 # Minimum jtreg version
