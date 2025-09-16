@@ -45,7 +45,7 @@ ShenandoahJavaThreadsIterator::ShenandoahJavaThreadsIterator(ShenandoahPhaseTimi
 }
 
 uint ShenandoahJavaThreadsIterator::claim() {
-  return Atomic::fetch_and_add(&_claimed, _stride, memory_order_relaxed);
+  return Atomic::fetch_then_add(&_claimed, _stride, memory_order_relaxed);
 }
 
 void ShenandoahJavaThreadsIterator::threads_do(ThreadClosure* cl, uint worker_id) {
