@@ -93,7 +93,7 @@ requires.properties= \
     vm.hasJFR \
     vm.jvmci \
     vm.jvmci.enabled \
-    docker.support \
+    container.support \
     release.implementor \
     jdk.containerized
 
