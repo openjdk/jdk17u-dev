@@ -27,8 +27,8 @@
 #include "precompiled.hpp"
 #include "memory/metaspace.hpp"
 #include "runtime/frame.inline.hpp"
-#include "runtime/thread.hpp"
 #include "runtime/os.inline.hpp"
+#include "runtime/thread.hpp"
 
 frame JavaThread::pd_last_frame() {
   assert(has_last_Java_frame(), "must have last_Java_sp() when suspended");
