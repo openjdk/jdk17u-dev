@@ -56,7 +56,7 @@ bool JavaThread::pd_get_top_frame_for_profiling(frame* fr_addr, void* ucontext, 
     if (pc == nullptr) {
       // This is not uncommon. Many c1/c2 runtime stubs do not set the pc in the anchor.
       intptr_t* top_sp = os::Linux::ucontext_get_sp((const ucontext_t*)ucontext);
-      if ((uint64_t)sp <= ((frame::common_abi*)top_sp)->callers_sp) {
+      if ((uint64_t)sp <= ((frame::abi_minframe*)top_sp)->callers_sp) {
         // The interrupt occurred either in the last java frame or in its direct callee.
         // We cannot be sure that the link register LR was already saved to the
         // java frame. Therefore we discard this sample.
