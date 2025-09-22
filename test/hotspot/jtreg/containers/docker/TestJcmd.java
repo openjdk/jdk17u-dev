@@ -26,7 +26,7 @@
  * @test
  * @summary Test JCMD across container boundary. The JCMD runs on a host system,
  *          while sending commands to a JVM that runs inside a container.
- * @requires docker.support
+ * @requires container.support
  * @requires vm.flagless
  * @modules java.base/jdk.internal.misc
  *          java.management
