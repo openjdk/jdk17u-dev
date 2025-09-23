@@ -63,6 +63,8 @@ bool JavaThread::pd_get_top_frame_for_profiling(frame* fr_addr, void* ucontext, 
         return false;
       }
       // The last java pc will be found in the abi part of the last java frame.
+      *fr_addr = frame(sp);
+      return true;
     }
     *fr_addr = frame(sp, pc);
     return true;
