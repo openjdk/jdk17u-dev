@@ -249,7 +249,11 @@ module java.base {
     exports jdk.internal.vm.vector to
         jdk.incubator.vector;
     exports jdk.internal.util to
-            jdk.incubator.foreign;
+        java.naming,
+        java.rmi,
+        java.net.http,
+        jdk.httpserver,
+        jdk.incubator.foreign;
     exports jdk.internal.util.jar to
         jdk.jartool;
     exports jdk.internal.util.xml to
@@ -336,13 +340,9 @@ module java.base {
         java.security.jgss,
         java.security.sasl,
         java.smartcardio,
-        java.naming,
-        java.rmi,
-        java.net.http,
         java.xml.crypto,
         jdk.crypto.ec,
         jdk.crypto.cryptoki,
-        jdk.httpserver,
         jdk.jartool,
         jdk.security.auth,
         jdk.security.jgss;
