@@ -34,6 +34,9 @@ import java.util.Objects;
 import sun.net.util.IPAddressUtil;
 import sun.net.www.ParseUtil;
 
+import static jdk.internal.util.Exceptions.formatMsg;
+import static jdk.internal.util.Exceptions.filterNonSocketInfo;
+
 /**
  * The abstract class {@code URLStreamHandler} is the common
  * superclass for all stream protocol handlers. A stream protocol
@@ -207,7 +210,7 @@ public abstract class URLStreamHandler {
                         if (!IPAddressUtil.
                             isIPv6LiteralAddress(host.substring(1, ind))) {
                             throw new IllegalArgumentException(
-                                "Invalid host: "+ host);
+                                formatMsg("Invalid host%s", filterNonSocketInfo(host).prefixWith(": ")));
                         }
 
                         port = -1 ;
@@ -221,12 +224,14 @@ public abstract class URLStreamHandler {
                                 }
                             } else {
                                 throw new IllegalArgumentException(
-                                    "Invalid authority field: " + authority);
+                                    formatMsg("Invalid authority field%s",
+                                               filterNonSocketInfo(authority).prefixWith(": ")));
                             }
                         }
                     } else {
                         throw new IllegalArgumentException(
-                            "Invalid authority field: " + authority);
+                            formatMsg("Invalid authority field%s",
+                                       filterNonSocketInfo(authority).prefixWith(": ")));
                     }
                 } else {
                     ind = host.indexOf(':');
