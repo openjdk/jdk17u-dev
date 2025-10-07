@@ -158,7 +158,7 @@ public class ContentLengthHeaderTest {
         testLog.println("Checking HEAD with no request body");
         HttpRequest req = HttpRequest.newBuilder()
                 .version(HTTP_1_1)
-                .HEAD()
+                .method("HEAD", HttpRequest.BodyPublishers.noBody())
                 .uri(URI.create(testContentLengthURI + NO_BODY_PATH))
                 .build();
         HttpResponse<String> resp = hc.send(req, HttpResponse.BodyHandlers.ofString(UTF_8));
