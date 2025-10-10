@@ -56,14 +56,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import jdk.internal.util.OperatingSystem;
 import jdk.jpackage.test.Functional.ExceptionBox;
 import jdk.jpackage.test.Functional.ThrowingConsumer;
 import jdk.jpackage.test.Functional.ThrowingRunnable;
 import jdk.jpackage.test.Functional.ThrowingSupplier;
 
 final public class TKit {
-
-    private static final String OS = System.getProperty("os.name").toLowerCase();
 
     public static final Path TEST_SRC_ROOT = Functional.identity(() -> {
         Path root = Path.of(System.getProperty("test.src"));
@@ -171,15 +170,15 @@ final public class TKit {
     }
 
     public static boolean isWindows() {
-        return (OS.contains("win"));
+        return OperatingSystem.isWindows();
     }
 
     public static boolean isOSX() {
-        return (OS.contains("mac"));
+        return OperatingSystem.isMacOS();
     }
 
     public static boolean isLinux() {
-        return ((OS.contains("nix") || OS.contains("nux")));
+        return OperatingSystem.isLinux();
     }
 
     public static boolean isLinuxAPT() {
