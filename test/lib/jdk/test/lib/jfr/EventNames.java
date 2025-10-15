@@ -85,9 +85,6 @@ public class EventNames {
     public static final String BiasedLockClassRevocation = PREFIX + "BiasedLockClassRevocation";
     public static final String SymbolTableStatistics = PREFIX + "SymbolTableStatistics";
     public static final String StringTableStatistics = PREFIX + "StringTableStatistics";
-    public static final String PlaceholderTableStatistics = PREFIX + "PlaceholderTableStatistics";
-    public static final String LoaderConstraintsTableStatistics = PREFIX + "LoaderConstraintsTableStatistics";
-    public static final String ProtectionDomainCacheTableStatistics = PREFIX + "ProtectionDomainCacheTableStatistics";
     public static final String RedefineClasses = PREFIX + "RedefineClasses";
     public static final String RetransformClasses = PREFIX + "RetransformClasses";
     public static final String ClassRedefinition = PREFIX + "ClassRedefinition";
