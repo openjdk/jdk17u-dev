@@ -110,7 +110,24 @@ public class Test12 extends Test {
             if (s2 != null) {
                 s2.stop(0);
             }
-            executor.close();
+            boolean terminated = executor.isTerminated();
+            if (!terminated) {
+                executor.shutdown();
+                boolean interrupted = false;
+                while (!terminated) {
+                    try {
+                        terminated = executor.awaitTermination(1L, TimeUnit.DAYS);
+                    } catch (InterruptedException e) {
+                        if (!interrupted) {
+                            executor.shutdownNow();
+                            interrupted = true;
+                        }
+                    }
+                }
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             // it's OK to delete these files since the server side handlers
             // serving these files have completed (guaranteed by the completion of Executor.close())
             System.out.println("deleting " + smallFilePath);
