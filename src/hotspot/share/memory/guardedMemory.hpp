@@ -330,6 +330,7 @@ protected:
    * @param ptr the memory to be copied
    * @param len the length of the copy
    * @param tag optional general purpose tag (see GuardedMemory::get_tag())
+   * @param tag2 optional general purpose tag (see GuardedMemory::get_tag2())
    *
    * @return guarded wrapped memory pointer to the user area, or NULL if OOM.
    */
