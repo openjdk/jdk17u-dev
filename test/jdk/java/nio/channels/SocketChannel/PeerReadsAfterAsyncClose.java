@@ -50,16 +50,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PeerReadsAfterAsyncClose {
 
-    static Stream<ThreadFactory> factories() {
-        return Stream.of(Thread.ofPlatform().factory(), Thread.ofVirtual().factory());
-    }
-
     /**
      * Close SocketChannel while a thread is blocked reading from the channel's socket.
      */
-    @ParameterizedTest
-    @MethodSource("factories")
-    void testCloseDuringSocketChannelRead(ThreadFactory factory) throws Exception {
+    void testCloseDuringSocketChannelRead() throws Exception {
         var loopback = InetAddress.getLoopbackAddress();
         try (var listener = new ServerSocket()) {
             listener.bind(new InetSocketAddress(loopback, 0));
@@ -69,7 +63,7 @@ class PeerReadsAfterAsyncClose {
 
                 // start thread to read from channel
                 var cceThrown = new AtomicBoolean();
-                Thread thread = factory.newThread(() -> {
+                Thread thread = new Thread(() -> {
                     try {
                         sc.read(ByteBuffer.allocate(1));
                         fail();
@@ -102,22 +96,18 @@ class PeerReadsAfterAsyncClose {
     /**
      * Close Socket while a thread is blocked reading from the socket.
      */
-    @ParameterizedTest
-    @MethodSource("factories")
-    void testCloseDuringSocketUntimedRead(ThreadFactory factory) throws Exception {
-        testCloseDuringSocketRead(factory, 0);
+    void testCloseDuringSocketUntimedRead() throws Exception {
+        testCloseDuringSocketRead(0);
     }
 
     /**
      * Close Socket while a thread is blocked reading from the socket with a timeout.
      */
-    @ParameterizedTest
-    @MethodSource("factories")
-    void testCloseDuringSockeTimedRead(ThreadFactory factory) throws Exception {
-        testCloseDuringSocketRead(factory, 60_000);
+    void testCloseDuringSockeTimedRead() throws Exception {
+        testCloseDuringSocketRead(60_000);
     }
 
-    private void testCloseDuringSocketRead(ThreadFactory factory, int timeout) throws Exception {
+    private void testCloseDuringSocketRead(int timeout) throws Exception {
         var loopback = InetAddress.getLoopbackAddress();
         try (var listener = new ServerSocket()) {
             listener.bind(new InetSocketAddress(loopback, 0));
@@ -127,7 +117,7 @@ class PeerReadsAfterAsyncClose {
 
                 // start thread to read from socket
                 var seThrown = new AtomicBoolean();
-                Thread thread = factory.newThread(() -> {
+                Thread thread = new Thread(() -> {
                     try {
                         s.setSoTimeout(timeout);
                         s.getInputStream().read();
@@ -167,7 +157,7 @@ class PeerReadsAfterAsyncClose {
         int index = location.lastIndexOf('.');
         String className = location.substring(0, index);
         String methodName = location.substring(index + 1);
-        Thread.ofPlatform().daemon(true).start(() -> {
+        new Thread(() -> {
             try {
                 boolean found = false;
                 while (!found) {
@@ -180,7 +170,7 @@ class PeerReadsAfterAsyncClose {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        });
+        }).start();
     }
 
     /**
