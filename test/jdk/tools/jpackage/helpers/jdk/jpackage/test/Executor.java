@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.spi.ToolProvider;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public final class Executor extends CommandArguments<Executor> {
     public Executor() {
         saveOutputType = new HashSet<>(Set.of(SaveOutputType.NONE));
         removePath = false;
+        winEnglishOutput = false;
     }
 
     public Executor setExecutable(String v) {
@@ -86,6 +88,15 @@ public final class Executor extends CommandArguments<Executor> {
 
     public Executor setRemovePath(boolean value) {
         removePath = value;
+        return this;
+    }
+
+    public Executor setWinRunWithEnglishOutput(boolean value) {
+        if (!TKit.isWindows()) {
+            throw new UnsupportedOperationException(
+                    "setWinRunWithEnglishOutput is only valid on Windows platform");
+        }
+        winEnglishOutput = value;
         return this;
     }
 
@@ -206,6 +217,11 @@ public final class Executor extends CommandArguments<Executor> {
                     "Can't change directory when using tool provider");
         }
 
+        if (toolProvider != null && winEnglishOutput) {
+            throw new IllegalArgumentException(
+                    "Can't change locale when using tool provider");
+        }
+
         return ThrowingSupplier.toSupplier(() -> {
             if (toolProvider != null) {
                 return runToolProvider();
@@ -235,18 +251,49 @@ public final class Executor extends CommandArguments<Executor> {
         return saveOutput().execute().getOutput();
     }
 
+    private static class BadResultException extends RuntimeException {
+        BadResultException(Result v) {
+            value = v;
+        }
+
+        Result getValue() {
+            return value;
+        }
+
+        private final Result value;
+    }
+
     /*
      * Repeates command "max" times and waits for "wait" seconds between each
      * execution until command returns expected error code.
      */
     public Result executeAndRepeatUntilExitCode(int expectedCode, int max, int wait) {
-        Result result;
+        try {
+            return tryRunMultipleTimes(() -> {
+                Result result = executeWithoutExitCodeCheck();
+                if (result.getExitCode() != expectedCode) {
+                    throw new BadResultException(result);
+                }
+                return result;
+            }, max, wait).assertExitCodeIs(expectedCode);
+        } catch (BadResultException ex) {
+            return ex.getValue().assertExitCodeIs(expectedCode);
+        }
+    }
+
+    /*
+     * Repeates a "task" "max" times and waits for "wait" seconds between each
+     * execution until the "task" returns without throwing an exception.
+     */
+    public static <T> T tryRunMultipleTimes(Supplier<T> task, int max, int wait) {
+        RuntimeException lastException = null;
         int count = 0;
 
         do {
-            result = executeWithoutExitCodeCheck();
-            if (result.getExitCode() == expectedCode) {
-                return result;
+            try {
+                return task.get();
+            } catch (RuntimeException ex) {
+                lastException = ex;
             }
 
             try {
@@ -258,7 +305,14 @@ public final class Executor extends CommandArguments<Executor> {
             count++;
         } while (count < max);
 
-        return result.assertExitCodeIs(expectedCode);
+        throw lastException;
+    }
+
+    public static void tryRunMultipleTimes(Runnable task, int max, int wait) {
+        tryRunMultipleTimes(() -> {
+            task.run();
+            return null;
+        }, max, wait);
     }
 
     public List<String> executeWithoutExitCodeCheckAndGetOutput() {
@@ -285,8 +339,17 @@ public final class Executor extends CommandArguments<Executor> {
         return executable.toAbsolutePath();
     }
 
+    private List<String> prefixCommandLineArgs() {
+        if (winEnglishOutput) {
+            return List.of("cmd.exe", "/c", "chcp", "437", ">nul", "2>&1", "&&");
+        } else {
+            return List.of();
+        }
+    }
+
     private Result runExecutable() throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
+        command.addAll(prefixCommandLineArgs());
         command.add(executablePath().toString());
         command.addAll(args);
         ProcessBuilder builder = new ProcessBuilder(command);
@@ -418,15 +481,17 @@ public final class Executor extends CommandArguments<Executor> {
             exec = executablePath().toString();
         }
 
-        return String.format(format, printCommandLine(exec, args),
-                args.size() + 1);
+        var cmdline = Stream.of(prefixCommandLineArgs(), List.of(exec), args).flatMap(
+                List::stream).toList();
+
+        return String.format(format, printCommandLine(cmdline), cmdline.size());
     }
 
-    private static String printCommandLine(String executable, List<String> args) {
+    private static String printCommandLine(List<String> cmdline) {
         // Want command line printed in a way it can be easily copy/pasted
-        // to be executed manally
+        // to be executed manually
         Pattern regex = Pattern.compile("\\s");
-        return Stream.concat(Stream.of(executable), args.stream()).map(
+        return cmdline.stream().map(
                 v -> (v.isEmpty() || regex.matcher(v).find()) ? "\"" + v + "\"" : v).collect(
                         Collectors.joining(" "));
     }
@@ -440,6 +505,7 @@ public final class Executor extends CommandArguments<Executor> {
     private Set<SaveOutputType> saveOutputType;
     private Path directory;
     private boolean removePath;
+    private boolean winEnglishOutput;
     private String winTmpDir = null;
 
     private static enum SaveOutputType {
