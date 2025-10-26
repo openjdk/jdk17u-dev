@@ -1019,7 +1019,19 @@ class SocketChannelImpl
     private void implCloseBlockingMode() throws IOException {
         synchronized (stateLock) {
             assert state < ST_CLOSING;
+            boolean connected = (state == ST_CONNECTED);
             state = ST_CLOSING;
+
+            if (connected && Net.shouldShutdownWriteBeforeClose()) {
+                // shutdown output when linger interval not set to 0
+                try {
+                    var SO_LINGER = StandardSocketOptions.SO_LINGER;
+                    if ((int) Net.getSocketOption(fd, SO_LINGER) != 0) {
+                        Net.shutdown(fd, Net.SHUT_WR);
+                    }
+                } catch (IOException ignore) { }
+            }
+
             if (!tryClose()) {
                 long reader = readerThread;
                 long writer = writerThread;
