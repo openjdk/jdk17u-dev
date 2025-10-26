@@ -391,7 +391,7 @@ public class CancelRequestTest implements HttpServerAdapters {
             if (error != null) throw error;
         }
         assert client != null;
-        if (!sameClient) client.close();
+        //if (!sameClient) client.close();
     }
 
     @Test(dataProvider = "asyncurls")
@@ -505,7 +505,7 @@ public class CancelRequestTest implements HttpServerAdapters {
             if (error != null) throw error;
         }
         assert client != null;
-        if (!sameClient) client.close();
+        //if (!sameClient) client.close();
     }
 
     @Test(dataProvider = "urls")
@@ -581,7 +581,7 @@ public class CancelRequestTest implements HttpServerAdapters {
             if (error != null) throw error;
         }
         assert client != null;
-        if (!sameClient) client.close();
+        //if (!sameClient) client.close();
     }
 
 
