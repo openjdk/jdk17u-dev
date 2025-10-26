@@ -109,7 +109,10 @@ public final class ProxyServer implements Closeable {
         this.port = ((InetSocketAddress)listener.getLocalAddress()).getPort();
         this.credentials = credentials;
         connections = new CopyOnWriteArrayList<Connection>();
-        Thread.ofPlatform().name("ProxyListener").daemon().start(this::run);
+        Thread d = new Thread(() -> run());
+        d.setName("ProxyListener");
+        d.setDaemon(true);
+        d.start();
     }
 
     /**
