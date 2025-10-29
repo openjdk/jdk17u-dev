@@ -1000,17 +1000,12 @@ class SocketChannelImpl
      * operations in progress (or tracked), then the channel's socket is closed. If
      * there are I/O operations in progress then the behavior is platform specific.
      *
-     * On Unix systems, the channel's socket is pre-closed. This unparks any virtual
-     * threads that are blocked in I/O operations on this channel. If there are
-     * platform threads blocked on the channel's socket then the socket is dup'ed
-     * and the platform threads signalled. The final close is deferred until all I/O
+     * On Unix systems, the channel's socket is pre-closed. The socket is dup'ed
+     * and the threads signalled. The final close is deferred until all I/O
      * operations complete.
      *
-     * On Windows, the channel's socket is pre-closed. This unparks any virtual
-     * threads that are blocked in I/O operations on this channel. If there are no
-     * virtual threads blocked in I/O operations on this channel then the channel's
-     * socket is closed. If there are virtual threads in I/O then the final close is
-     * deferred until all I/O operations on virtual threads complete.
+     * On Windows, the channel's socket is pre-closed. The channel's
+     * socket is closed.
      *
      * Note that a channel configured blocking may be registered with a Selector
      * This arises when a key is canceled and the channel configured to blocking
