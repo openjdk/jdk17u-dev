@@ -2464,10 +2464,14 @@ public class ClassReader {
             }
             // Runtime-visible and -invisible annotations are completed separately, so if the same
             // type has annotations from both it will get annotated twice.
-            TypeMetadata.Annotations existing = mapped.getMetadata(TypeMetadata.Annotations.class);
+            TypeMetadata metadata = mapped.getMetadata();
+            TypeMetadata.Annotations existing =
+                    (TypeMetadata.Annotations) metadata.get(TypeMetadata.Entry.Kind.ANNOTATIONS);
             if (existing != null) {
-                existing.annotationBuffer().addAll(attributes);
-                return mapped;
+                TypeMetadata.Annotations combined = new TypeMetadata.Annotations(
+                        existing.getAnnotations().appendList(attributes));
+                return mapped.cloneWithMetadata(
+                        metadata.without(TypeMetadata.Entry.Kind.ANNOTATIONS).combine(combined));
             }
             return mapped.annotatedType(attributes);
         }
