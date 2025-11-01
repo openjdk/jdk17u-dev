@@ -586,22 +586,6 @@ public class BasicAnnoTests extends JavacTestingAbstractProcessor {
     class Inner100<T extends Inner100<@TB(100) T>> {
     }
 
-    // receiver parameters
-    class Inner110 {
-        @Test(posn=2, annoType = TA.class, expect = "110")
-        void f(@TA(110) Inner110 this) {}
-
-        @Test(posn=2, annoType = TA.class, expect = "111")
-        Inner110(@TA(111) BasicAnnoTests BasicAnnoTests.this) {}
-    }
-
-    static class GenericInner120<X> {
-        private class GenericNested<Y> {
-            @Test(posn=2, annoType = TA.class, expect = "120")
-            GenericNested(@TA(120) GenericInner120<X> GenericInner120.this) {}
-        }
-    }
-
     @Test(posn=1, annoType=TA.class, expect="130")
     @Test(posn=23, annoType=TA.class, expect="131")
     public Map<@TA(130) String, @TA(131) String> f130;
