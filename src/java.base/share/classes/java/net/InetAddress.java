@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -46,12 +46,16 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.Arrays;
 
+import jdk.internal.util.Exceptions;
 import jdk.internal.access.JavaNetInetAddressAccess;
 import jdk.internal.access.SharedSecrets;
 import sun.security.action.*;
 import sun.net.InetAddressCachePolicy;
 import sun.net.util.IPAddressUtil;
 import sun.nio.cs.UTF_8;
+
+import static jdk.internal.util.Exceptions.filterNonSocketInfo;
+import static jdk.internal.util.Exceptions.formatMsg;
 
 /**
  * This class represents an Internet Protocol (IP) address.
@@ -340,6 +344,7 @@ public class InetAddress implements java.io.Serializable {
                     }
                 }
         );
+        Exceptions.setup(); // needed for native exceptions
         init();
     }
 
@@ -798,7 +803,7 @@ public class InetAddress implements java.io.Serializable {
         @Override
         public InetAddress[] get() throws UnknownHostException {
             if (inetAddresses == null) {
-                throw new UnknownHostException(host);
+                throw new UnknownHostException(formatMsg("%s", filterNonSocketInfo(host)));
             }
             return inetAddresses;
         }
@@ -876,7 +881,9 @@ public class InetAddress implements java.io.Serializable {
                         }
                     }
                     if (inetAddresses == null) {
-                        throw ex == null ? new UnknownHostException(host) : ex;
+                        throw ex == null
+                            ? new UnknownHostException(formatMsg("%s", filterNonSocketInfo(host)))
+                            : ex;
                     }
                     return inetAddresses;
                 }
@@ -999,16 +1006,19 @@ public class InetAddress implements java.io.Serializable {
                     }
                 }
             } catch (IOException e) {
-                throw new UnknownHostException("Unable to resolve address "
-                        + Arrays.toString(addr) + " as hosts file " + hostsFile
-                        + " not found ");
+                throw new UnknownHostException(
+                    formatMsg("Unable to resolve address %s as hosts file %s not found",
+                              filterNonSocketInfo(Arrays.toString(addr)),
+                              filterNonSocketInfo(hostsFile)
+                                   .replaceWith("from ${jdk.net.hosts.file} system property")));
             }
 
             if ((host == null) || (host.isEmpty()) || (host.equals(" "))) {
-                throw new UnknownHostException("Requested address "
-                        + Arrays.toString(addr)
-                        + " resolves to an invalid entry in hosts file "
-                        + hostsFile);
+                throw new UnknownHostException(
+                    formatMsg("Requested address %s resolves to an invalid entry in hosts file %s",
+                              filterNonSocketInfo(Arrays.toString(addr)),
+                              filterNonSocketInfo(hostsFile)
+                                   .replaceWith("from ${jdk.net.hosts.file} system property")));
             }
             return host;
         }
@@ -1060,8 +1070,11 @@ public class InetAddress implements java.io.Serializable {
                     }
                 }
             } catch (IOException e) {
-                throw new UnknownHostException("Unable to resolve host " + host
-                        + " as hosts file " + hostsFile + " not found ");
+                throw new UnknownHostException(
+                    formatMsg("Unable to resolve host %s as hosts file %s not found",
+                              filterNonSocketInfo(host), filterNonSocketInfo(hostsFile)
+                                   .replaceWith("from ${jdk.net.hosts.file} system property")));
+
             }
 
             List<InetAddress> res;
@@ -1340,7 +1353,7 @@ public class InetAddress implements java.io.Serializable {
                 try {
                     addr = IPAddressUtil.validateNumericFormatV4(host);
                 } catch (IllegalArgumentException iae) {
-                    var uhe = new UnknownHostException(host);
+                    var uhe = new UnknownHostException(formatMsg("%s", filterNonSocketInfo(host)));
                     uhe.initCause(iae);
                     throw uhe;
                 }
@@ -1387,7 +1400,8 @@ public class InetAddress implements java.io.Serializable {
 
     private static UnknownHostException invalidIPv6LiteralException(String host, boolean wrapInBrackets) {
         String hostString = wrapInBrackets ? "[" + host + "]" : host;
-        return new UnknownHostException(hostString + ": invalid IPv6 address literal");
+        return new UnknownHostException(formatMsg("%sinvalid IPv6 address literal",
+                                                  filterNonSocketInfo(hostString).suffixWith(": ")));
     }
 
     /**
@@ -1667,8 +1681,8 @@ public class InetAddress implements java.io.Serializable {
                 } catch (UnknownHostException uhe) {
                     // Rethrow with a more informative error message.
                     UnknownHostException uhe2 =
-                        new UnknownHostException(local + ": " +
-                                                 uhe.getMessage());
+                            new UnknownHostException(formatMsg(filterNonSocketInfo(local)
+                                                               .suffixWith(": ") + uhe.getMessage()));
                     uhe2.initCause(uhe);
                     throw uhe2;
                 }
