@@ -32,9 +32,10 @@
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -47,10 +48,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RollHoursTest {
 
     // Should trigger multiple full HOUR/HOUR_OF_DAY cycles
-    private static final List<Integer> hours =
-            IntStream.rangeClosed(-55, 55).boxed().toList();
+    private static List<Integer> hours() {
+        return IntStream.rangeClosed(-55, 55).boxed().collect(java.util.stream.Collectors.toList());
+    }
+    
     // Various calendars to test against
-    private static final List<Calendar> calendars = List.of(
+    private static final List<Calendar> calendars = Arrays.asList(
             // GMT, independent of daylight saving time transitions
             new GregorianCalendar(TimeZone.getTimeZone("GMT")),
             // Daylight saving observing calendars
@@ -86,11 +89,11 @@ public class RollHoursTest {
 
     // Rolling the HOUR_OF_DAY field.
     @ParameterizedTest
-    @FieldSource("hours")
+    @MethodSource("hours")
     void HourOfDayTest(int hoursToRoll) {
-        for (var cal : calendars) {
-            var savedTime = cal.getTime();
-            var savedHour = cal.get(Calendar.HOUR_OF_DAY);
+        for (Calendar cal : calendars) {
+            Date savedTime = cal.getTime();
+            int savedHour = cal.get(Calendar.HOUR_OF_DAY);
             cal.roll(Calendar.HOUR_OF_DAY, hoursToRoll);
             assertEquals(getExpectedHour(hoursToRoll, savedHour, 24, cal, savedTime),
                     cal.get(Calendar.HOUR_OF_DAY),
@@ -100,11 +103,11 @@ public class RollHoursTest {
 
     // Rolling the HOUR field.
     @ParameterizedTest
-    @FieldSource("hours")
+    @MethodSource("hours")
     void HourTest(int hoursToRoll) {
-        for (var cal : calendars) {
-            var savedTime = cal.getTime();
-            var savedHour = cal.get(Calendar.HOUR_OF_DAY);
+        for (Calendar cal : calendars) {
+            Date savedTime = cal.getTime();
+            int savedHour = cal.get(Calendar.HOUR_OF_DAY);
             cal.roll(Calendar.HOUR, hoursToRoll);
             assertEquals(getExpectedHour(hoursToRoll, savedHour, 12, cal, savedTime),
                     cal.get(Calendar.HOUR),
@@ -119,7 +122,7 @@ public class RollHoursTest {
         // For rolling forwards 50 hours -> (50 + 15) % 24 = 17
         // For hour backwards 50 hours -> (24 + (15 - 50) % 24) % 24
         //                             -> (24 - 11) % 24 = 13
-        var result = (roll >= 0 ? (hour + roll) : (hourCycle + (hour + roll) % hourCycle)) % hourCycle;
+        int result = (roll >= 0 ? (hour + roll) : (hourCycle + (hour + roll) % hourCycle)) % hourCycle;
 
         // 2 AM does not exist on transition day. Calculate normalized value accordingly
         if (cal.getTimeZone().inDaylightTime(oldDate) && cal.get(Calendar.MONTH) == Calendar.MARCH && result == 2) {
@@ -132,7 +135,7 @@ public class RollHoursTest {
 
     // Get a TimeZone adapted error message
     private static String getMessage(TimeZone tz, Date date, int hoursToRoll) {
-        var fmt = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
+        DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
         fmt.setTimeZone(tz);
         return fmt.format(date) + " incorrectly rolled " + hoursToRoll;
     }
