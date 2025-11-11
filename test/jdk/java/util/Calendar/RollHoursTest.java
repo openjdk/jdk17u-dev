@@ -51,7 +51,7 @@ public class RollHoursTest {
     private static List<Integer> hours() {
         return IntStream.rangeClosed(-55, 55).boxed().collect(java.util.stream.Collectors.toList());
     }
-    
+
     // Various calendars to test against
     private static final List<Calendar> calendars = Arrays.asList(
             // GMT, independent of daylight saving time transitions
