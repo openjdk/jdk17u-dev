@@ -196,11 +196,11 @@ public class WindowsHelper {
                 ")", "get", "ProcessID,ParentProcessID").dumpOutput(true).
                 saveOutput().executeAndGetOutput();
 
-        if ("No Instance(s) Available.".equals(output.getFirst().trim())) {
+        if ("No Instance(s) Available.".equals(output.get(0).trim())) {
             return new long[0];
         }
 
-        String[] headers = Stream.of(output.getFirst().split("\\s+", 2)).map(
+        String[] headers = Stream.of(output.get(0).split("\\s+", 2)).map(
                 String::trim).map(String::toLowerCase).toArray(String[]::new);
         Pattern pattern;
         if (headers[0].equals("parentprocessid") && headers[1].equals(

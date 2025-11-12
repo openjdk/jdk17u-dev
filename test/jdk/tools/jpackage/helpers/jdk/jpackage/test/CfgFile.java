@@ -102,7 +102,8 @@ public final class CfgFile {
 
     private Section getSection(String name) {
         Objects.requireNonNull(name);
-        for (var section : data.reversed()) {
+        for (int i = data.size()-1; i >=0; i--) {
+            var section = data.get(i);
             if (name.equals(section.name)) {
                 return section;
             }
@@ -151,7 +152,8 @@ public final class CfgFile {
     private static record Section(String name, List<Map.Entry<String, String>> data) {
         String getValue(String key) {
             Objects.requireNonNull(key);
-            for (var kvp : data.reversed()) {
+            for (int i = data.size()-1; i >= 0; i--) {
+                var kvp = data.get(i);
                 if (key.equals(kvp.getKey())) {
                     return kvp.getValue();
                 }
