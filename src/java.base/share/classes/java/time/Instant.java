@@ -61,6 +61,8 @@
  */
 package java.time;
 
+import static java.time.LocalTime.MICROS_PER_SECOND;
+import static java.time.LocalTime.MILLIS_PER_SECOND;
 import static java.time.LocalTime.NANOS_PER_SECOND;
 import static java.time.LocalTime.SECONDS_PER_DAY;
 import static java.time.LocalTime.SECONDS_PER_HOUR;
@@ -1143,17 +1145,17 @@ public final class Instant
     public long until(Temporal endExclusive, TemporalUnit unit) {
         Instant end = Instant.from(endExclusive);
         if (unit instanceof ChronoUnit chronoUnit) {
-            switch (chronoUnit) {
-                case NANOS: return nanosUntil(end);
-                case MICROS: return nanosUntil(end) / 1000;
-                case MILLIS: return Math.subtractExact(end.toEpochMilli(), toEpochMilli());
-                case SECONDS: return secondsUntil(end);
-                case MINUTES: return secondsUntil(end) / SECONDS_PER_MINUTE;
-                case HOURS: return secondsUntil(end) / SECONDS_PER_HOUR;
-                case HALF_DAYS: return secondsUntil(end) / (12 * SECONDS_PER_HOUR);
-                case DAYS: return secondsUntil(end) / (SECONDS_PER_DAY);
-            }
-            throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
+            return switch (chronoUnit) {
+                case NANOS     -> nanosUntil(end);
+                case MICROS    -> microsUntil(end);
+                case MILLIS    -> millisUntil(end);
+                case SECONDS   -> secondsUntil(end);
+                case MINUTES   -> secondsUntil(end) / SECONDS_PER_MINUTE;
+                case HOURS     -> secondsUntil(end) / SECONDS_PER_HOUR;
+                case HALF_DAYS -> secondsUntil(end) / (12 * SECONDS_PER_HOUR);
+                case DAYS      -> secondsUntil(end) / (SECONDS_PER_DAY);
+                default -> throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
+            };
         }
         return unit.between(this, end);
     }
@@ -1162,6 +1164,18 @@ public final class Instant
         long secsDiff = Math.subtractExact(end.seconds, seconds);
         long totalNanos = Math.multiplyExact(secsDiff, NANOS_PER_SECOND);
         return Math.addExact(totalNanos, end.nanos - nanos);
+    }
+
+    private long microsUntil(Instant end) {
+        long secsDiff = Math.subtractExact(end.seconds, seconds);
+        long totalMicros = Math.multiplyExact(secsDiff, MICROS_PER_SECOND);
+        return Math.addExact(totalMicros, (end.nanos - nanos) / 1000);
+    }
+
+    private long millisUntil(Instant end) {
+        long secsDiff = Math.subtractExact(end.seconds, seconds);
+        long totalMillis = Math.multiplyExact(secsDiff, MILLIS_PER_SECOND);
+        return Math.addExact(totalMillis, (end.nanos - nanos) / 1000_000);
     }
 
     private long secondsUntil(Instant end) {
