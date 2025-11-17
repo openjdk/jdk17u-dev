@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,7 +36,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.spi.ToolProvider;
 import java.util.stream.Collectors;
@@ -52,7 +54,6 @@ public final class Executor extends CommandArguments<Executor> {
 
     public Executor() {
         saveOutputType = new HashSet<>(Set.of(SaveOutputType.NONE));
-        removePath = false;
         winEnglishOutput = false;
     }
 
@@ -76,6 +77,10 @@ public final class Executor extends CommandArguments<Executor> {
         return setToolProvider(v.asToolProvider());
     }
 
+    public Optional<Path> getExecutable() {
+        return Optional.ofNullable(executable);
+    }
+
     public Executor setDirectory(Path v) {
         directory = v;
         return this;
@@ -85,8 +90,8 @@ public final class Executor extends CommandArguments<Executor> {
         return setExecutable(v.getPath());
     }
 
-    public Executor setRemovePath(boolean value) {
-        removePath = value;
+    public Executor removeEnvVar(String envVarName) {
+        removeEnvVars.add(Objects.requireNonNull(envVarName));
         return this;
     }
 
@@ -173,10 +178,10 @@ public final class Executor extends CommandArguments<Executor> {
         return this;
     }
 
-    public class Result {
+    public record Result(int exitCode, List<String> output, Supplier<String> cmdline) {
 
-        Result(int exitCode) {
-            this.exitCode = exitCode;
+        public Result {
+            Objects.requireNonNull(cmdline);
         }
 
         public String getFirstLineOfOutput() {
@@ -187,14 +192,10 @@ public final class Executor extends CommandArguments<Executor> {
             return output;
         }
 
-        public String getPrintableCommandLine() {
-            return Executor.this.getPrintableCommandLine();
-        }
-
         public Result assertExitCodeIs(int expectedExitCode) {
             TKit.assertEquals(expectedExitCode, exitCode, String.format(
                     "Check command %s exited with %d code",
-                    getPrintableCommandLine(), expectedExitCode));
+                    cmdline.get(), expectedExitCode));
             return this;
         }
 
@@ -205,9 +206,6 @@ public final class Executor extends CommandArguments<Executor> {
         public int getExitCode() {
             return exitCode;
         }
-
-        final int exitCode;
-        private List<String> output;
     }
 
     public Result executeWithoutExitCodeCheck() {
@@ -250,18 +248,49 @@ public final class Executor extends CommandArguments<Executor> {
         return saveOutput().execute().getOutput();
     }
 
+    private static class BadResultException extends RuntimeException {
+        BadResultException(Result v) {
+            value = v;
+        }
+
+        Result getValue() {
+            return value;
+        }
+
+        private final Result value;
+    }
+
     /*
      * Repeates command "max" times and waits for "wait" seconds between each
      * execution until command returns expected error code.
      */
     public Result executeAndRepeatUntilExitCode(int expectedCode, int max, int wait) {
-        Result result;
+        try {
+            return tryRunMultipleTimes(() -> {
+                Result result = executeWithoutExitCodeCheck();
+                if (result.getExitCode() != expectedCode) {
+                    throw new BadResultException(result);
+                }
+                return result;
+            }, max, wait).assertExitCodeIs(expectedCode);
+        } catch (BadResultException ex) {
+            return ex.getValue().assertExitCodeIs(expectedCode);
+        }
+    }
+
+    /*
+     * Repeates a "task" "max" times and waits for "wait" seconds between each
+     * execution until the "task" returns without throwing an exception.
+     */
+    public static <T> T tryRunMultipleTimes(Supplier<T> task, int max, int wait) {
+        RuntimeException lastException = null;
         int count = 0;
 
         do {
-            result = executeWithoutExitCodeCheck();
-            if (result.getExitCode() == expectedCode) {
-                return result;
+            try {
+                return task.get();
+            } catch (RuntimeException ex) {
+                lastException = ex;
             }
 
             try {
@@ -273,7 +302,14 @@ public final class Executor extends CommandArguments<Executor> {
             count++;
         } while (count < max);
 
-        return result.assertExitCodeIs(expectedCode);
+        throw lastException;
+    }
+
+    public static void tryRunMultipleTimes(Runnable task, int max, int wait) {
+        tryRunMultipleTimes(() -> {
+            task.run();
+            return null;
+        }, max, wait);
     }
 
     public List<String> executeWithoutExitCodeCheckAndGetOutput() {
@@ -333,10 +369,12 @@ public final class Executor extends CommandArguments<Executor> {
             builder.directory(directory.toFile());
             sb.append(String.format("; in directory [%s]", directory));
         }
-        if (removePath) {
-            // run this with cleared Path in Environment
-            TKit.trace("Clearing PATH in environment");
-            builder.environment().remove("PATH");
+       if (!removeEnvVars.isEmpty()) {
+            final var envComm = Comm.compare(builder.environment().keySet(), removeEnvVars);
+            builder.environment().keySet().removeAll(envComm.common());
+            envComm.common().forEach(envVar -> {
+                TKit.trace(String.format("Clearing %s in environment", envVar));
+            });
         }
 
         trace("Execute " + sb.toString() + "...");
@@ -367,28 +405,34 @@ public final class Executor extends CommandArguments<Executor> {
             }
         }
 
-        Result reply = new Result(process.waitFor());
-        trace("Done. Exit code: " + reply.exitCode);
+        final int exitCode = process.waitFor();
+        trace("Done. Exit code: " + exitCode);
 
+        final List<String> output;
         if (outputLines != null) {
-            reply.output = Collections.unmodifiableList(outputLines);
+            output = Collections.unmodifiableList(outputLines);
+        } else {
+            output = null;
         }
-        return reply;
+        return createResult(exitCode, output);
     }
 
-    private Result runToolProvider(PrintStream out, PrintStream err) {
+    private int runToolProvider(PrintStream out, PrintStream err) {
         trace("Execute " + getPrintableCommandLine() + "...");
-        Result reply = new Result(toolProvider.run(out, err, args.toArray(
-                String[]::new)));
-        trace("Done. Exit code: " + reply.exitCode);
-        return reply;
+        final int exitCode = toolProvider.run(out, err, args.toArray(
+                String[]::new));
+        trace("Done. Exit code: " + exitCode);
+        return exitCode;
     }
 
+    private Result createResult(int exitCode, List<String> output) {
+        return new Result(exitCode, output, this::getPrintableCommandLine);
+    }
 
     private Result runToolProvider() throws IOException {
         if (!withSavedOutput()) {
             if (saveOutputType.contains(SaveOutputType.DUMP)) {
-                return runToolProvider(System.out, System.err);
+                return createResult(runToolProvider(System.out, System.err), null);
             }
 
             PrintStream nullPrintStream = new PrintStream(new OutputStream() {
@@ -397,36 +441,40 @@ public final class Executor extends CommandArguments<Executor> {
                     // Nop
                 }
             });
-            return runToolProvider(nullPrintStream, nullPrintStream);
+            return createResult(runToolProvider(nullPrintStream, nullPrintStream), null);
         }
 
         try (ByteArrayOutputStream buf = new ByteArrayOutputStream();
                 PrintStream ps = new PrintStream(buf)) {
-            Result reply = runToolProvider(ps, ps);
+            final var exitCode = runToolProvider(ps, ps);
             ps.flush();
+            final List<String> output;
             try (BufferedReader bufReader = new BufferedReader(new StringReader(
                     buf.toString()))) {
                 if (saveOutputType.contains(SaveOutputType.FIRST_LINE)) {
                     String firstLine = bufReader.lines().findFirst().orElse(null);
                     if (firstLine != null) {
-                        reply.output = List.of(firstLine);
+                        output = List.of(firstLine);
+                    } else {
+                        output = null;
                     }
                 } else if (saveOutputType.contains(SaveOutputType.FULL)) {
-                    reply.output = bufReader.lines().collect(
-                            Collectors.toUnmodifiableList());
+                    output = bufReader.lines().collect(Collectors.toUnmodifiableList());
+                } else {
+                    output = null;
                 }
 
                 if (saveOutputType.contains(SaveOutputType.DUMP)) {
                     Stream<String> lines;
                     if (saveOutputType.contains(SaveOutputType.FULL)) {
-                        lines = reply.output.stream();
+                        lines = output.stream();
                     } else {
                         lines = bufReader.lines();
                     }
                     lines.forEach(System.out::println);
                 }
             }
-            return reply;
+            return createResult(exitCode, output);
         }
     }
 
@@ -465,7 +513,7 @@ public final class Executor extends CommandArguments<Executor> {
     private Path executable;
     private Set<SaveOutputType> saveOutputType;
     private Path directory;
-    private boolean removePath;
+    private Set<String> removeEnvVars = new HashSet<>();
     private boolean winEnglishOutput;
     private String winTmpDir = null;
 
