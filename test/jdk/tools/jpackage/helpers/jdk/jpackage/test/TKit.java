@@ -526,7 +526,7 @@ public final class TKit {
             Duration timeout, Duration afterCreatedTimeout) throws IOException {
         waitForFileCreated(fileToWaitFor, timeout);
         // Wait after the file has been created to ensure it is fully written.
-        ThrowingConsumer.<Duration>toConsumer(Thread::sleep).accept(afterCreatedTimeout);
+        ThrowingConsumer.<Long>toConsumer(Thread::sleep).accept(afterCreatedTimeout.getSeconds());
     }
 
     private static void waitForFileCreated(Path fileToWaitFor, Duration timeout) throws IOException {
@@ -543,7 +543,7 @@ public final class TKit {
             for (;;) {
                 Instant n = Instant.now();
                 Duration remainderTimeout = Duration.between(n, waitUntil);
-                assertTrue(remainderTimeout.isPositive(), String.format(
+                assertTrue(!remainderTimeout.isNegative() && !remainderTimeout.isZero(), String.format(
                         "Check timeout value %dms is positive", remainderTimeout.toMillis()));
 
                 WatchKey key = ThrowingSupplier.toSupplier(() -> {
