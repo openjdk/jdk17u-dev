@@ -1145,17 +1145,17 @@ public final class Instant
     public long until(Temporal endExclusive, TemporalUnit unit) {
         Instant end = Instant.from(endExclusive);
         if (unit instanceof ChronoUnit chronoUnit) {
-            return switch (chronoUnit) {
-                case NANOS     -> nanosUntil(end);
-                case MICROS    -> microsUntil(end);
-                case MILLIS    -> millisUntil(end);
-                case SECONDS   -> secondsUntil(end);
-                case MINUTES   -> secondsUntil(end) / SECONDS_PER_MINUTE;
-                case HOURS     -> secondsUntil(end) / SECONDS_PER_HOUR;
-                case HALF_DAYS -> secondsUntil(end) / (12 * SECONDS_PER_HOUR);
-                case DAYS      -> secondsUntil(end) / (SECONDS_PER_DAY);
-                default -> throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
-            };
+            switch (chronoUnit) {
+                case NANOS: return nanosUntil(end);
+                case MICROS: return nanosUntil(end) / 1000;
+                case MILLIS: return Math.subtractExact(end.toEpochMilli(), toEpochMilli());
+                case SECONDS: return secondsUntil(end);
+                case MINUTES: return secondsUntil(end) / SECONDS_PER_MINUTE;
+                case HOURS: return secondsUntil(end) / SECONDS_PER_HOUR;
+                case HALF_DAYS: return secondsUntil(end) / (12 * SECONDS_PER_HOUR);
+                case DAYS: return secondsUntil(end) / (SECONDS_PER_DAY);
+            }
+            throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
         }
         return unit.between(this, end);
     }
