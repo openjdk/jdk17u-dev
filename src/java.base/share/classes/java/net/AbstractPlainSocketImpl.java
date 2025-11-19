@@ -44,7 +44,7 @@ import sun.net.PlatformSocketImpl;
 import sun.net.ResourceManager;
 import sun.net.ext.ExtendedSocketOptions;
 import sun.net.util.IPAddressUtil;
-import sun.net.util.SocketExceptions;
+import jdk.internal.util.Exceptions;
 
 /**
  * Default Socket Implementation. This implementation does
@@ -535,7 +535,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl implements PlatformSoc
             }
         } catch (IOException e) {
             close();
-            throw SocketExceptions.of(e, new InetSocketAddress(address, port));
+            throw Exceptions.ioException(e, new InetSocketAddress(address, port));
         }
     }
 
