@@ -102,13 +102,14 @@ public class Win8365790Test {
 
     private static String runLauncher(JPackageCommand cmd, String launcherName, Path traceFile, Path outputFile) throws IOException {
         // Launch the specified launcher and send Ctrl+C signal to it.
-        Thread.ofVirtual().start(() -> {
+        Thread t = new Thread (() -> {
             configureAndExecute(0, Executor.of("powershell", "-NonInteractive", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Unrestricted")
                     .addArgument("-File").addArgument(TEST_PS1)
                     .addArguments("-TimeoutSeconds", Long.toString(Duration.ofSeconds(5).getSeconds()))
                     .addArgument("-Executable").addArgument(cmd.appLauncherPath(launcherName))
                     .dumpOutput());
         });
+        t.start();
 
         TKit.waitForFileCreated(traceFile, Duration.ofSeconds(20), Duration.ofSeconds(2));
 
