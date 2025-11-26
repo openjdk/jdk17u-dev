@@ -35,8 +35,9 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -239,6 +240,13 @@ public final class TKit {
         ThrowingRunnable.toRunnable(() -> Files.write(propsFilename,
                 props.stream().map(e -> String.join("=", e.getKey(),
                 e.getValue())).peek(TKit::trace).collect(Collectors.toList()))).run();
+        trace("Done");
+    }
+
+    public static void traceFileContents(Path path, String label) throws IOException {
+        assertFileExists(path);
+        trace(String.format("Dump [%s] %s...", path, label));
+        Files.readAllLines(path).forEach(TKit::trace);
         trace("Done");
     }
 
@@ -521,49 +529,57 @@ public final class TKit {
         return file;
     }
 
-    static void waitForFileCreated(Path fileToWaitFor,
-            long timeoutSeconds) throws IOException {
+    public static void waitForFileCreated(Path fileToWaitFor,
+            Duration timeout, Duration afterCreatedTimeout) throws IOException {
+        waitForFileCreated(fileToWaitFor, timeout);
+        // Wait after the file has been created to ensure it is fully written.
+        ThrowingConsumer.<Long>toConsumer(Thread::sleep).accept(afterCreatedTimeout.getSeconds());
+    }
+
+    private static void waitForFileCreated(Path fileToWaitFor, Duration timeout) throws IOException {
 
         trace(String.format("Wait for file [%s] to be available",
                                                 fileToWaitFor.toAbsolutePath()));
 
-        WatchService ws = FileSystems.getDefault().newWatchService();
+        try (var ws = FileSystems.getDefault().newWatchService()) {
 
-        Path watchDirectory = fileToWaitFor.toAbsolutePath().getParent();
-        watchDirectory.register(ws, ENTRY_CREATE, ENTRY_MODIFY);
+            Path watchDirectory = fileToWaitFor.toAbsolutePath().getParent();
+            watchDirectory.register(ws, ENTRY_CREATE, ENTRY_MODIFY);
 
-        long waitUntil = System.currentTimeMillis() + timeoutSeconds * 1000;
-        for (;;) {
-            long timeout = waitUntil - System.currentTimeMillis();
-            assertTrue(timeout > 0, String.format(
-                    "Check timeout value %d is positive", timeout));
+            var waitUntil = Instant.now().plus(timeout);
+            for (;;) {
+                Instant n = Instant.now();
+                Duration remainderTimeout = Duration.between(n, waitUntil);
+                assertTrue(!remainderTimeout.isNegative() && !remainderTimeout.isZero(), String.format(
+                        "Check timeout value %dms is positive", remainderTimeout.toMillis()));
 
-            WatchKey key = ThrowingSupplier.toSupplier(() -> ws.poll(timeout,
-                    TimeUnit.MILLISECONDS)).get();
-            if (key == null) {
-                if (fileToWaitFor.toFile().exists()) {
-                    trace(String.format(
-                            "File [%s] is available after poll timeout expired",
-                            fileToWaitFor));
-                    return;
+                WatchKey key = ThrowingSupplier.toSupplier(() -> {
+                    return ws.poll(remainderTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                }).get();
+                if (key == null) {
+                    if (Files.exists(fileToWaitFor)) {
+                        trace(String.format(
+                                "File [%s] is available after poll timeout expired",
+                                fileToWaitFor));
+                        return;
+                    }
+                    assertUnexpected(String.format("Timeout %dms expired", remainderTimeout.toMillis()));
                 }
-                assertUnexpected(String.format("Timeout expired", timeout));
-            }
 
-            for (WatchEvent<?> event : key.pollEvents()) {
-                if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-                    continue;
+                for (WatchEvent<?> event : key.pollEvents()) {
+                    if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+                        continue;
+                    }
+                    Path contextPath = (Path) event.context();
+                    if (Files.exists(fileToWaitFor) && Files.isSameFile(watchDirectory.resolve(contextPath), fileToWaitFor)) {
+                        trace(String.format("File [%s] is available", fileToWaitFor));
+                        return;
+                    }
                 }
-                Path contextPath = (Path) event.context();
-                if (Files.isSameFile(watchDirectory.resolve(contextPath),
-                        fileToWaitFor)) {
-                    trace(String.format("File [%s] is available", fileToWaitFor));
-                    return;
-                }
-            }
 
-            if (!key.reset()) {
-                assertUnexpected("Watch key invalidated");
+                if (!key.reset()) {
+                    assertUnexpected("Watch key invalidated");
+                }
             }
         }
     }
@@ -761,18 +777,18 @@ public final class TKit {
         public void match(Set<Path> expected) {
             currentTest.notifyAssert();
             var comm = Comm.compare(content, expected);
-            if (!comm.unique1.isEmpty() && !comm.unique2.isEmpty()) {
+            if (!comm.unique1().isEmpty() && !comm.unique2().isEmpty()) {
                 error(String.format(
                         "assertDirectoryContentEquals(%s): Some expected %s. Unexpected %s. Missing %s",
-                        baseDir, format(comm.common), format(comm.unique1), format(comm.unique2)));
-            } else if (!comm.unique1.isEmpty()) {
+                        baseDir, format(comm.common()), format(comm.unique1()), format(comm.unique2())));
+            } else if (!comm.unique1().isEmpty()) {
                 error(String.format(
                         "assertDirectoryContentEquals%s: Expected %s. Unexpected %s",
-                        baseDir, format(comm.common), format(comm.unique1)));
-            } else if (!comm.unique2.isEmpty()) {
+                        baseDir, format(comm.common()), format(comm.unique1())));
+            } else if (!comm.unique2().isEmpty()) {
                 error(String.format(
                         "assertDirectoryContentEquals(%s): Some expected %s. Missing %s",
-                        baseDir, format(comm.common), format(comm.unique2)));
+                        baseDir, format(comm.common()), format(comm.unique2())));
             } else {
                 traceAssert(String.format(
                         "assertDirectoryContentEquals(%s): Expected %s",
@@ -785,10 +801,10 @@ public final class TKit {
         public void contains(Set<Path> expected) {
             currentTest.notifyAssert();
             var comm = Comm.compare(content, expected);
-            if (!comm.unique2.isEmpty()) {
+            if (!comm.unique2().isEmpty()) {
                 error(String.format(
                         "assertDirectoryContentContains(%s): Some expected %s. Missing %s",
-                        baseDir, format(comm.common), format(comm.unique2)));
+                        baseDir, format(comm.common()), format(comm.unique2())));
             } else {
                 traceAssert(String.format(
                         "assertDirectoryContentContains(%s): Expected %s",
@@ -803,17 +819,6 @@ public final class TKit {
         private DirectoryContentVerifier(Path baseDir, Set<Path> contents) {
             this.baseDir = baseDir;
             this.content = contents;
-        }
-        private static record Comm(Set<Path> common, Set<Path> unique1, Set<Path> unique2) {
-            static Comm compare(Set<Path> a, Set<Path> b) {
-                Set<Path> common = new HashSet<>(a);
-                common.retainAll(b);
-                Set<Path> unique1 = new HashSet<>(a);
-                unique1.removeAll(common);
-                Set<Path> unique2 = new HashSet<>(b);
-                unique2.removeAll(common);
-                return new Comm(common, unique1, unique2);
-            }
         }
         private static String format(Set<Path> paths) {
             return Arrays.toString(
