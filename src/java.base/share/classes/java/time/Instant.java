@@ -61,6 +61,8 @@
  */
 package java.time;
 
+import static java.time.LocalTime.MICROS_PER_SECOND;
+import static java.time.LocalTime.MILLIS_PER_SECOND;
 import static java.time.LocalTime.NANOS_PER_SECOND;
 import static java.time.LocalTime.SECONDS_PER_DAY;
 import static java.time.LocalTime.SECONDS_PER_HOUR;
@@ -1162,6 +1164,18 @@ public final class Instant
         long secsDiff = Math.subtractExact(end.seconds, seconds);
         long totalNanos = Math.multiplyExact(secsDiff, NANOS_PER_SECOND);
         return Math.addExact(totalNanos, end.nanos - nanos);
+    }
+
+    private long microsUntil(Instant end) {
+        long secsDiff = Math.subtractExact(end.seconds, seconds);
+        long totalMicros = Math.multiplyExact(secsDiff, MICROS_PER_SECOND);
+        return Math.addExact(totalMicros, (end.nanos - nanos) / 1000);
+    }
+
+    private long millisUntil(Instant end) {
+        long secsDiff = Math.subtractExact(end.seconds, seconds);
+        long totalMillis = Math.multiplyExact(secsDiff, MILLIS_PER_SECOND);
+        return Math.addExact(totalMillis, (end.nanos - nanos) / 1000_000);
     }
 
     private long secondsUntil(Instant end) {
