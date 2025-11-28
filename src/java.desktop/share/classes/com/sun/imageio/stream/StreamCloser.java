@@ -62,6 +62,7 @@ public class StreamCloser {
 
             if (streamCloser == null) {
                 final Runnable streamCloserRunnable = new Runnable() {
+                    @Override
                     public void run() {
                         if (toCloseQueue != null) {
                             synchronized (StreamCloser.class) {
