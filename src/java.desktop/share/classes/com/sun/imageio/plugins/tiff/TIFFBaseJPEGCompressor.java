@@ -325,6 +325,7 @@ public abstract class TIFFBaseJPEGCompressor extends TIFFCompressor {
         return JPEGImageMetadata;
     }
 
+    @Override
     public final int encode(byte[] b, int off,
             int width, int height,
             int[] bitsPerSample,

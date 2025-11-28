@@ -91,6 +91,7 @@ class DHTMarkerSegment extends MarkerSegment {
         }
     }
 
+    @Override
     protected Object clone() {
         DHTMarkerSegment newGuy = (DHTMarkerSegment) super.clone();
         newGuy.tables = new ArrayList<>(tables.size());
@@ -100,6 +101,7 @@ class DHTMarkerSegment extends MarkerSegment {
         return newGuy;
     }
 
+    @Override
     IIOMetadataNode getNativeNode() {
         IIOMetadataNode node = new IIOMetadataNode("dht");
         for (int i= 0; i<tables.size(); i++) {
@@ -113,10 +115,12 @@ class DHTMarkerSegment extends MarkerSegment {
      * Writes the data for this segment to the stream in
      * valid JPEG format.
      */
+    @Override
     void write(ImageOutputStream ios) throws IOException {
         // We don't write DHT segments; the IJG library does.
     }
 
+    @Override
     void print() {
         printTag("DHT");
         System.out.println("Num tables: "
@@ -203,6 +207,7 @@ class DHTMarkerSegment extends MarkerSegment {
 
         }
 
+        @Override
         protected Object clone() {
             Htable newGuy = null;
             try {
