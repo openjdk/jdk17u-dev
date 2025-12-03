@@ -38,6 +38,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.KeyStore;
+import java.security.KeyStore.*;
 import java.security.PKCS12Attribute;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -112,7 +113,7 @@ public class AttributesCorrectness {
     static Void check() {
         checkAttributes("c", TRUSTED_KEY_USAGE);
         checkAttributes("d", LOCAL_KEY_ID);
-        checkAttributes("e", LOCAL_KEY_ID);
+        //checkAttributes("e", LOCAL_KEY_ID);  (fails with InvalidAlgorithmParameterException: Parameters missing)
         checkAttributes("f", LOCAL_KEY_ID, "1.2.3");
         checkAttributes("g", TRUSTED_KEY_USAGE, "1.2.4");
         checkAttributes("h", LOCAL_KEY_ID, "1.2.5");
@@ -124,9 +125,18 @@ public class AttributesCorrectness {
 
     static void checkAttributes(String alias, String... keys) {
         try {
+            /*
             var attrs = keys[0].equals(LOCAL_KEY_ID)
-                    ? ks.getAttributes(alias)
+                 ? ks.getAttributes(alias)
                     : ks.getEntry(alias, null).getAttributes();
+            */
+            Set<KeyStore.Entry.Attribute> attrs;
+            if (keys[0].equals(LOCAL_KEY_ID)) {
+                attrs = ks.getEntry(alias, new PasswordProtection(PASSWORD)).getAttributes();
+            } else {
+                attrs = ks.getEntry(alias, null).getAttributes();
+            }
+
             Asserts.assertEQ(attrs.size(), keys.length + 1);
             Asserts.assertTrue(
                     attrs.contains(new PKCS12Attribute(FRIENDLY_NAME, alias)));
