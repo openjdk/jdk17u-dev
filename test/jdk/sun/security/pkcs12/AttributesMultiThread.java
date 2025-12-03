@@ -43,6 +43,7 @@ public class AttributesMultiThread {
 
     static KeyStore ks;
     static AtomicBoolean ab = new AtomicBoolean();
+    static final char[] PASSWORD = "changeit".toCharArray();
 
     public static void main(String[] args) throws Exception {
 
@@ -64,7 +65,7 @@ public class AttributesMultiThread {
                 new PKCS12Attribute("1.1.1.10", "b"));
         ks.setEntry("a", new KeyStore.TrustedCertificateEntry(c, ss), null);
 
-        var x = Executors.newVirtualThreadPerTaskExecutor();
+        var x = Executors.newFixedThreadPool(1000);
         for (int i = 0; i < 1000; i++) {
             x.submit(AttributesMultiThread::check);
         }
@@ -88,7 +89,8 @@ public class AttributesMultiThread {
 
     static Set<?> get() {
         try {
-            return ks.getAttributes("a");
+            //return ks.getAttributes("a");
+            return ks.getEntry("a", new KeyStore.PasswordProtection(PASSWORD)).getAttributes();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
