@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -41,7 +41,7 @@ import java.util.function.Consumer;
  * This is an abstract class that declares abstract methods to control
  * debugee VM process.
  * Derived classes should implement these methods corresponding to the mode
- * that the process should be started in (locally, remotely or manually).
+ * that the process should be started in (locally).
  * <p>
  * Particular derived classes <code>nsk.share.jdi.Debugee</code> and
  * <code>nsk.share.jdwp.Debugee</code> provides additional abilities
@@ -74,8 +74,8 @@ abstract public class DebugeeProcess extends FinalizableObject {
     /** Argument handler from binder. */
     protected DebugeeArgumentHandler argumentHandler = null;
 
-    /** Need or not to check debuggee process termination at exit. */
-    protected boolean checkTermination = false;
+    /** Need or not to check debuggee process termination. */
+    private boolean checkTermination = true;
 
     /** Debugee VM process or <i>null</i> if not available. */
     protected Process process = null;
@@ -164,26 +164,50 @@ abstract public class DebugeeProcess extends FinalizableObject {
     // --------------------------------------------------- //
 
     /** Wait until the debugee VM shutdown or crash. */
-    abstract protected int waitForDebugee () throws InterruptedException;
+    protected int waitForDebugee() throws InterruptedException {
+        return process.waitFor();
+    }
 
     /** Kill the debugee VM. */
-    abstract protected void killDebugee ();
+    protected void killDebugee() {
+        if (!terminated()) {
+            log.display("Killing debugee VM process");
+            process.destroy();
+        }
+    }
 
     /** Check whether the debugee VM has been terminated. */
-    abstract public boolean terminated ();
+     public boolean terminated() {
+        if (process == null)
+            return true;
+
+        try {
+            int value = process.exitValue();
+            return true;
+        } catch (IllegalThreadStateException e) {
+            return false;
+        }
+    }
 
     /** Return the debugee VM exit status. */
-    abstract public int getStatus ();
+    public int getStatus() {
+        return process.exitValue();
+    }
 
     /** Get a pipe to write to the debugee's stdin stream. */
-    abstract protected OutputStream getInPipe ();
+    protected OutputStream getInPipe() {
+        return process.getOutputStream();
+    }
 
     /** Get a pipe to read the debugee's stdout stream. */
-    abstract protected InputStream getOutPipe ();
+    protected InputStream getOutPipe() {
+        return process.getInputStream();
+    }
 
     /** Get a pipe to read the debugee's stderr stream. */
-    abstract protected InputStream getErrPipe ();
-
+    protected InputStream getErrPipe() {
+        return process.getErrorStream();
+    }
     // --------------------------------------------------- //
 
     /**

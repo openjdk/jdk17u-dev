@@ -99,7 +99,6 @@ public class TestPLABEvacuationFailure {
         // Set up test GC and PLAB options
         List<String> testOptions = new ArrayList<>();
         Collections.addAll(testOptions, COMMON_OPTIONS);
-        Collections.addAll(testOptions, Utils.getTestJavaOpts());
         Collections.addAll(testOptions,
                 "-XX:ParallelGCThreads=" + parGCThreads,
                 "-XX:ParallelGCBufferWastePct=" + wastePct,
@@ -108,7 +107,7 @@ public class TestPLABEvacuationFailure {
                 "-XX:" + (plabIsFixed ? "-" : "+") + "ResizePLAB",
                 "-XX:MaxHeapSize=" + heapSize + "m");
         testOptions.add(AppPLABEvacuationFailure.class.getName());
-        OutputAnalyzer out = ProcessTools.executeTestJvm(testOptions);
+        OutputAnalyzer out = ProcessTools.executeTestJava(testOptions);
 
         appPlabEvacFailureOutput = out.getOutput();
         if (out.getExitValue() != 0) {

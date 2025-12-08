@@ -38,6 +38,7 @@ class InterpreterMacroAssembler: public MacroAssembler {
   InterpreterMacroAssembler(CodeBuffer* code) : MacroAssembler(code) {}
 
   void null_check_throw(Register a, int offset, Register temp_reg);
+  void load_klass_check_null_throw(Register dst, Register src, Register temp_reg);
 
   void jump_to_entry(address entry, Register Rscratch);
 
@@ -125,7 +126,8 @@ class InterpreterMacroAssembler: public MacroAssembler {
 
   void get_cache_index_at_bcp(Register Rdst, int bcp_offset, size_t index_size);
 
-  void get_cache_and_index_at_bcp(Register cache, int bcp_offset, size_t index_size = sizeof(u2));
+  void get_cache_and_index_at_bcp(Register cache, int bcp_offset, size_t index_size = sizeof(u2),
+                                  bool for_fast_bytecode = false);
 
   void get_u4(Register Rdst, Register Rsrc, int offset, signedOrNot is_signed);
 

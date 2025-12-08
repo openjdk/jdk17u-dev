@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -86,8 +86,8 @@ public class TestMemoryWithCgroupV1 {
         // capabilities or the cgroup is not mounted. Memory limited without swap."
         // we only have 'Memory and Swap Limit is: -2' in the output
         try {
-            if (out.getOutput().contains("memory_and_swap_limit_in_bytes: not supported")) {
-                System.out.println("memory_and_swap_limit_in_bytes not supported, avoiding Memory and Swap Limit check");
+            if (out.getOutput().contains("Memory and Swap Limit is: -2")) {
+                System.out.println("System doesn't seem to allow swap, avoiding Memory and Swap Limit check");
             } else {
                 out.shouldContain("Memory and Swap Limit is: " + expectedReadLimit)
                     .shouldContain(

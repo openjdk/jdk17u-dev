@@ -57,8 +57,6 @@ import java.net.ServerSocket;
  *   (this works only with <code>-connector=listening</code> and <code>-transport=socket</code>)
  * <li> <code>-debugee.suspend=[yes|no|default]</code> -
  *   should debugee start in suspend mode or not
- * <li> <code>-debugee.launch=[local|remote|manual]</code> -
- *   launch and bind to debugee VM locally, remotely (via BindSever) or manually
  * <li> <code>-debugee.vmhome=</code>&lt;<i>path</i>&gt; -
  *   path to JDK used for launching debugee VM
  * <li> <code>-debugee.vmkind=</code>&lt;<i>name</i>&gt; -
@@ -69,8 +67,6 @@ import java.net.ServerSocket;
  *   using JVMDI strict mode
  * <li> <code>-pipe.port=</code>&lt;<i>port</i>&gt; -
  *   port number for internal IOPipe connection
- * <li> <code>-bind.port=</code>&lt;<i>port</i>&gt; -
- *   port number for BindServer connection
  * </ul>
  * <p>
  * See also list of basic options recognized by
@@ -275,11 +271,8 @@ public class DebugeeArgumentHandler extends ArgumentParser {
      * @see #isDefaultDebugeeSuspendMode()
      */
     public boolean willDebugeeSuspended() {
-        if (isLaunchedLocally()) {
-            String mode = getDebugeeSuspendMode();
-            return mode.equals("no");
-        }
-        return true;
+        String mode = getDebugeeSuspendMode();
+        return mode.equals("no");
     }
 
     private boolean pipePortInited = false;
@@ -337,54 +330,6 @@ public class DebugeeArgumentHandler extends ArgumentParser {
         setOption("-", "pipe.port", value);
     }
 
-    /**
-     * Return debugee VM launching mode, specified by
-     * <code>-launch.mode</code> command line option, or
-     * "<i>local</i>" string by default.
-     *
-     * Possible values for this option are:
-     * <ul>
-     * <li> "<code>local</code>"
-     * <li> "<code>remote</code>"
-     * <li> "<code>manual</code>"
-     * </ul>
-     *
-     * @see #isLaunchedLocally()
-     * @see #isLaunchedRemotely()
-     * @see #isLaunchedManually()
-     * @see #setRawArguments(String[])
-     */
-    public String getLaunchMode() {
-        return options.getProperty("debugee.launch", "local");
-    }
-
-    /**
-     * Return <i>true</i> if debugee should be launched locally.
-     *
-     * @see #getLaunchMode()
-     */
-    public boolean isLaunchedLocally() {
-        return getLaunchMode().equals("local");
-    }
-
-    /**
-     * Return <i>true</i> if debugee should be launched remotely via
-     * BindServer.
-     *
-     * @see #getLaunchMode()
-     */
-    public boolean isLaunchedRemotely() {
-        return getLaunchMode().equals("remote");
-    }
-
-    /**
-     * Return <i>true</i> if debugee should be launched manually by user.
-     *
-     * @see #getLaunchMode()
-     */
-    public boolean isLaunchedManually() {
-        return getLaunchMode().equals("manual");
-    }
 
     /**
      * Return additional options for launching debugee VM, specified by
@@ -462,47 +407,6 @@ public class DebugeeArgumentHandler extends ArgumentParser {
     public boolean isDefaultDebugeeJavaHome() {
         String java_home = options.getProperty("debugee.vmhome", null);
         return (java_home == null);
-    }
-
-    private boolean bindPortInited = false;
-    /**
-     * Return string representation of the port number for BindServer connection,
-     * specified by <code>-bind.port</code> command line option, or
-     * "<i>DEFAULT_BIND_PORT</i>" string by default.
-     *
-     * @see #getBindPortNumber()
-     * @see #setRawArguments(String[])
-     */
-    public String getBindPort() {
-        String port = options.getProperty("bind.port");
-        if (port == null) {
-            if (!bindPortInited) {
-                port = findFreePort();
-                if (port == null) {
-                    port = DEFAULT_BIND_PORT;
-                }
-                options.setProperty("bind.port", port);
-                bindPortInited = true;
-            }
-        }
-        return port;
-    }
-
-    /**
-     * Return port number for BindServer connection,
-     * specified by <code>-bind.port</code> command line option, or
-     * "<i>DEFAULT_BIND_PORT</i>" port number by default.
-     *
-     * @see #getBindPort()
-     * @see #setRawArguments(String[])
-     */
-    public int getBindPortNumber() {
-        String value = getBindPort();
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new TestBug("Not integer value of \"bind.port\" argument: " + value);
-        }
     }
 
     /**
@@ -710,9 +614,7 @@ public class DebugeeArgumentHandler extends ArgumentParser {
         }
 
         // option with any nonempty string value
-        if (option.equals("test.host")
-            || option.equals("debugee.host")
-            || option.equals("debugee.vmkind")
+        if (option.equals("debugee.vmkind")
             || option.equals("debugee.vmhome")
             || option.equals("transport.shname")) {
             if (value.length() <= 0) {
@@ -723,7 +625,6 @@ public class DebugeeArgumentHandler extends ArgumentParser {
 
         // option with positive integer port value
         if (option.equals("transport.port")
-            || option.equals("bind.port")
             || option.equals("pipe.port")) {
             try {
                 int number = Integer.parseInt(value);
@@ -748,14 +649,10 @@ public class DebugeeArgumentHandler extends ArgumentParser {
             return true;
         }
 
-        if (option.equals("debugee.launch")) {
-            if ((!value.equals("local"))
-                && (!value.equals("remote"))
-                && (!value.equals("manual"))) {
-                throw new BadOption(option + ": must be one of: "
-                                           + "local, remote, manual " + value);
-            }
-            return true;
+        if (option.equals("debugee.launch")
+                || option.equals("debugee.host")
+                || option.equals("test.host")) {
+            throw new RuntimeException("option " + option + " is not supported.");
         }
 
         if (option.equals("jvmdi.strict")) {

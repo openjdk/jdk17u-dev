@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@
  * @bug 8146115 8292083
  * @key cgroups
  * @summary Test JVM's memory resource awareness when running inside docker container
- * @requires docker.support
+ * @requires container.support
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.base/jdk.internal.platform
@@ -76,6 +76,8 @@ public class TestMemoryAwareness {
             testMemorySoftLimit("500m", "524288000");
             testMemorySoftLimit("1g", "1073741824");
             testMemorySwapLimitSanity();
+
+            testMemorySwapNotSupported("500m", "520m", "512000 k", "532480 k");
 
             // Add extra 10 Mb to allocator limit, to be sure to cause OOM
             testOOM("256m", 256 + 10);
@@ -152,6 +154,29 @@ public class TestMemoryAwareness {
 
         Common.run(opts)
             .shouldMatch("Memory Soft Limit.*" + expectedTraceValue);
+    }
+
+    /*
+     * Verifies that PrintContainerInfo prints the memory
+     * limit - without swap - iff swap is disabled (e.g. via swapaccount=0). It must
+     * not print 'not supported' for that value in that case. It'll always pass
+     * on systems with swap accounting enabled.
+     */
+    private static void testMemorySwapNotSupported(String valueToSet, String swapToSet, String expectedMem, String expectedSwap)
+            throws Exception {
+        Common.logNewTestCase("memory swap not supported: " + valueToSet);
+
+        DockerRunOptions opts = Common.newOpts(imageName, "PrintContainerInfo");
+        Common.addWhiteBoxOpts(opts);
+        opts.addDockerOpts("--memory=" + valueToSet);
+        opts.addDockerOpts("--memory-swap=" + swapToSet);
+
+        Common.run(opts)
+            .shouldMatch("memory_limit_in_bytes:.*" + expectedMem)
+            .shouldNotMatch("memory_and_swap_limit_in_bytes:.*not supported")
+            // On systems with swapaccount=0 this returns the memory limit.
+            // On systems with swapaccount=1 this returns the set memory+swap value.
+            .shouldMatch("memory_and_swap_limit_in_bytes:.*(" + expectedMem + "|" + expectedSwap + ")");
     }
 
     /*

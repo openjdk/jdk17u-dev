@@ -139,6 +139,18 @@ jlong CgroupV2Subsystem::memory_max_usage_in_bytes() {
   return OSCONTAINER_ERROR; // not supported
 }
 
+jlong CgroupV2Subsystem::rss_usage_in_bytes() {
+  GET_CONTAINER_INFO_LINE(julong, _memory->controller(), "/memory.stat",
+                          "anon", JULONG_FORMAT, JULONG_FORMAT, rss);
+  return rss;
+}
+
+jlong CgroupV2Subsystem::cache_usage_in_bytes() {
+  GET_CONTAINER_INFO_LINE(julong, _memory->controller(), "/memory.stat",
+                          "file", JULONG_FORMAT, JULONG_FORMAT, cache);
+  return cache;
+}
+
 char* CgroupV2Subsystem::mem_soft_limit_val() {
   GET_CONTAINER_INFO_CPTR(cptr, _unified, "/memory.low",
                          "Memory Soft Limit is: %s", "%1023s", mem_soft_limit_str, 1024);
@@ -152,6 +164,12 @@ char* CgroupV2Subsystem::mem_soft_limit_val() {
 // without also setting a memory limit is not allowed.
 jlong CgroupV2Subsystem::memory_and_swap_limit_in_bytes() {
   char* mem_swp_limit_str = mem_swp_limit_val();
+  if (mem_swp_limit_str == nullptr) {
+    // Some container tests rely on this trace logging to happen.
+    log_trace(os, container)("Memory and Swap Limit is: %d", OSCONTAINER_ERROR);
+    // swap disabled at kernel level, treat it as no swap
+    return read_memory_limit_in_bytes();
+  }
   jlong swap_limit = limit_from_str(mem_swp_limit_str);
   if (swap_limit >= 0) {
     jlong memory_limit = read_memory_limit_in_bytes();
@@ -224,7 +242,7 @@ char* CgroupV2Controller::construct_path(char* mount_path, char *cgroup_path) {
 
 char* CgroupV2Subsystem::pids_max_val() {
   GET_CONTAINER_INFO_CPTR(cptr, _unified, "/pids.max",
-                     "Maximum number of tasks is: %s", "%1023s %*d", pidsmax, 1024);
+                     "Maximum number of tasks is: %s", "%1023s", pidsmax, 1024);
   return os::strdup(pidsmax);
 }
 
