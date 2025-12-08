@@ -28,13 +28,13 @@
  * @summary SIGSEGV in LShiftLNode::Ideal due to unexpected dead node
  *
  * @run main/othervm -XX:-TieredCompilation
- *      -XX:CompileCommand=compileonly,compiler.c2.Test8361117::test
- *      compiler.c2.Test8361117
+ *      -XX:CompileCommand=compileonly,compiler.c2.TestArrayCopyLShiftIdealization::test
+ *      compiler.c2.TestArrayCopyLShiftIdealization
  */
 
 package compiler.c2;
 
-public class Test8361117 {
+public class TestArrayCopyLShiftIdealization {
     public static void test() {
         int size = 1000;
         int[] arr1 = new int[size];
