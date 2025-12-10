@@ -31,7 +31,7 @@ import java.util.Collections;
 public final class Const {
 
     /**
-     * Java class file format Magic number: {@value}
+     * Java class file format Magic number: {@value}.
      *
      * @see <a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.1-200-A"> The ClassFile Structure
      *      in The Java Virtual Machine Specification</a>
