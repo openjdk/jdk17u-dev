@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -69,6 +69,9 @@ final class TokenStorage {
     private static final String REL_NAME_SECONDARY =
             ".awt/robot/screencast-tokens.properties";
 
+    private static final String REL_RD_NAME =
+            ".java/robot/remote-desktop-tokens.properties";
+
     private static final Properties PROPS = new Properties();
     private static final Path PROPS_PATH;
     private static final Path PROP_FILENAME;
@@ -107,11 +110,18 @@ final class TokenStorage {
             return null;
         }
 
-        Path path = Path.of(userHome, REL_NAME);
-        Path secondaryPath = Path.of(userHome, REL_NAME_SECONDARY);
+        Path path;
+        Path secondaryPath = null;
+
+        if (XdgDesktopPortal.isRemoteDesktop()) {
+            path = Path.of(userHome, REL_RD_NAME);
+        } else {
+            path = Path.of(userHome, REL_NAME);
+            secondaryPath = Path.of(userHome, REL_NAME_SECONDARY);
+        }
 
         boolean copyFromSecondary = !Files.isWritable(path)
-                && Files.isWritable(secondaryPath);
+                && secondaryPath != null && Files.isWritable(secondaryPath);
 
         Path workdir = path.getParent();
 
@@ -242,6 +252,7 @@ final class TokenStorage {
     }
 
     private static WatchService watchService;
+    private static volatile boolean isWatcherThreadStarted = false;
 
     private static void setupWatch() {
         doPrivilegedRunnable(() -> {
@@ -263,10 +274,6 @@ final class TokenStorage {
                 }
             }
         });
-
-        if (watchService != null) {
-            new WatcherThread(watchService).start();
-        }
     }
 
     // called from native
@@ -343,7 +350,27 @@ final class TokenStorage {
         return true;
     }
 
+    private static void startWatcherThreadIfNeeded() {
+        if (!isWatcherThreadStarted) {
+            // not sure if the double-checked locking is actually needed here
+            // the getTokens is only called from ScreencastHelper#getRGBPixels
+            // and ScreencastHelper#remoteDesktop* methods (which are synchronized),
+            // but it may change later.
+            synchronized (TokenStorage.class) {
+                if (!isWatcherThreadStarted) {
+                    readTokens(PROPS_PATH);
+                    if (watchService != null) {
+                        new WatcherThread(watchService).start();
+                    }
+                    isWatcherThreadStarted = true;
+                }
+            }
+        }
+    }
+
     static Set<TokenItem> getTokens(List<Rectangle> affectedScreenBounds) {
+        startWatcherThreadIfNeeded();
+
         // We need an ordered set to store tokens
         // with exact matches at the beginning.
         LinkedHashSet<TokenItem> result = new LinkedHashSet<>();
