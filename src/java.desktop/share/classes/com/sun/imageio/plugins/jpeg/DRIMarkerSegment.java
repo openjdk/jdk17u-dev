@@ -55,6 +55,7 @@ class DRIMarkerSegment extends MarkerSegment {
         updateFromNativeNode(node, true);
     }
 
+    @Override
     IIOMetadataNode getNativeNode() {
         IIOMetadataNode node = new IIOMetadataNode("dri");
         node.setAttribute("interval", Integer.toString(restartInterval));
@@ -71,10 +72,12 @@ class DRIMarkerSegment extends MarkerSegment {
      * Writes the data for this segment to the stream in
      * valid JPEG format.
      */
+    @Override
     void write(ImageOutputStream ios) throws IOException {
         // We don't write DRI segments; the IJG library does.
     }
 
+    @Override
     void print() {
         printTag("DRI");
         System.out.println("Interval: "
