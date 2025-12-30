@@ -3589,7 +3589,7 @@ void nmethod::print_code_snippet(outputStream* st, address addr) const {
     }
 
     // Always print hex. Disassembler may still have problems when hitting an incorrect instruction start.
-    os::print_hex_dump(st, start_for_hex_dump, end, 1, /* print_ascii=*/false);
+    os::print_hex_dump(st, start_for_hex_dump, end, 1);
     if (!Disassembler::is_abstract()) {
       Disassembler::decode(start, end, st);
     }
