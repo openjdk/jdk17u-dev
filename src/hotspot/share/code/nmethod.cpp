@@ -3575,10 +3575,6 @@ void nmethod::print_code_snippet(outputStream* st, address addr) const {
     // disassemble correctly at instruction start addresses.)
     RelocIterator iter((nmethod*)this, start);
     while (iter.next() && iter.addr() < addr) { // find relocation before addr
-      // Note: There's a relocation which doesn't point to an instruction start:
-      // ZBarrierRelocationFormatStoreGoodAfterMov with ZGC on x86_64
-      // We could detect and skip it, but hex dump is still usable when
-      // disassembler produces garbage in such a very rare case.
       start = iter.addr();
       // We want at least 64 Bytes ahead in hex dump.
       if (iter.addr() <= (addr - 64)) start_for_hex_dump = iter.addr();
