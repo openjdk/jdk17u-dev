@@ -90,6 +90,7 @@ class SOSMarkerSegment extends MarkerSegment {
         updateFromNativeNode(node, true);
     }
 
+    @Override
     protected Object clone () {
         SOSMarkerSegment newGuy = (SOSMarkerSegment) super.clone();
         if (componentSpecs != null) {
@@ -102,6 +103,7 @@ class SOSMarkerSegment extends MarkerSegment {
         return newGuy;
     }
 
+    @Override
     IIOMetadataNode getNativeNode() {
         IIOMetadataNode node = new IIOMetadataNode("sos");
         node.setAttribute("numScanComponents",
@@ -153,10 +155,12 @@ class SOSMarkerSegment extends MarkerSegment {
      * Writes the data for this segment to the stream in
      * valid JPEG format.
      */
+    @Override
     void write(ImageOutputStream ios) throws IOException {
         // We don't write SOS segments; the IJG library does.
     }
 
+    @Override
     void print () {
         printTag("SOS");
         System.out.print("Start spectral selection: ");
@@ -209,6 +213,7 @@ class SOSMarkerSegment extends MarkerSegment {
                                             0, 3, true);
         }
 
+        @Override
         protected Object clone() {
             try {
                 return super.clone();
