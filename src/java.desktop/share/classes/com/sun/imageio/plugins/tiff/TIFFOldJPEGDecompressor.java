@@ -545,6 +545,7 @@ public class TIFFOldJPEGDecompressor extends TIFFJPEGDecompressor {
     // The strategy for cases 4-5 is to concatenate a tables stream created
     // in initialize() with the entropy coded data in each strip or tile.
     //
+    @Override
     public void decodeRaw(byte[] b,
                           int dstOffset,
                           int bitsPerPixel,
