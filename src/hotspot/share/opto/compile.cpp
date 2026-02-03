@@ -906,7 +906,6 @@ Compile::Compile( ciEnv* ci_env,
   CompileWrapper cw(this);
   Init(/*AliasLevel=*/ 0);
   init_tf((*generator)());
-
   if (StressLCM || StressGCM) {
     initialize_stress_seed(directive);
   }
