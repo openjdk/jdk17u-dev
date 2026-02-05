@@ -911,7 +911,6 @@ Compile::Compile( ciEnv* ci_env,
     initialize_stress_seed(directive);
   }
 
-
   {
     // The following is a dummy for the sake of GraphKit::gen_stub
     Unique_Node_List for_igvn(comp_arena());
