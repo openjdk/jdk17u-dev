@@ -116,7 +116,6 @@ void G1Arguments::initialize_mark_stack_size() {
     FLAG_SET_ERGO(MarkStackSize, mark_stack_size);
   }
 
-
 }
 
 void G1Arguments::initialize() {
