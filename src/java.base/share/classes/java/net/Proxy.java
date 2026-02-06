@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,6 +24,9 @@
  */
 
 package java.net;
+
+import static jdk.internal.util.Exceptions.filterNonSocketInfo;
+import static jdk.internal.util.Exceptions.formatMsg;
 
 /**
  * This class represents a proxy setting, typically a type (http, socks) and
@@ -91,8 +94,11 @@ public class Proxy {
      * incompatible
      */
     public Proxy(Type type, SocketAddress sa) {
-        if ((type == Type.DIRECT) || !(sa instanceof InetSocketAddress))
-            throw new IllegalArgumentException("type " + type + " is not compatible with address " + sa);
+        if ((type == Type.DIRECT) || !(sa instanceof InetSocketAddress)) {
+            throw new IllegalArgumentException(
+                formatMsg("type " + type + " is not compatible with address %s",
+                          filterNonSocketInfo(String.valueOf(sa))));
+        }
         this.type = type;
         this.sa = sa;
     }

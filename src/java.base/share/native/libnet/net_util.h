@@ -200,4 +200,6 @@ unsigned short in_cksum(unsigned short *addr, int len);
 
 jint NET_Wait(JNIEnv *env, jint fd, jint flags, jint timeout);
 
+int getEnhancedExceptionsAllowed(JNIEnv *env);
+
 #endif /* NET_UTILS_H */

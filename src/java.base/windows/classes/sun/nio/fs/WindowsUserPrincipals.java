@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,6 +29,8 @@ import java.io.IOException;
 
 import static sun.nio.fs.WindowsConstants.*;
 import static sun.nio.fs.WindowsNativeDispatcher.*;
+import static jdk.internal.util.Exceptions.formatMsg;
+import static jdk.internal.util.Exceptions.filterUserName;
 
 class WindowsUserPrincipals {
     private WindowsUserPrincipals() { }
@@ -146,7 +148,8 @@ class WindowsUserPrincipals {
         } catch (WindowsException x) {
             if (x.lastError() == ERROR_NONE_MAPPED)
                 throw new UserPrincipalNotFoundException(name);
-            throw new IOException(name + ": " + x.errorString());
+            throw new IOException(formatMsg("%s " + x.errorString(),
+                                            filterUserName(name).suffixWith(": ")));
         }
         assert size > 0;
 
@@ -162,7 +165,8 @@ class WindowsUserPrincipals {
             // return user principal
             return fromSid(sidBuffer.address());
         } catch (WindowsException x) {
-            throw new IOException(name + ": " + x.errorString());
+            throw new IOException(formatMsg("%s " + x.errorString(),
+                                            filterUserName(name).suffixWith(": ")));
         } finally {
             sidBuffer.release();
         }

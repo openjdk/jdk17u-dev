@@ -249,7 +249,11 @@ module java.base {
     exports jdk.internal.vm.vector to
         jdk.incubator.vector;
     exports jdk.internal.util to
-            jdk.incubator.foreign;
+        java.naming,
+        java.rmi,
+        java.net.http,
+        jdk.httpserver,
+        jdk.incubator.foreign;
     exports jdk.internal.util.jar to
         jdk.jartool;
     exports jdk.internal.util.xml to
