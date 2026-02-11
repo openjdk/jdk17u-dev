@@ -63,22 +63,6 @@
 #include "sun_nio_ch_FileDispatcherImpl.h"
 #include "java_lang_Long.h"
 
-static int preCloseFD = -1;     /* File descriptor to which we dup other fd's
-                                   before closing them for real */
-
-
-JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileDispatcherImpl_init(JNIEnv *env, jclass cl)
-{
-    int sp[2];
-    if (socketpair(PF_UNIX, SOCK_STREAM, 0, sp) < 0) {
-        JNU_ThrowIOExceptionWithLastError(env, "socketpair failed");
-        return;
-    }
-    preCloseFD = sp[0];
-    close(sp[1]);
-}
-
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_FileDispatcherImpl_read0(JNIEnv *env, jclass clazz,
                              jobject fdo, jlong address, jint len)
@@ -298,37 +282,11 @@ Java_sun_nio_ch_FileDispatcherImpl_release0(JNIEnv *env, jobject this,
     }
 }
 
-
 static void closeFileDescriptor(JNIEnv *env, int fd) {
     if (fd != -1) {
         int result = close(fd);
         if (result < 0)
             JNU_ThrowIOExceptionWithLastError(env, "Close failed");
-    }
-}
-
-JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileDispatcherImpl_close0(JNIEnv *env, jclass clazz, jobject fdo)
-{
-    jint fd = fdval(env, fdo);
-    closeFileDescriptor(env, fd);
-}
-
-JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileDispatcherImpl_preClose0(JNIEnv *env, jclass clazz, jobject fdo)
-{
-    jint fd = fdval(env, fdo);
-    if (preCloseFD >= 0) {
-        if (dup2(preCloseFD, fd) < 0)
-            JNU_ThrowIOExceptionWithLastError(env, "dup2 failed");
-    }
-}
-
-JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileDispatcherImpl_dup0(JNIEnv *env, jobject this, jobject fdo1, jobject fdo2)
-{
-    if (dup2(fdval(env, fdo1), fdval(env, fdo2)) < 0) {
-        JNU_ThrowIOExceptionWithLastError(env, "dup2 failed");
     }
 }
 
