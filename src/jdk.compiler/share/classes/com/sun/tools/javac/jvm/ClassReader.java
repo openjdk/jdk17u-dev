@@ -61,6 +61,7 @@ import com.sun.tools.javac.file.PathFileObject;
 import com.sun.tools.javac.jvm.ClassFile.Version;
 import com.sun.tools.javac.jvm.PoolConstant.NameAndType;
 import com.sun.tools.javac.main.Option;
+import com.sun.tools.javac.resources.CompilerProperties.Errors;
 import com.sun.tools.javac.resources.CompilerProperties.Fragments;
 import com.sun.tools.javac.resources.CompilerProperties.Warnings;
 import com.sun.tools.javac.util.*;
@@ -122,6 +123,8 @@ public class ClassReader {
     /** Switch: preserve parameter names from the variable table.
      */
     public boolean saveParameterNames;
+
+    private final boolean addTypeAnnotationsToSymbol;
 
     /**
      * The currently selected profile.
@@ -289,6 +292,8 @@ public class ClassReader {
         typevars = WriteableScope.create(syms.noSymbol);
 
         lintClassfile = Lint.instance(context).isEnabled(LintCategory.CLASSFILE);
+
+        addTypeAnnotationsToSymbol = options.getBoolean("addTypeAnnotationsToSymbol", false);
 
         initAttributeReaders();
     }
@@ -2187,7 +2192,9 @@ public class ClassReader {
                 currentClassFile = classFile;
                 List<Attribute.TypeCompound> newList = deproxyTypeCompoundList(proxies);
                 sym.setTypeAttributes(newList.prependList(sym.getRawTypeAttributes()));
-                addTypeAnnotationsToSymbol(sym, newList);
+                if (addTypeAnnotationsToSymbol) {
+                    addTypeAnnotationsToSymbol(sym, newList);
+                }
             } finally {
                 currentClassFile = previousClassFile;
             }
@@ -2202,9 +2209,17 @@ public class ClassReader {
      * 4.7.20-A target_type to locate the correct type to rewrite, and then interpreting the JVMS
      * 4.7.20.2 type_path to associate the annotation with the correct contained type.
      */
-    private static void addTypeAnnotationsToSymbol(
-            Symbol s, List<Attribute.TypeCompound> attributes) {
-        new TypeAnnotationSymbolVisitor(attributes).visit(s, null);
+    private void addTypeAnnotationsToSymbol(Symbol s, List<Attribute.TypeCompound> attributes) {
+        try {
+            new TypeAnnotationSymbolVisitor(attributes).visit(s, null);
+        } catch (CompletionFailure ex) {
+            JavaFileObject prev = log.useSource(currentClassFile);
+            try {
+                log.error(Errors.CantAttachTypeAnnotations(attributes, s.owner, s.name, ex.getDetailValue()));
+            } finally {
+                log.useSource(prev);
+            }
+        }
     }
 
     private static class TypeAnnotationSymbolVisitor
@@ -2262,7 +2277,12 @@ public class ClassReader {
                 thrown.add(addTypeAnnotations(thrownType, thrownType(i++)));
             }
             mt.thrown = thrown.toList();
-            mt.restype = addTypeAnnotations(mt.restype, TargetType.METHOD_RETURN);
+            /* possible information loss if the type of the method is void then we can't add type
+             * annotations to it
+             */
+            if (!mt.restype.hasTag(TypeTag.VOID)) {
+                mt.restype = addTypeAnnotations(mt.restype, TargetType.METHOD_RETURN);
+            }
             if (mt.recvtype != null) {
                 mt.recvtype = addTypeAnnotations(mt.recvtype, TargetType.METHOD_RECEIVER);
             }
