@@ -44,7 +44,7 @@ private:
   volatile size_t                _medium_next;
 
   void install(ZForwarding* forwarding, volatile size_t* next) {
-    const size_t index = Atomic::fetch_and_add(next, 1u);
+    const size_t index = Atomic::fetch_then_add(next, 1u);
     assert(index < _nforwardings, "Invalid index");
     _forwardings[index] = forwarding;
   }
