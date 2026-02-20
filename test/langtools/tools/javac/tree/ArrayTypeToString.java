@@ -23,7 +23,7 @@
 
 /*
  * @test
- * @bug 8068737
+ * @bug 8068737 8281238
  * @summary Tests ArrayType.toString with type annotations present
  * @modules jdk.compiler/com.sun.tools.javac.code
  * @library /tools/javac/lib
@@ -66,7 +66,7 @@ public class ArrayTypeToString extends JavacTestingAbstractProcessor {
                 // Normalize output by removing whitespace
                 s = s.replaceAll("\\s", "");
 
-                // Expected: "@Foo(0)java.lang.String@Foo(3)[]@Foo(2)[]@Foo(1)[]"
+                // Expected: "java.lang.@Foo(0)String@Foo(1)[]@Foo(2)[]@Foo(3)[]"
                 processingEnv.getMessager().printMessage(Kind.NOTE, s);
             }
         }
