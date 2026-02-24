@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -365,6 +366,7 @@ final class SSLSessionImpl extends ExtendedSSLSession {
         } else {
             this.masterSecret = null;
         }
+
         // Use extended master secret
         this.useExtendedMasterSecret = (Record.getInt8(buf) != 0);
 

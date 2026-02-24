@@ -430,19 +430,18 @@ class MemoryCache<K,V> extends Cache<K,V> {
             }
         } else {
             CacheEntry<K, V> entry = cacheMap.get(key);
-            switch (entry) {
-                case QueueCacheEntry<K, V> qe -> {
-                    qe.putValue(newEntry);
-                    if (DEBUG) {
-                        System.out.println("QueueCacheEntry= " + qe);
-                        final AtomicInteger i = new AtomicInteger(1);
-                        qe.queue.stream().forEach(e ->
-                            System.out.println(i.getAndIncrement() + "= " + e));
-                    }
+            if (entry != null && entry instanceof QueueCacheEntry<K, V>) {
+                QueueCacheEntry<K, V> qe = (QueueCacheEntry<K, V>) entry;
+                qe.putValue(newEntry);
+                if (DEBUG) {
+                    System.out.println("QueueCacheEntry= " + qe);
+                    final AtomicInteger i = new AtomicInteger(1);
+                    qe.queue.stream().forEach(e ->
+                        System.out.println(i.getAndIncrement() + "= " + e));
                 }
-                case null, default ->
-                    cacheMap.put(key, new QueueCacheEntry<>(key, newEntry,
-                        expirationTime, maxQueueSize));
+            } else {
+                cacheMap.put(key, new QueueCacheEntry<>(key, newEntry,
+                    expirationTime, maxQueueSize));
             }
 
             if (DEBUG) {
