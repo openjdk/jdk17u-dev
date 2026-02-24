@@ -97,8 +97,8 @@ public class MultiNSTClient {
                 System.out.println("found client: " + clientPSK.size());
                 clientPSK.stream().forEach(s -> System.out.println("\t" + s));
                 for (int i = 0; i < 2; i++) {
-                    String svr = serverPSK.getFirst();
-                    String cli = clientPSK.getFirst();
+                    String svr = serverPSK.get(0);
+                    String cli = clientPSK.get(0);
                     if (svr.regionMatches(svr.length() - 16, cli, cli.length() - 16, 16)) {
                         System.out.println("entry " + (i + 1) + " match.");
                     } else {

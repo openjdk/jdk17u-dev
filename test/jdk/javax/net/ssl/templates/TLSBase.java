@@ -185,7 +185,7 @@ abstract public class TLSBase {
                     System.err.println("Server Down");
                     ex.printStackTrace();
                 } finally {
-                    threadPool.close();
+                    threadPool.shutdown();
                 }
             });
             t.start();

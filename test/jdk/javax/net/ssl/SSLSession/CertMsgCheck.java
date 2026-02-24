@@ -31,6 +31,8 @@
  *
  */
 
+import javax.net.ssl.SSLSession;
+
 public class CertMsgCheck {
 
     public static void main(String[] args) throws Exception {
