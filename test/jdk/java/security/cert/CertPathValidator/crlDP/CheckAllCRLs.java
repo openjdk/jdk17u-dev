@@ -53,8 +53,7 @@ import sun.security.x509.URIName;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CRLEntryImpl;
 import sun.security.x509.X509CRLImpl;
-import static sun.security.x509.X509CRLImpl.TBSCertList;
-import sun.security.testlibrary.CertificateBuilder;
+import jdk.test.lib.security.CertificateBuilder;
 
 /*
  * @test
@@ -65,8 +64,8 @@ import sun.security.testlibrary.CertificateBuilder;
  *          fresh or stale.
  * @modules java.base/sun.security.x509
  *          java.base/sun.security.util
- * @library ../../../../../java/security/testlibrary
- * @build CertificateBuilder CheckAllCRLs
+ * @library /test/lib
+ * @build CheckAllCRLs
  * @run main/othervm -Dcom.sun.security.enableCRLDP=true CheckAllCRLs
  */
 public class CheckAllCRLs {
@@ -165,12 +164,12 @@ public class CheckAllCRLs {
         // add AuthorityKeyIdentifier extension
         KeyIdentifier kid = new KeyIdentifier(caKeyPair.getPublic());
         Extension ext = new AuthorityKeyIdentifierExtension(kid, null, null);
-        crlExts.setExtension(ext.getId(),
+        crlExts.set(ext.getExtensionId().toString(),
             new AuthorityKeyIdentifierExtension(kid, null, null));
 
         // add CRLNumber extension
         ext = new CRLNumberExtension(1);
-        crlExts.setExtension(ext.getId(), ext);
+        crlExts.set(ext.getExtensionId().toString(), ext);
 
         // revoke cert
         X509CRLEntryImpl crlEntry =
@@ -179,11 +178,12 @@ public class CheckAllCRLs {
         // Create a 1 year validity CRL starting from 7 days ago
         long start = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
         long end = start + TimeUnit.DAYS.toMillis(365);
-        TBSCertList tcl = new TBSCertList(caIssuer, new Date(start),
+        X509CRLImpl crl = new X509CRLImpl(caIssuer, new Date(start),
             new Date(end), new X509CRLEntryImpl[]{ crlEntry }, crlExts);
 
-        // return signed CRL
-        return X509CRLImpl.newSigned(tcl, caKeyPair.getPrivate(), sigAlg);
+        // sign and return CRL
+        crl.sign(caKeyPair.getPrivate(), sigAlg);
+        return crl;
     }
 
     private static void validatePath(X509Certificate eeCert,
