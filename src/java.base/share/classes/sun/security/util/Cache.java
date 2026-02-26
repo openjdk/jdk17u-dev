@@ -430,7 +430,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
             }
         } else {
             CacheEntry<K, V> entry = cacheMap.get(key);
-            if (entry != null && entry instanceof QueueCacheEntry<K, V>) {
+            if (entry instanceof QueueCacheEntry<K, V>) {
                 QueueCacheEntry<K, V> qe = (QueueCacheEntry<K, V>) entry;
                 qe.putValue(newEntry);
                 if (DEBUG) {
