@@ -215,22 +215,12 @@ public abstract class Signature extends SignatureSpi {
      * the {@link Security#getProviders() Security.getProviders()} method.
      *
      * @implNote
-     * The JDK Reference Implementation additionally uses the following
-     * security properties:
-     * <ul>
-     * <li>the {@code jdk.security.provider.preferred}
+     * The JDK Reference Implementation additionally uses the
+     * {@code jdk.security.provider.preferred}
      * {@link Security#getProperty(String) Security} property to determine
      * the preferred provider order for the specified algorithm. This
      * may be different than the order of providers returned by
      * {@link Security#getProviders() Security.getProviders()}.
-     * </li>
-     * <li>the {@code jdk.crypto.disabledAlgorithms}
-     * {@link Security#getProperty(String) Security} property to determine
-     * if the specified algorithm is allowed. If the
-     * {@systemProperty jdk.crypto.disabledAlgorithms} is set, it supersedes
-     * the security property value.
-     * </li>
-     * </ul>
      *
      * @param algorithm the standard name of the algorithm requested.
      * See the Signature section in the <a href=
@@ -351,14 +341,6 @@ public abstract class Signature extends SignatureSpi {
      * <p> Note that the list of registered providers may be retrieved via
      * the {@link Security#getProviders() Security.getProviders()} method.
      *
-     * @implNote
-     * The JDK Reference Implementation additionally uses
-     * the {@code jdk.crypto.disabledAlgorithms}
-     * {@link Security#getProperty(String) Security} property to determine
-     * if the specified algorithm is allowed. If the
-     * {@systemProperty jdk.crypto.disabledAlgorithms} is set, it supersedes
-     * the security property value.
-     *
      * @param algorithm the name of the algorithm requested.
      * See the Signature section in the <a href=
      * "{@docRoot}/../specs/security/standard-names.html#signature-algorithms">
@@ -404,14 +386,6 @@ public abstract class Signature extends SignatureSpi {
      * SignatureSpi implementation from the specified Provider
      * object is returned.  Note that the specified Provider object
      * does not have to be registered in the provider list.
-     *
-     * @implNote
-     * The JDK Reference Implementation additionally uses
-     * the {@code jdk.crypto.disabledAlgorithms}
-     * {@link Security#getProperty(String) Security} property to determine
-     * if the specified algorithm is allowed. If the
-     * {@systemProperty jdk.crypto.disabledAlgorithms} is set, it supersedes
-     * the security property value.
      *
      * @param algorithm the name of the algorithm requested.
      * See the Signature section in the <a href=
