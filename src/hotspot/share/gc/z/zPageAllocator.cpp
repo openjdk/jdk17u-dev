@@ -199,7 +199,7 @@ public:
     for (;;) {
       // Get granule offset
       const size_t size = ZGranuleSize;
-      const uintptr_t offset = Atomic::fetch_and_add(&_start, size);
+      const uintptr_t offset = Atomic::fetch_then_add(&_start, size);
       if (offset >= _end) {
         // Done
         break;
