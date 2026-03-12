@@ -35,6 +35,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import com.sun.jndi.toolkit.url.Uri;
 import com.sun.jndi.toolkit.url.UrlUtil;
+import static jdk.internal.util.Exceptions.filterNonSocketInfo;
+import static jdk.internal.util.Exceptions.formatMsg;
 
 /*
  * Extract components of an LDAP URL.
@@ -124,7 +126,8 @@ public final class LdapURL extends Uri {
 
     @Override
     protected MalformedURLException newInvalidURISchemeException(String uri) {
-        return new MalformedURLException("Not an LDAP URL: " + uri);
+        return new MalformedURLException(formatMsg("Not an LDAP URL%s",
+                                                   filterNonSocketInfo(uri).prefixWith(": ")));
     }
 
     @Override
