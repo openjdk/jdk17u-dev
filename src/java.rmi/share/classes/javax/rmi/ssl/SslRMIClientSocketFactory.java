@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2008, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,8 +29,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
 import java.rmi.server.RMIClientSocketFactory;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.StringTokenizer;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -119,10 +122,26 @@ public class SslRMIClientSocketFactory
         //
         final SSLSocket sslSocket = (SSLSocket)
             sslSocketFactory.createSocket(host, port);
+
+        @SuppressWarnings("removal")
+        final String enableEndpointIdentification =
+            AccessController.doPrivileged((PrivilegedAction<String>) () ->
+                    System.getProperty("jdk.rmi.ssl.client.enableEndpointIdentification", "true"));
+
+        if (Boolean.parseBoolean(enableEndpointIdentification)) {
+            SSLParameters params = sslSocket.getSSLParameters();
+            if (params == null) {
+                params = new SSLParameters();
+            }
+            params.setEndpointIdentificationAlgorithm("HTTPS");
+            sslSocket.setSSLParameters(params);
+        }
         // Set the SSLSocket Enabled Cipher Suites
         //
+        @SuppressWarnings("removal")
         final String enabledCipherSuites =
-            System.getProperty("javax.rmi.ssl.client.enabledCipherSuites");
+            AccessController.doPrivileged((PrivilegedAction<String>) () ->
+                System.getProperty("javax.rmi.ssl.client.enabledCipherSuites"));
         if (enabledCipherSuites != null) {
             StringTokenizer st = new StringTokenizer(enabledCipherSuites, ",");
             int tokens = st.countTokens();
@@ -139,8 +158,10 @@ public class SslRMIClientSocketFactory
         }
         // Set the SSLSocket Enabled Protocols
         //
+        @SuppressWarnings("removal")
         final String enabledProtocols =
-            System.getProperty("javax.rmi.ssl.client.enabledProtocols");
+            AccessController.doPrivileged((PrivilegedAction<String>) () ->
+                System.getProperty("javax.rmi.ssl.client.enabledProtocols"));
         if (enabledProtocols != null) {
             StringTokenizer st = new StringTokenizer(enabledProtocols, ",");
             int tokens = st.countTokens();
