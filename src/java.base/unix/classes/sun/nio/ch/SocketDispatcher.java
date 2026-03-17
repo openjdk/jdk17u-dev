@@ -71,8 +71,7 @@ class SocketDispatcher extends NativeDispatcher {
     }
 
     void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
-        FileDispatcherImpl dispatcher = new FileDispatcherImpl();
-        dispatcher.preClose(fd, reader, writer);
+        FileDispatcherImpl.preClose(fd, reader, writer);
     }
 
     // -- Native methods --

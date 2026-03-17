@@ -106,25 +106,24 @@ class FileDispatcherImpl extends FileDispatcher {
     }
 
     /**
-     * Prepare the given file descriptor for closing. If a virtual thread is blocked
-     * on the file descriptor then it is unparked so that it stops polling. On Unix systems,
+     * Prepare the given file descriptor for closing. On Unix systems,
      * if a platform thread is blocked on the file descriptor then the file descriptor is
      * dup'ed to a special fd and the thread signalled so that the syscall fails with EINTR.
      */
-    final void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
+    static final void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
         if (reader != 0 || writer != 0) {
             implPreClose(fd, reader, writer);
         }
     }
 
-    private void signalThreads(long reader, long writer) {
+    private static void signalThreads(long reader, long writer) {
         if (reader != 0)
             NativeThread.signal(reader);
         if (writer != 0)
             NativeThread.signal(writer);
     }
 
-    void implPreClose(FileDescriptor fd, long reader, long writer) throws IOException {
+    static void implPreClose(FileDescriptor fd, long reader, long writer) throws IOException {
         if (SUPPORTS_PENDING_SIGNALS) {
             signalThreads(reader, writer);
         }

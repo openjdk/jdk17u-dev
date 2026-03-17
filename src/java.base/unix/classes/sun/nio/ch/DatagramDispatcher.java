@@ -60,8 +60,7 @@ class DatagramDispatcher extends NativeDispatcher {
     }
 
     void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
-        FileDispatcherImpl dispatcher = new FileDispatcherImpl();
-        dispatcher.preClose(fd, reader, writer);
+        FileDispatcherImpl.preClose(fd, reader, writer);
     }
 
     void dup(FileDescriptor fd1, FileDescriptor fd2) throws IOException {
