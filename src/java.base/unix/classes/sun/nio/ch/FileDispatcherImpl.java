@@ -110,20 +110,20 @@ class FileDispatcherImpl extends FileDispatcher {
      * if a platform thread is blocked on the file descriptor then the file descriptor is
      * dup'ed to a special fd and the thread signalled so that the syscall fails with EINTR.
      */
-    static final void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
+    final void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
         if (reader != 0 || writer != 0) {
             implPreClose(fd, reader, writer);
         }
     }
 
-    private static void signalThreads(long reader, long writer) {
+    private void signalThreads(long reader, long writer) {
         if (reader != 0)
             NativeThread.signal(reader);
         if (writer != 0)
             NativeThread.signal(writer);
     }
 
-    static void implPreClose(FileDescriptor fd, long reader, long writer) throws IOException {
+    void implPreClose(FileDescriptor fd, long reader, long writer) throws IOException {
         if (SUPPORTS_PENDING_SIGNALS) {
             signalThreads(reader, writer);
         }
