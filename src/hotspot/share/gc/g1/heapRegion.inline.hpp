@@ -142,13 +142,6 @@ inline bool HeapRegion::block_is_obj(const HeapWord* p) const {
     assert(is_continues_humongous(), "This case can only happen for humongous regions");
     return (p == humongous_start_region()->bottom());
   }
-  // When class unloading is enabled it is not safe to only consider top() to conclude if the
-  // given pointer is a valid object. The situation can occur both for class unloading in a
-  // Full GC and during a concurrent cycle.
-  // During a Full GC regions can be excluded from compaction due to high live ratio, and
-  // because of this there can be stale objects for unloaded classes left in these regions.
-  // During a concurrent cycle class unloading is done after marking is complete and objects
-  // for the unloaded classes will be stale until the regions are collected.
   return !g1h->is_obj_dead(cast_to_oop(p), this);
 }
 
