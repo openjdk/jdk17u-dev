@@ -120,14 +120,14 @@ class FileDispatcherImpl extends FileDispatcher {
         }
     }
 
-    private void signalThreads(long reader, long writer) {
+    private static void signalThreads(long reader, long writer) {
         if (reader != 0)
             NativeThread.signal(reader);
         if (writer != 0)
             NativeThread.signal(writer);
     }
 
-    void implPreClose(FileDescriptor fd, long reader, long writer) throws IOException {
+    private static void implPreClose(FileDescriptor fd, long reader, long writer) throws IOException {
         if (SUPPORTS_PENDING_SIGNALS) {
             signalThreads(reader, writer);
         }
