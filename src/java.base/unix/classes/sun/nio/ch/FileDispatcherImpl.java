@@ -105,12 +105,16 @@ class FileDispatcherImpl extends FileDispatcher {
         fdAccess.close(fd);
     }
 
+    final void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
+        preCloseImpl(fd, reader, writer);
+    }
+
     /**
      * Prepare the given file descriptor for closing. On Unix systems,
      * if a platform thread is blocked on the file descriptor then the file descriptor is
      * dup'ed to a special fd and the thread signalled so that the syscall fails with EINTR.
      */
-    final void preClose(FileDescriptor fd, long reader, long writer) throws IOException {
+    static final void preCloseImpl(FileDescriptor fd, long reader, long writer) throws IOException {
         if (reader != 0 || writer != 0) {
             implPreClose(fd, reader, writer);
         }
