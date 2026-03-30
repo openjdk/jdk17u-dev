@@ -71,7 +71,7 @@ PartialArrayTaskStepper::next_impl(int length,
   // Because we limit the number of enqueued tasks to being no more than the
   // number of remaining chunks to process, we can use an atomic add for the
   // claim, rather than a CAS loop.
-  int start = Atomic::fetch_and_add(to_length_addr,
+  int start = Atomic::fetch_then_add(to_length_addr,
                                     chunk_size,
                                     memory_order_relaxed);
 
