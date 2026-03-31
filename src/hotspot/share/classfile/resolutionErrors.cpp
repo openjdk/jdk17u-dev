@@ -112,14 +112,12 @@ void ResolutionErrorEntry::set_cause_msg(const char* c) {
 
 // The incoming nest host error message is already in the C-Heap.
 void ResolutionErrorEntry::set_nest_host_error(const char* message) {
-  // If a message is already set, free it.
-  if (nest_host_error() != nullptr) {
-    FREE_C_HEAP_ARRAY(char, _nest_host_error);
-  }
+  assert(_nest_host_error == nullptr, "caller should have checked");
   init_nest_host_error(message);
 }
 
 void ResolutionErrorEntry::init_nest_host_error(const char* message) {
+  assert_lock_strong(SystemDictionary_lock);
   _nest_host_error = message;
 }
 
