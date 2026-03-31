@@ -117,7 +117,7 @@ void ResolutionErrorEntry::set_nest_host_error(const char* message) {
 }
 
 void ResolutionErrorEntry::init_nest_host_error(const char* message) {
-   assert_lock_strong(SystemDictionary_lock);
+  assert_lock_strong(SystemDictionary_lock);
   _nest_host_error = message;
 }
 
