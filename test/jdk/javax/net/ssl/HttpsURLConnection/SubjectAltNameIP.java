@@ -157,7 +157,7 @@ public class SubjectAltNameIP {
         var sniSN = clientSSLSocket.getSSLParameters().getServerNames();
         if (sniSN != null && !sniSN.isEmpty()) {
             throw new RuntimeException("SNI server name '" +
-                    sniSN.getFirst() + "' must not be set.");
+                    sniSN.get(0) + "' must not be set.");
         }
 
         if (conn.getResponseCode() == -1) {
