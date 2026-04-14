@@ -410,6 +410,8 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size, bool allow_
       result = _allocator->attempt_allocation(word_size, word_size, &actual_size);
       if (result != NULL) {
         return result;
+      } else if (!allow_gc) {
+        return nullptr;
       }
 
       preventive_collection_required = policy()->preventive_collection_required(1);
@@ -419,8 +421,6 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size, bool allow_
         result = _allocator->attempt_allocation_using_new_region(word_size);
         if (result != NULL) {
           return result;
-        } else if (!allow_gc) {
-          return nullptr;
         }
 
         // If the GCLocker is active and we are bound for a GC, try expanding young gen.
