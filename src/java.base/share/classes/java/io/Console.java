@@ -29,6 +29,8 @@ import java.util.*;
 import java.nio.charset.Charset;
 import jdk.internal.access.JavaIOAccess;
 import jdk.internal.access.SharedSecrets;
+import jdk.internal.io.JdkConsole;
+import jdk.internal.io.JdkConsoleImpl;
 import sun.security.action.GetPropertyAction;
 
 /**
@@ -99,6 +101,7 @@ public final class Console implements Flushable
     * @return  The printwriter associated with this console
     */
     public PrintWriter writer() {
+        return printWriter;
     }
 
    /**
@@ -133,6 +136,7 @@ public final class Console implements Flushable
     * @return  The reader associated with this console
     */
     public Reader reader() {
+        return reader;
     }
 
    /**
@@ -166,6 +170,10 @@ public final class Console implements Flushable
     * @return  This console
     */
     public Console format(String fmt, Object ...args) {
+        synchronized (writeLock) {
+            delegate.format(fmt, args);
+        }
+        return this;
     }
 
    /**
@@ -204,6 +212,10 @@ public final class Console implements Flushable
     * @return  This console
     */
     public Console printf(String format, Object ... args) {
+        synchronized (writeLock) {
+            delegate.printf(format, args);
+        }
+        return this;
     }
 
    /**
@@ -238,6 +250,11 @@ public final class Console implements Flushable
     *          if an end of stream has been reached.
     */
     public String readLine(String fmt, Object ... args) {
+        synchronized (writeLock) {
+            synchronized (readLock) {
+                return delegate.readLine(fmt, args);
+            }
+        }
     }
 
    /**
@@ -251,6 +268,9 @@ public final class Console implements Flushable
     *          if an end of stream has been reached.
     */
     public String readLine() {
+        synchronized (readLock) {
+            return delegate.readLine();
+        }
     }
 
    /**
@@ -286,6 +306,11 @@ public final class Console implements Flushable
     *          or {@code null} if an end of stream has been reached.
     */
     public char[] readPassword(String fmt, Object ... args) {
+        synchronized (writeLock) {
+            synchronized (readLock) {
+                return delegate.readPassword(fmt, args);
+            }
+        }
     }
 
    /**
@@ -299,6 +324,9 @@ public final class Console implements Flushable
     *          or {@code null} if an end of stream has been reached.
     */
     public char[] readPassword() {
+        synchronized (readLock) {
+            return delegate.readPassword();
+        }
     }
 
     /**
@@ -306,6 +334,7 @@ public final class Console implements Flushable
      * immediately .
      */
     public void flush() {
+        delegate.flush();
     }
 
 
@@ -327,10 +356,11 @@ public final class Console implements Flushable
         return CHARSET;
     }
 
-    private Object readLock;
-    private Object writeLock;
-    private Reader reader;
-    private PrintWriter pw;
+    private final JdkConsole delegate;
+    private final Object readLock;
+    private final Object writeLock;
+    private final Reader reader;
+    private final PrintWriter printWriter;
     private static native String encoding();
 
     private static final Charset CHARSET;
@@ -366,7 +396,61 @@ public final class Console implements Flushable
     private static Console cons;
     private static native boolean istty();
     private Console() {
+        this.delegate = new JdkConsoleImpl(CHARSET);
         readLock = new Object();
         writeLock = new Object();
+        reader = new WrappingReader(delegate.reader(), readLock);
+        printWriter = new WrappingWriter(delegate.writer(), writeLock);
+    }
+
+    private static final class WrappingReader extends Reader {
+        private final Reader r;
+        private final Object lock;
+
+        WrappingReader(Reader r, Object lock) {
+            super(lock);
+            this.r = r;
+            this.lock = lock;
+        }
+
+        @Override
+        public int read(char[] cbuf, int off, int len) throws IOException {
+            synchronized (lock) {
+                return r.read(cbuf, off, len);
+            }
+        }
+
+        @Override
+        public void close() {
+            // no-op, per Console's spec
+        }
+    }
+
+    private static final class WrappingWriter extends PrintWriter {
+        private final PrintWriter pw;
+        private final Object lock;
+
+        public WrappingWriter(PrintWriter pw, Object lock) {
+            super(pw, lock);
+            this.pw = pw;
+            this.lock = lock;
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) {
+            synchronized (lock) {
+                pw.write(cbuf, off, len);
+            }
+        }
+
+        @Override
+        public void flush() {
+            pw.flush();
+        }
+
+        @Override
+        public void close() {
+            // no-op, per Console's spec
+        }
     }
 }
