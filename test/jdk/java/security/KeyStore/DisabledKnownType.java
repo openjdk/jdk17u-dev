@@ -26,7 +26,7 @@
  * @bug 8373690
  * @summary verify that the exception message indicates the keystore type
  *         when the type is disabled instead of being unrecognized
- * @run main/othervm -Djdk.crypto.disabledAlgorithms=KeyStore.PKCS12 DisabledKnownType
+ * @run main/othervm -Djdk.crypto.disabledAlgorithms=KeyStore.JKS DisabledKnownType
  */
 
 import java.security.KeyStore;
@@ -41,7 +41,7 @@ public class DisabledKnownType {
                     "changeit".toCharArray());
             throw new RuntimeException("Expected KeyStoreException not thrown");
         } catch (KeyStoreException kse) {
-            if (kse.getMessage().contains("PKCS12")) {
+            if (kse.getMessage().contains("JKS")) {
                 System.out.println("Passed: expected ex thrown: " + kse);
             } else {
                 // pass it up
