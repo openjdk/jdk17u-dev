@@ -105,7 +105,8 @@ public class ServerStopTerminationTest {
      */
     @AfterEach
     public void cleanup() {
-        client.shutdown();
+        // shutdown() in HttpClient is not available on Java 17
+        // client.shutdown();
     }
 
     /**
@@ -196,27 +197,38 @@ public class ServerStopTerminationTest {
         log("Changing the server to the server with a custom executor");
         // Create an HttpServer binding
         final InetAddress loopbackAddress = InetAddress.getLoopbackAddress();
-        server = HttpServer.create(new InetSocketAddress(loopbackAddress, 0),
-                0,
-                "/", exchange -> {
-                    exchange.sendResponseHeaders(200, 0);
-                    exchange.close();
-                });
+        // 4 argument create() method not available in HttpServer
+        //server = HttpServer.create(new InetSocketAddress(loopbackAddress, 0),
+        //        0,
+        //        "/", exchange -> {
+        //            exchange.sendResponseHeaders(200, 0);
+        //            exchange.close();
+        //        });
+        server = HttpServer.create(new InetSocketAddress(loopbackAddress, 0), 0);
+        server.createContext("/", exchange -> {
+            exchange.sendResponseHeaders(200, 0);
+            exchange.close();
+        });
         final Duration executorSleepTime = Duration.ofSeconds(Utils.adjustTimeout(20));
-        server.setExecutor(command -> Thread.ofVirtual().start(() -> {
+        // Thread.ofVirtual() is not available on Java 17
+        // server.setExecutor(command -> Thread.ofVirtual().start(() -> {
+        server.setExecutor(command -> new Thread(() -> {
             try {
                 // Let the test know the executor was triggered
                 start.countDown();
                 log("Custom executor started, sleeping");
                 // waiting in the executor stage before running the exchange
-                Thread.sleep(executorSleepTime);
+                // Thread.sleep(Duration) is not available in Java 17
+                // Thread.sleep(executorSleepTime);
+                Thread.sleep(executorSleepTime.toMillis());
                 log("Custom executor sleep complete");
                 command.run();// start the exchange
 
             } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }));
+        //}));
+        }).start());
         // Start server and client
         server.start();
         log("Custom setup complete");
@@ -318,14 +330,19 @@ public class ServerStopTerminationTest {
      * @param exchangeDuration the duration to wait before signaling completion
      */
     private void completeExchange(Duration exchangeDuration) {
-        Thread.ofVirtual().start(() -> {
+        // Thread.ofVirtual() is not available on Java 17
+        // Thread.ofVirtual().start(() -> {
+        new Thread(() -> {
             try {
-                Thread.sleep(exchangeDuration);
+                // Thread.sleep(Duration) is not available in Java 17
+                // Thread.sleep(exchangeDuration);
+                Thread.sleep(exchangeDuration.toMillis());
                 complete.countDown();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        });
+        // });
+        }).start();
     }
 
     /**
