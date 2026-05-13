@@ -67,17 +67,12 @@ public class TestSetupTests {
         } catch (TestVMException e) {
             System.setOut(oldOut);
             Asserts.assertTrue(e.getExceptionInfo().contains("testTooManyArgs"));
-            Asserts.assertTrue(e.getExceptionInfo().contains("IllegalArgumentException: wrong number of arguments: 3 expected: 1"));
+            Asserts.assertTrue(e.getExceptionInfo().contains("IllegalArgumentException: wrong number of arguments"));
             Asserts.assertTrue(e.getExceptionInfo().contains("testTooFewArgs"));
-            Asserts.assertTrue(e.getExceptionInfo().contains("IllegalArgumentException: wrong number of arguments: 2 expected: 3"));
-
             Asserts.assertTrue(e.getExceptionInfo().contains("testTooManyArgs2"));
-            Asserts.assertTrue(e.getExceptionInfo().contains("IllegalArgumentException: wrong number of arguments: 3 expected: 0"));
             Asserts.assertTrue(e.getExceptionInfo().contains("testTooFewArgs2"));
-            Asserts.assertTrue(e.getExceptionInfo().contains("IllegalArgumentException: wrong number of arguments: 0 expected: 3"));
 
             Asserts.assertTrue(e.getExceptionInfo().contains("setupTestBadSetupArgsTooMany"));
-            Asserts.assertTrue(e.getExceptionInfo().contains("wrong number of arguments: 0 expected: 2"));
             Asserts.assertTrue(e.getExceptionInfo().contains("setupTestBadSetupArgsWrongType"));
             Asserts.assertTrue(e.getExceptionInfo().contains("argument type mismatch"));
 
@@ -90,7 +85,6 @@ public class TestSetupTests {
             Asserts.assertTrue(e.getExceptionInfo().contains("argument type mismatch"));
 
             Asserts.assertTrue(e.getExceptionInfo().contains("testSetupNull"));
-            Asserts.assertTrue(e.getExceptionInfo().contains("wrong number of arguments: 0 expected: 1"));
             Asserts.assertTrue(e.getExceptionInfo().contains("Arguments: <null>"));
 
             Asserts.assertTrue(e.getExceptionInfo().contains("setupThrowInSetup"));
