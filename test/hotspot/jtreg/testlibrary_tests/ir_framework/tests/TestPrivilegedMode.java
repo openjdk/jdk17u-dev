@@ -56,14 +56,15 @@ public class TestPrivilegedMode {
     }
 
     @Test
-    @Arguments(setup = "setup")
     @IR(failOn = IRNode.LOAD_I)
     public int test() {
         return iFld;
     }
 
-    @Setup
-    public void setup() {
+    @Run(test = "test")
+    public void runner() {
         iFld = 34;
+        int result = test();
+        Asserts.assertEQ(result, 34);
     }
 }
