@@ -96,11 +96,15 @@ public class Spp {
         }
 
         StringBuffer out = new StringBuffer();
-        new Spp().spp(new Scanner(new FileInputStream(inputFile)),
-                      out, "",
-                      keys, vars, be, el,
-                      false);
-        new FileOutputStream(outputFile, true).write(out.toString().getBytes());
+        try (Scanner scanner = new Scanner(new FileInputStream(inputFile))) {
+            new Spp().spp(scanner,
+                          out, "",
+                          keys, vars, be, el,
+                          false);
+        }
+        try (FileOutputStream fos = new FileOutputStream(outputFile, true)) {
+            fos.write(out.toString().getBytes());
+        }
     }
 
     static final String LNSEP = System.getProperty("line.separator");
