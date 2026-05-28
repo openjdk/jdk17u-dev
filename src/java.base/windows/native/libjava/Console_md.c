@@ -76,6 +76,7 @@ Java_java_io_Console_echo(JNIEnv *env, jclass cls, jboolean on)
 {
     DWORD fdwMode;
     jboolean old;
+    HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
     if (! GetConsoleMode(hStdIn, &fdwMode)) {
         JNU_ThrowIOExceptionWithLastError(env, "GetConsoleMode failed");
         return !on;
