@@ -329,7 +329,7 @@ public final class Console implements Flushable
     *
     * @return Returns a console.
     */
-    public static Optional<Console> passwordConsole() {
+    private static Optional<Console> passwordConsole() {
          Optional<Console> result = INSTANCE.get();
          if (result != null) {
              return result;
@@ -370,7 +370,7 @@ public final class Console implements Flushable
     *          from the console, not including any line-termination characters,
     *          or {@code null} if an end of stream has been reached.
     */
-    public char[] readPasswordNoNewLine() {
+    private char[] readPasswordNoNewLine() {
         return readPassword0(true, "");
     }
 
@@ -691,6 +691,12 @@ public final class Console implements Flushable
             }
             public boolean isStdinTty() {
                 return Console.isStdinTty();
+            }
+            public Optional<Console> passwordConsole() {
+                return Console.passwordConsole();
+            }
+            public char[] readPasswordNoNewLine(Console c) {
+                return c.readPasswordNoNewLine();
             }
         });
     }
