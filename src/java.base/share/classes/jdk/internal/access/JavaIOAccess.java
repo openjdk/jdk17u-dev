@@ -32,7 +32,6 @@ import java.util.Optional;
 public interface JavaIOAccess {
     Console console();
     Charset charset();
-    boolean isStdinTty();
     Optional<Console> passwordConsole();
     char[] readPasswordNoNewLine(Console c);
 }

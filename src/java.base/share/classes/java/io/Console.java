@@ -28,14 +28,11 @@ package java.io;
 import java.util.*;
 import java.lang.annotation.Native;
 import java.nio.charset.Charset;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import jdk.internal.access.JavaIOAccess;
 import jdk.internal.access.SharedSecrets;
-import jdk.internal.util.StaticProperty;
 import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
-import sun.nio.cs.UTF_8;
 import sun.security.action.GetPropertyAction;
 
 /**
@@ -323,12 +320,12 @@ public final class Console implements Flushable
     // it should call this method to obtain a Console. This ensures only one Console
     // instance exists in the Java runtime.
     private static final AtomicReference<Optional<Console>> INSTANCE = new AtomicReference<>();
-   /**
-    * Returns a Console to be used by sun.security.util.Password, so tools like keytool can
-    * use Console even when standard output is redirected.
-    *
-    * @return Returns a console.
-    */
+    /**
+     * Returns a Console to be used by sun.security.util.Password, so tools like keytool can
+     * use Console even when standard output is redirected.
+     *
+     * @return Returns a console.
+     */
     private static Optional<Console> passwordConsole() {
          Optional<Console> result = INSTANCE.get();
          if (result != null) {
@@ -349,7 +346,7 @@ public final class Console implements Flushable
 
             // If stdin is NOT redirected, return an Optional containing a Console
             // instance, otherwise an empty Optional.
-            result = SharedSecrets.getJavaIOAccess().isStdinTty() ?
+            result = isStdinTty() ?
                 Optional.of(
                     new Console()) :
                 Optional.empty();
@@ -360,16 +357,14 @@ public final class Console implements Flushable
     }
 
     // Dedicated entry for sun.security.util.Password when stdout is redirected.
-    // This method strictly avoids producing any output by using noNewLine = true
-    // and an empty format string.
-   /**
-    * This method strictly avoids producing any output by using noNewLine = true
-    * and an empty format string.
-    *
-    * @return  A character array containing the password or passphrase read
-    *          from the console, not including any line-termination characters,
-    *          or {@code null} if an end of stream has been reached.
-    */
+    /**
+     * This method strictly avoids producing any output by using noNewLine = true
+     * and an empty format string.
+     *
+     * @return  A character array containing the password or passphrase read
+     *          from the console, not including any line-termination characters,
+     *          or {@code null} if an end of stream has been reached.
+     */
     private char[] readPasswordNoNewLine() {
         return readPassword0(true, "");
     }
@@ -688,9 +683,6 @@ public final class Console implements Flushable
 
             public Charset charset() {
                 return CHARSET;
-            }
-            public boolean isStdinTty() {
-                return Console.isStdinTty();
             }
             public Optional<Console> passwordConsole() {
                 return Console.passwordConsole();
