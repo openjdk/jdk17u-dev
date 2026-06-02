@@ -282,7 +282,7 @@ public final class Console implements Flushable
     * Provides a formatted prompt, then reads a password or passphrase from
     * the console with echoing disabled.
     *
-    * @param  format
+    * @param  fmt
     *         A format string as described in <a
     *         href="../util/Formatter.html#syntax">Format string syntax</a>
     *         for the prompt text.
@@ -310,8 +310,8 @@ public final class Console implements Flushable
     *          from the console, not including any line-termination characters,
     *          or {@code null} if an end of stream has been reached.
     */
-    public char[] readPassword(String format, Object ... args) {
-        return readPassword0(false, format, args);
+    public char[] readPassword(String fmt, Object ... args) {
+        return readPassword0(false, fmt, args);
     }
 
     // These two methods are intended for sun.security.util.Password, so tools like keytool can
@@ -320,12 +320,6 @@ public final class Console implements Flushable
     // it should call this method to obtain a Console. This ensures only one Console
     // instance exists in the Java runtime.
     private static final AtomicReference<Optional<Console>> INSTANCE = new AtomicReference<>();
-    /**
-     * Returns a Console to be used by sun.security.util.Password, so tools like keytool can
-     * use Console even when standard output is redirected.
-     *
-     * @return Returns a console.
-     */
     private static Optional<Console> passwordConsole() {
          Optional<Console> result = INSTANCE.get();
          if (result != null) {
@@ -357,14 +351,6 @@ public final class Console implements Flushable
     }
 
     // Dedicated entry for sun.security.util.Password when stdout is redirected.
-    /**
-     * This method strictly avoids producing any output by using noNewLine = true
-     * and an empty format string.
-     *
-     * @return  A character array containing the password or passphrase read
-     *          from the console, not including any line-termination characters,
-     *          or {@code null} if an end of stream has been reached.
-     */
     private char[] readPasswordNoNewLine() {
         return readPassword0(true, "");
     }
