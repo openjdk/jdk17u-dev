@@ -6792,7 +6792,7 @@ Node * LibraryCallKit::get_state_from_digest_object(Node *digest_object, BasicTy
 
 //------------------------------get_block_size_from_sha3_object----------------------------------
 Node * LibraryCallKit::get_block_size_from_digest_object(Node *digest_object) {
-  Node* block_size = load_field_from_object(digest_object, "digestLength", "I");
+  Node* block_size = load_field_from_object(digest_object, "blockSize", "I");
   assert (block_size != nullptr, "sanity");
   return block_size;
 }
