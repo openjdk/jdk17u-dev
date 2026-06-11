@@ -122,6 +122,10 @@ jobs:
             --add Microsoft.VisualStudio.Component.VC.${{ inputs.msvc-toolset-version }}.${{ inputs.msvc-toolset-architecture }}
         if: steps.toolchain-check.outputs.toolchain-installed != 'true'
 
+      - name: 'Fix make detection for newer MSYS2'
+        run: |
+          sed -i "s/MAKE_EXPECTED_ENV='msys'/MAKE_EXPECTED_ENV='msys\\\|cygwin'/" make/autoconf/basic_tools.m4
+
       - name: 'Configure'
         run: >
           bash configure
