@@ -114,9 +114,12 @@ public class RedirectTimeoutTest {
                 .timeout(Duration.ofMillis(adjustTimeout(TIMEOUT_MILLIS)))
                 .build();
 
-        try (HttpClient client = clientBuilder.build()) {
+        HttpClient client = clientBuilder.build();
+        try {
             if (version.equals(HTTP_2))
-                client.send(HttpRequest.newBuilder(h2WarmupUri).HEAD().build(), HttpResponse.BodyHandlers.discarding());
+                client.send(HttpRequest.newBuilder(h2WarmupUri)
+                                .method("HEAD", HttpRequest.BodyPublishers.noBody()).build(),
+                        HttpResponse.BodyHandlers.discarding());
             /*
                 With TIMEOUT_MILLIS set to 1500ms and the server's RedirectHandler sleeping for 750ms before responding
                 to each request, 4 iterations will take a guaranteed minimum time of 3000ms which will ensure that any
