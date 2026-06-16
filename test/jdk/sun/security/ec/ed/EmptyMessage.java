@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,38 +20,31 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 /*
  * @test
- * @bug 7003952 7191662
- * @library /test/lib ..
- * @modules jdk.crypto.cryptoki
- * @summary load DLLs and launch executables using fully qualified path
+ * @bug 8300399
+ * @summary EdDSA does not verify when there is no message
+ * @run main EmptyMessage
  */
+import java.security.KeyPairGenerator;
+import java.security.Signature;
+import java.security.spec.NamedParameterSpec;
 
-import jtreg.SkippedException;
-
-import java.security.InvalidParameterException;
-import java.security.Provider;
-
-public class Absolute {
-
+public class EmptyMessage {
     public static void main(String[] args) throws Exception {
-        String config =
-            System.getProperty("test.src", ".") + "/Absolute.cfg";
+        var g = KeyPairGenerator.getInstance("EdDSA");
+        g.initialize(NamedParameterSpec.ED25519);
+        var kp = g.generateKeyPair();
 
-        try {
-            Provider p = PKCS11Test.getSunPKCS11(config);
-            if (p == null) {
-                throw new SkippedException("Skipping test - no PKCS11 provider available");
-            }
-        } catch (InvalidParameterException ipe) {
-            Throwable ex = ipe.getCause();
-            if (ex.getMessage().contains("Absolute path required for library value:")) {
-                System.out.println("Test Passed: expected exception thrown");
-            } else {
-                // rethrow
-                throw ipe;
-            }
+        var ss = Signature.getInstance("EdDSA");
+        ss.initSign(kp.getPrivate());
+        var sig = ss.sign();
+
+        var ps = Signature.getInstance("EdDSA");
+        ps.initVerify(kp.getPublic());
+        if (!ps.verify(sig)) {
+            throw new RuntimeException();
         }
     }
 }
