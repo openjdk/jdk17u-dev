@@ -69,7 +69,7 @@ public class AsyncShutdownNow {
     @Test(dataProvider = "executors")
     public void testFutureGet(ExecutorService executor) throws Exception {
         System.out.format("testFutureGet: %s%n", executor);
-        try (executor) {
+        try {
             Future<?> future = executor.submit(SLEEP_FOR_A_DAY);
 
             // shutdownNow when main thread waits in ForkJoinTask.get
@@ -80,6 +80,8 @@ public class AsyncShutdownNow {
             } catch (ExecutionException | CancellationException e) {
                 // expected
             }
+        } finally {
+            executor.shutdownNow();
         }
     }
 
@@ -89,7 +91,7 @@ public class AsyncShutdownNow {
     @Test(dataProvider = "executors")
     public void testTimedFutureGet(ExecutorService executor) throws Exception {
         System.out.format("testTimedFutureGet: %s%n", executor);
-        try (executor) {
+        try {
             Future<?> future = executor.submit(SLEEP_FOR_A_DAY);
 
             // shutdownNow when main thread waits in ForkJoinTask.get
@@ -100,6 +102,8 @@ public class AsyncShutdownNow {
             } catch (ExecutionException | CancellationException e) {
                 // expected
             }
+        } finally {
+            executor.shutdownNow();
         }
     }
 
@@ -109,9 +113,9 @@ public class AsyncShutdownNow {
     @Test(dataProvider = "executors")
     public void testInvokeAll(ExecutorService executor) throws Exception {
         System.out.format("testInvokeAll: %s%n", executor);
-        try (executor) {
-            // shutdownNow when main thread waits in ForkJoinTask.quietlyJoin
-            onWait("java.util.concurrent.ForkJoinTask.quietlyJoin", executor::shutdownNow);
+        try {
+            // shutdownNow when main thread waits in ForkJoinTask.awaitPoolInvoke
+            onWait("java.util.concurrent.ForkJoinTask.awaitPoolInvoke", executor::shutdownNow);
             List<Future<Void>> futures = executor.invokeAll(List.of(SLEEP_FOR_A_DAY, SLEEP_FOR_A_DAY));
             for (Future<Void> f : futures) {
                 assertTrue(f.isDone());
@@ -122,6 +126,8 @@ public class AsyncShutdownNow {
                     // expected
                 }
             }
+        } finally {
+            executor.shutdownNow();
         }
     }
 
@@ -131,7 +137,7 @@ public class AsyncShutdownNow {
     @Test(dataProvider = "executors", enabled = false)
     public void testInvokeAny(ExecutorService executor) throws Exception {
         System.out.format("testInvokeAny: %s%n", executor);
-        try (executor) {
+        try {
             // shutdownNow when main thread waits in ForkJoinTask.get
             onWait("java.util.concurrent.ForkJoinTask.get", executor::shutdownNow);
             try {
@@ -140,6 +146,8 @@ public class AsyncShutdownNow {
             } catch (ExecutionException e) {
                 // expected
             }
+        } finally {
+            executor.shutdownNow();
         }
     }
 
