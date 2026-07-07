@@ -291,7 +291,7 @@ public class ResumeChecksClient extends SSLContextTemplate {
                     } catch (Exception ex) {
                         throw new AssertionError("Server Down", ex);
                     } finally {
-                        threadPool.close();
+                        threadPool.shutdown();
                     }
                 }).start();
 
