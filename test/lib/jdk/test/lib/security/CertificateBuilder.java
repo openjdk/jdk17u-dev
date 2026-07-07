@@ -44,12 +44,14 @@ import sun.security.x509.AccessDescription;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.AuthorityInfoAccessExtension;
 import sun.security.x509.AuthorityKeyIdentifierExtension;
+import sun.security.x509.CRLDistributionPointsExtension;
 import sun.security.x509.GeneralSubtrees;
 import sun.security.x509.IPAddressName;
 import sun.security.x509.NameConstraintsExtension;
 import sun.security.x509.SubjectKeyIdentifierExtension;
 import sun.security.x509.BasicConstraintsExtension;
 import sun.security.x509.ExtendedKeyUsageExtension;
+import sun.security.x509.DistributionPoint;
 import sun.security.x509.DNSName;
 import sun.security.x509.GeneralName;
 import sun.security.x509.GeneralNames;
@@ -63,13 +65,13 @@ import sun.security.x509.X500Name;
 
 /**
  * Helper class that builds and signs X.509 certificates.
- *
+ * <p>
  * A CertificateBuilder is created with a default constructor, and then
  * uses additional public methods to set the public key, desired validity
  * dates, serial number and extensions.  It is expected that the caller will
  * have generated the necessary key pairs prior to using a CertificateBuilder
  * to generate certificates.
- *
+ * <p>
  * The following methods are mandatory before calling build():
  * <UL>
  * <LI>{@link #setSubjectName(java.lang.String)}
@@ -83,12 +85,12 @@ import sun.security.x509.X500Name;
  * Additionally, the caller can either provide a {@link List} of
  * {@link Extension} objects, or use the helper classes to add specific
  * extension types.
- *
+ * <p>
  * When all required and desired parameters are set, the
  * {@link #build(java.security.cert.X509Certificate, java.security.PrivateKey,
  * java.lang.String)} method can be used to create the {@link X509Certificate}
  * object.
- *
+ * <p>
  * Multiple certificates may be cut from the same settings using subsequent
  * calls to the build method.  Settings may be cleared using the
  * {@link #reset()} method.
@@ -114,20 +116,23 @@ public class CertificateBuilder {
         KEY_CERT_SIGN,
         CRL_SIGN,
         ENCIPHER_ONLY,
-        DECIPHER_ONLY;
+        DECIPHER_ONLY
     }
 
     /**
-     * Create a new CertificateBuilder instance. This method sets the subject name,
-     * public key, authority key id, and serial number.
+     * Create a new {@code CertificateBuilder} instance. This method sets the
+     * subject name, public key, authority key id, and serial number.
      *
      * @param subjectName entity associated with the public key
      * @param publicKey the entity's public key
      * @param caKey public key of certificate signer
      * @param keyUsages list of key uses
-     * @return
-     * @throws CertificateException
-     * @throws IOException
+     * @return a {@code CertificateBuilder} configured with the provided
+     *         parameters
+     *
+     * @throws CertificateException if an error occurs when obtaining the
+     *         underlying {@link CertificateFactory}
+     * @throws IOException if any extension encoding errors occur
      */
     public static CertificateBuilder newCertificateBuilder(String subjectName,
                            PublicKey publicKey, PublicKey caKey, KeyUsage... keyUsages)
@@ -153,9 +158,13 @@ public class CertificateBuilder {
 
     /**
      * Create a Subject Alternative Name extension for the given DNS name
+     *
      * @param critical Sets the extension to critical or non-critical
      * @param dnsName DNS name to use in the extension
-     * @throws IOException
+     * @return a {@code SubjectAlternativeNameExtension} configured with
+     *         the {@code dnsName} as individual DNSName entry.
+     *
+     * @throws IOException if any encoding errors occur
      */
     public static SubjectAlternativeNameExtension createDNSSubjectAltNameExt(
             boolean critical, String dnsName) throws IOException {
@@ -166,9 +175,13 @@ public class CertificateBuilder {
 
     /**
      * Create a Subject Alternative Name extension for the given IP address
+     *
      * @param critical Sets the extension to critical or non-critical
      * @param ipAddress IP address to use in the extension
-     * @throws IOException
+     * @return a {@code SubjectAlternativeNameExtension} configured with
+     *         the {@code ipAddress} as individual IPAddressName entry.
+     *
+     * @throws IOException if any encoding errors occur
      */
     public static SubjectAlternativeNameExtension createIPSubjectAltNameExt(
             boolean critical, String ipAddress) throws IOException {
@@ -213,6 +226,9 @@ public class CertificateBuilder {
      * Set the subject name for the certificate.
      *
      * @param name The subject name in RFC 2253 format
+     *
+     * @throws IllegalArgumentException if any parsing errors on the
+     * {@code name} parameter occur.
      */
     public CertificateBuilder setSubjectName(String name) {
         try {
@@ -239,6 +255,9 @@ public class CertificateBuilder {
      * Set the public key for this certificate.
      *
      * @param pubKey The {@link PublicKey} to be used on this certificate.
+     *
+     * @throws NullPointerException if the {@code pubKey} parameter
+     * is {@code null}
      */
     public CertificateBuilder setPublicKey(PublicKey pubKey) {
         publicKey = Objects.requireNonNull(pubKey, "Caught null public key");
@@ -250,6 +269,9 @@ public class CertificateBuilder {
      *
      * @param nbDate A {@link Date} object specifying the start of the
      * certificate validity period.
+     *
+     * @throws NullPointerException if the {@code nbDate} parameter
+     * is {@code null}
      */
     public CertificateBuilder setNotBefore(Date nbDate) {
         Objects.requireNonNull(nbDate, "Caught null notBefore date");
@@ -262,6 +284,9 @@ public class CertificateBuilder {
      *
      * @param naDate A {@link Date} object specifying the end of the
      * certificate validity period.
+     *
+     * @throws NullPointerException if the {@code naDate} parameter
+     * is {@code null}
      */
     public CertificateBuilder setNotAfter(Date naDate) {
         Objects.requireNonNull(naDate, "Caught null notAfter date");
@@ -276,6 +301,9 @@ public class CertificateBuilder {
      * certificate validity period.
      * @param naDate A {@link Date} object specifying the end of the
      * certificate validity period.
+     *
+     * @throws NullPointerException if either the {@code nbDate} or
+     * {@code naDate} parameters are {@code null}
      */
     public CertificateBuilder setValidity(Date nbDate, Date naDate) {
         return setNotBefore(nbDate).setNotAfter(naDate);
@@ -290,6 +318,8 @@ public class CertificateBuilder {
      * Set the serial number on the certificate.
      *
      * @param serial A serial number in {@link BigInteger} form.
+     *
+     * @throws NullPointerException if {@code serial} is {@code null}
      */
     public CertificateBuilder setSerialNumber(BigInteger serial) {
         Objects.requireNonNull(serial, "Caught null serial number");
@@ -314,6 +344,8 @@ public class CertificateBuilder {
      *
      * @param extList The {@link List} of extensions to be added to
      * the certificate.
+     *
+     * @throws NullPointerException if {@code extList} is {@code null}
      */
     public CertificateBuilder addExtensions(List<Extension> extList) {
         Objects.requireNonNull(extList, "Caught null extension list");
@@ -327,6 +359,7 @@ public class CertificateBuilder {
      * Helper method to add DNSName types for the SAN extension
      *
      * @param dnsNames A {@code List} of names to add as DNSName types
+     *
      * @throws IOException if an encoding error occurs.
      */
     public CertificateBuilder addSubjectAltNameDNSExt(List<String> dnsNames)
@@ -344,12 +377,40 @@ public class CertificateBuilder {
     }
 
     /**
+     * Helper method to add one or more distribution points to the CRL
+     * Distribution Points extension.  This form of the method only supports
+     * URI name types, but can be extended in the future to support other types.
+     *
+     * @param uriNames a list of URIs in String form
+     * @return the {@code CertificateBuilder} configured to add this
+     * CRL Distribution Points extension.
+     *
+     * @throws IOException if any of the URIs in {@code uriNames} are
+     * malformed
+     */
+    public CertificateBuilder addCrlDistributionPointsExt(List<String> uriNames)
+        throws IOException {
+        if (uriNames != null && !uriNames.isEmpty()) {
+            GeneralNames gNames = new GeneralNames();
+            for (String name : uriNames) {
+                gNames.add(new GeneralName(new URIName(name)));
+            }
+            addExtension(new CRLDistributionPointsExtension(List.of(
+                    new DistributionPoint(gNames, null, null))));
+        }
+        return this;
+    }
+
+    /**
      * Helper method to add one or more OCSP URIs to the Authority Info Access
      * certificate extension.  Location strings can be in two forms:
-     * 1) Just a URI by itself: This will be treated as using the OCSP
+     * <ol>
+     *     <li>Just a URI by itself: This will be treated as using the OCSP
      *    access description (legacy behavior).
-     * 2) An access description name (case-insensitive) followed by a
-     *    pipe (|) and the URI (e.g. OCSP|http://ocsp.company.com/revcheck).
+     *     <li>An access description name (case-insensitive) followed by a
+     *    pipe (|) and the URI (e.g.
+     *    {@code OCSP|http://ocsp.company.com/revcheck}).
+     * </ol>
      * Current description names are OCSP and CAISSUER. Others may be
      * added later.
      *
@@ -370,16 +431,12 @@ public class CertificateBuilder {
                     adObj = AccessDescription.Ad_OCSP_Id;
                     uriLoc = tokens[0];
                 } else {
-                    switch (tokens[0].toUpperCase()) {
-                        case "OCSP":
-                            adObj = AccessDescription.Ad_OCSP_Id;
-                            break;
-                        case "CAISSUER":
-                            adObj = AccessDescription.Ad_CAISSUERS_Id;
-                            break;
-                        default:
-                            throw new IOException("Unknown AD: " + tokens[0]);
-                    }
+                    adObj = switch (tokens[0].toUpperCase()) {
+                        case "OCSP" -> AccessDescription.Ad_OCSP_Id;
+                        case "CAISSUER" -> AccessDescription.Ad_CAISSUERS_Id;
+                        default -> throw new IOException("Unknown AD: " +
+                                tokens[0]);
+                    };
                     uriLoc = tokens[1];
                 }
                 acDescList.add(new AccessDescription(adObj,
@@ -537,7 +594,7 @@ public class CertificateBuilder {
     }
 
     /**
-     * Encode the contents of the outer-most ASN.1 SEQUENCE:
+     * Encode the contents of the outermost ASN.1 SEQUENCE:
      *
      * <PRE>
      *  Certificate  ::=  SEQUENCE  {
