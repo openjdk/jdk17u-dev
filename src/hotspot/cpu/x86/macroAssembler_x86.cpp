@@ -8634,7 +8634,7 @@ void MacroAssembler::fill_masked(BasicType bt, Address dst, XMMRegister xmm, KRe
   movptr(temp, -1);
   bzhiq(temp, temp, length);
   kmov(mask, temp);
-  evmovdqu(bt, mask, dst, xmm, vec_enc);
+  evmovdqu(bt, mask, dst, xmm, true, vec_enc);
 }
 
 // Set memory operation for length "less than" 64 bytes.
@@ -8764,7 +8764,7 @@ void MacroAssembler::generate_fill_avx3(BasicType type, Register to, Register va
       mov64(r8, -1L);
       bzhiq(r8, r8, rtmp);
       kmovql(k2, r8);
-      evmovdqu(T_BYTE, k2, Address(to, 0), xtmp, Assembler::AVX_256bit);
+      evmovdqu(T_BYTE, k2, Address(to, 0), xtmp, true, Assembler::AVX_256bit);
       addq(to, rtmp);
       shrq(rtmp, shift);
       subq(count, rtmp);
@@ -8834,7 +8834,7 @@ void MacroAssembler::generate_fill_avx3(BasicType type, Register to, Register va
       mov64(r8, -1L);
       bzhiq(r8, r8, rtmp);
       kmovql(k2, r8);
-      evmovdqu(T_BYTE, k2, Address(to, 0), xtmp, Assembler::AVX_512bit);
+      evmovdqu(T_BYTE, k2, Address(to, 0), xtmp, true, Assembler::AVX_512bit);
       addq(to, rtmp);
       shrq(rtmp, shift);
       subq(count, rtmp);
