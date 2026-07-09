@@ -8647,8 +8647,8 @@ void MacroAssembler::fill_masked(BasicType bt, Address dst, XMMRegister xmm, KRe
 
 // Set memory operation for length "less than" 64 bytes.
 void MacroAssembler::fill64_masked(uint shift, Register dst, int disp,
-                                       XMMRegister xmm, KRegister mask, Register length,
-                                       Register temp, bool use64byteVector) {
+                                   XMMRegister xmm, KRegister mask, Register length,
+                                   Register temp, bool use64byteVector) {
   assert(MaxVectorSize >= 32, "vector length should be >= 32");
   BasicType type[] = { T_BYTE, T_SHORT, T_INT, T_LONG};
   if (!use64byteVector) {
@@ -8663,8 +8663,8 @@ void MacroAssembler::fill64_masked(uint shift, Register dst, int disp,
 
 
 void MacroAssembler::fill32_masked(uint shift, Register dst, int disp,
-                                       XMMRegister xmm, KRegister mask, Register length,
-                                       Register temp) {
+                                   XMMRegister xmm, KRegister mask, Register length,
+                                   Register temp) {
   assert(MaxVectorSize >= 32, "vector length should be >= 32");
   BasicType type[] = { T_BYTE, T_SHORT, T_INT, T_LONG};
   fill_masked(type[shift], Address(dst, disp), xmm, mask, length, temp, Assembler::AVX_256bit);

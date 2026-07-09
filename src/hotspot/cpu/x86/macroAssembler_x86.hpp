@@ -1875,12 +1875,12 @@ public:
                    Register length, Register temp, int vec_enc);
 
   void fill64_masked(uint shift, Register dst, int disp,
-                         XMMRegister xmm, KRegister mask, Register length,
-                         Register temp, bool use64byteVector = false);
+                     XMMRegister xmm, KRegister mask, Register length,
+                     Register temp, bool use64byteVector = false);
 
   void fill32_masked(uint shift, Register dst, int disp,
-                         XMMRegister xmm, KRegister mask, Register length,
-                         Register temp);
+                     XMMRegister xmm, KRegister mask, Register length,
+                     Register temp);
 
   void fill32(Address dst, XMMRegister xmm);
 
