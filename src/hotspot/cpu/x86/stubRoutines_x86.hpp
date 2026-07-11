@@ -183,6 +183,10 @@ class x86 {
   static address _k256_W_adr;
   static julong _k512_W[];
   static address _k512_W_addr;
+  static julong _round_consts_arr[];
+  static address _round_consts_arr_addr;
+  static julong _permsAndRots[];
+  static address _permsAndRots_addr;
   // byte flip mask for sha512
   static address _pshuffle_byte_flip_mask_addr_sha512;
   static address _counter_mask_addr;
@@ -339,6 +343,8 @@ class x86 {
 #ifdef _LP64
   static address k256_W_addr()    { return _k256_W_adr; }
   static address k512_W_addr()    { return _k512_W_addr; }
+  static address round_consts_arr_addr() { return _round_consts_arr_addr; }
+  static address permsAndRots_addr() { return _permsAndRots_addr; }
   static address pshuffle_byte_flip_mask_addr_sha512() { return _pshuffle_byte_flip_mask_addr_sha512; }
   static address base64_encoding_table_addr() { return _encoding_table_base64; }
   static address base64_shuffle_addr() { return _shuffle_base64; }

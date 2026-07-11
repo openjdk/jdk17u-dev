@@ -63,6 +63,8 @@ address StubRoutines::x86::_vector_64_bit_mask = NULL;
 #ifdef _LP64
 address StubRoutines::x86::_k256_W_adr = NULL;
 address StubRoutines::x86::_k512_W_addr = NULL;
+address StubRoutines::x86::_round_consts_arr_addr = NULL;
+address StubRoutines::x86::_permsAndRots_addr = NULL;
 address StubRoutines::x86::_pshuffle_byte_flip_mask_addr_sha512 = NULL;
 // Base64 masks
 address StubRoutines::x86::_encoding_table_base64 = NULL;
@@ -442,5 +444,37 @@ ATTRIBUTE_ALIGNED(64) julong StubRoutines::x86::_k512_W[] =
     0x3c9ebe0a15c9bebcULL, 0x431d67c49c100d4cULL,
     0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL,
     0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL,
+};
+
+ATTRIBUTE_ALIGNED(64) julong StubRoutines::x86::_round_consts_arr[] = {
+    0x0000000000000001L, 0x0000000000008082L, 0x800000000000808AL,
+    0x8000000080008000L, 0x000000000000808BL, 0x0000000080000001L,
+    0x8000000080008081L, 0x8000000000008009L, 0x000000000000008AL,
+    0x0000000000000088L, 0x0000000080008009L, 0x000000008000000AL,
+    0x000000008000808BL, 0x800000000000008BL, 0x8000000000008089L,
+    0x8000000000008003L, 0x8000000000008002L, 0x8000000000000080L,
+    0x000000000000800AL, 0x800000008000000AL, 0x8000000080008081L,
+    0x8000000000008080L, 0x0000000080000001L, 0x8000000080008008L
+};
+
+ATTRIBUTE_ALIGNED(64) julong StubRoutines::x86::_permsAndRots[] = {
+    // permutation in combined rho and pi
+    9, 2, 11, 0, 1, 2, 3, 4,   // step 1 and 3
+    8, 1, 9, 2, 11, 4, 12, 0,  // step 2
+    9, 2, 10, 3, 11, 4, 12, 0, // step 4
+    8, 9, 2, 3, 4, 5, 6, 7,    // step 5
+    0, 8, 9, 10, 15, 0, 0, 0,  // step 6
+    4, 5, 8, 9, 6, 7, 10, 11,  // step 7 and 8
+    0, 1, 2, 3, 13, 0, 0, 0,   // step 9
+    2, 3, 0, 1, 11, 0, 0, 0,   // step 10
+    4, 5, 6, 7, 14, 0, 0, 0,   // step 11
+    14, 15, 12, 13, 4, 0, 0, 0, // step 12
+    // size of rotations (after step 5)
+    1, 6, 62, 55, 28, 20, 27, 36,
+    3, 45, 10, 15, 25, 8, 39, 41,
+    44, 43, 21, 18, 2, 61, 56, 14,
+    // rotation of row elements
+    12, 8, 9, 10, 11, 5, 6, 7,
+    9, 10, 11, 12, 8, 5, 6, 7
 };
 #endif
