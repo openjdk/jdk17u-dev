@@ -145,7 +145,7 @@ AbstractInterpreter::MethodKind AbstractInterpreter::method_kind(const methodHan
       case vmIntrinsics::_dexp:              return java_lang_math_exp;
       case vmIntrinsics::_fmaD:              return java_lang_math_fmaD;
       case vmIntrinsics::_fmaF:              return java_lang_math_fmaF;
-      case vmIntrinsics::_Reference_get:     return java_lang_ref_reference_get;
+      case vmIntrinsics::_Reference_get0:    return java_lang_ref_reference_get0;
       case vmIntrinsics::_dsqrt:
         // _dsqrt will be selected for both Math::sqrt and StrictMath::sqrt, but the latter
         // is native. Keep treating it like a native method in the interpreter
