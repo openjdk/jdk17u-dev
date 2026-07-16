@@ -200,7 +200,7 @@ void TemplateInterpreterGenerator::generate_all() {
   method_entry(java_lang_math_pow  )
   method_entry(java_lang_math_fmaF )
   method_entry(java_lang_math_fmaD )
-  method_entry(java_lang_ref_reference_get)
+  method_entry(java_lang_ref_reference_get0)
 
   AbstractInterpreter::initialize_method_handle_entries();
 
@@ -419,8 +419,8 @@ address TemplateInterpreterGenerator::generate_method_entry(
   case Interpreter::java_lang_math_exp     : // fall thru
   case Interpreter::java_lang_math_fmaD    : // fall thru
   case Interpreter::java_lang_math_fmaF    : entry_point = generate_math_entry(kind);      break;
-  case Interpreter::java_lang_ref_reference_get
-                                           : entry_point = generate_Reference_get_entry(); break;
+  case Interpreter::java_lang_ref_reference_get0
+                                           : entry_point = generate_Reference_get_entry(); native = true;  break;
   case Interpreter::java_util_zip_CRC32_update
                                            : native = true; entry_point = generate_CRC32_update_entry();  break;
   case Interpreter::java_util_zip_CRC32_updateBytes
