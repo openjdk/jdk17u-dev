@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2020, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -22,28 +20,25 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package sun.security.provider;
 
 /*
- * The SHAKE256 extendable output function.
+ * @test
+ * @bug 8354469
+ * @summary ensure password can be read from user's System.in
+ * @library /test/lib
+ * @modules java.base/sun.security.tools.keytool
  */
-public final class SHAKE256 extends SHA3 {
-    public SHAKE256(int d) {
-        super("SHAKE256", d, (byte) 0x1F, 64);
-    }
 
-    public void update(byte in) {
-        engineUpdate(in);
-    }
-    public void update(byte[] in, int off, int len) {
-        engineUpdate(in, off, len);
-    }
+import jdk.test.lib.SecurityTools;
 
-    public byte[] digest() {
-        return engineDigest();
-    }
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
-    public void reset() {
-        engineReset();
+public class SetInPassword {
+    public static void main(String[] args) throws Exception {
+        SecurityTools.keytool("-keystore ks -storepass changeit -genkeypair -alias a -dname CN=A -keyalg EC")
+                .shouldHaveExitValue(0);
+        System.setIn(new ByteArrayInputStream("changeit".getBytes(StandardCharsets.UTF_8)));
+        sun.security.tools.keytool.Main.main("-keystore ks -alias a -certreq".split(" "));
     }
 }
