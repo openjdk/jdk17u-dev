@@ -4329,6 +4329,55 @@ class StubGenerator: public StubCodeGenerator {
     return start;
   }
 
+  // Arguments:
+  //
+  // Inputs:
+  //   c_rarg0   - byte[]  source+offset
+  //   c_rarg1   - long[]  SHA3.state
+  //   c_rarg2   - int     block_size
+  //   c_rarg3   - int     offset
+  //   c_rarg4   - int     limit
+  //
+  address generate_sha3_implCompress(bool multiBlock, const char *name) {
+    __ align(CodeEntryAlignment);
+    StubCodeMark mark(this, "StubRoutines", name);
+    address start = __ pc();
+
+    const Register buf          = c_rarg0;
+    const Register state        = c_rarg1;
+    const Register block_size   = c_rarg2;
+    const Register ofs          = c_rarg3;
+  #ifndef _WIN64
+    const Register limit        = c_rarg4;
+  #else
+    const Address limit_mem(rbp, 6 * wordSize);
+    const Register limit = r12;
+  #endif
+
+    const Register permsAndRots = r10;
+    const Register round_consts = r11;
+    const Register constant2use = r13;
+    const Register roundsLeft = r14;
+
+    __ enter();
+
+    __ push(r12);
+    __ push(r13);
+    __ push(r14);
+
+    __ sha3_AVX3(permsAndRots, round_consts, constant2use, roundsLeft,
+                 buf, state, block_size, ofs, limit, multiBlock);
+
+    __ pop(r14);
+    __ pop(r13);
+    __ pop(r12);
+
+    __ leave(); // required for proper stackwalking of RuntimeStub frame
+    __ ret(0);
+
+    return start;
+  }
+
   // This mask is used for incrementing counter value(linc0, linc4, etc.)
   address counter_mask_addr() {
     __ align64();
@@ -7656,6 +7705,10 @@ address generate_avx_ghash_processBlocks() {
       StubRoutines::x86::_pshuffle_byte_flip_mask_addr_sha512 = generate_pshuffle_byte_flip_mask_sha512();
       StubRoutines::_sha512_implCompress = generate_sha512_implCompress(false, "sha512_implCompress");
       StubRoutines::_sha512_implCompressMB = generate_sha512_implCompress(true, "sha512_implCompressMB");
+    }
+    if (UseSHA3Intrinsics) {
+      StubRoutines::_sha3_implCompress = generate_sha3_implCompress(false, "sha3_implCompress");
+      StubRoutines::_sha3_implCompressMB = generate_sha3_implCompress(true, "sha3_implCompressMB");
     }
 
     // Generate GHASH intrinsics code
