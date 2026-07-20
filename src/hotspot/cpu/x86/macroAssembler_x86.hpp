@@ -972,6 +972,8 @@ class MacroAssembler: public Assembler {
                    XMMRegister msgtmp1, XMMRegister msgtmp2, XMMRegister msgtmp3, XMMRegister msgtmp4,
                    Register buf, Register state, Register ofs, Register limit, Register rsp, bool multi_block,
                    XMMRegister shuf_mask);
+  void sha3_AVX3(Register permsAndRots, Register round_consts, Register constant2use, Register roundsLeft,
+                 Register buf, Register state, Register block_size, Register ofs, Register limit, bool multiBlock);
 private:
   void roundEnc(XMMRegister key, int rnum);
   void lastroundEnc(XMMRegister key, int rnum);
