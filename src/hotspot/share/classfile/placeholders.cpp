@@ -180,6 +180,9 @@ PlaceholderEntry* PlaceholderTable::new_entry(int hash, Symbol* name,
   // Hashtable with Symbol* literal must increment and decrement refcount.
   name->increment_refcount();
   entry->set_loader_data(loader_data);
+  // _supername is raw (uninitialized) memory here; NULL it before the first
+  // set_supername so that set_supername does not decrement a garbage pointer.
+  entry->_supername = NULL;
   entry->set_supername(supername);
   entry->set_superThreadQ(NULL);
   entry->set_loadInstanceThreadQ(NULL);
@@ -327,10 +330,7 @@ void PlaceholderTable::find_and_remove(unsigned int hash,
     if (probe != NULL) {
        log(probe, "find_and_remove", action);
 
-       bool empty = probe->remove_seen_thread(thread, action);
-       if (empty && action == LOAD_SUPER) {
-          probe->set_supername(NULL);
-       }
+       probe->remove_seen_thread(thread, action);
 
        // If no other threads using this entry, and this thread is not using this entry for other states
        if ((probe->superThreadQ() == NULL) && (probe->loadInstanceThreadQ() == NULL)

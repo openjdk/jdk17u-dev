@@ -25,12 +25,12 @@
 #ifndef SHARE_CLASSFILE_PLACEHOLDERS_HPP
 #define SHARE_CLASSFILE_PLACEHOLDERS_HPP
 
+#include "oops/symbol.hpp"
 #include "utilities/hashtable.hpp"
 
 class PlaceholderEntry;
 class Thread;
 class ClassLoaderData;
-class Symbol;
 
 // Placeholder objects. These represent classes currently
 // being loaded, as well as arrays of primitives.
@@ -143,6 +143,9 @@ class PlaceholderEntry : public HashtableEntry<Symbol*, mtClass> {
   Symbol*            supername()           const { return _supername; }
   void               set_supername(Symbol* supername) {
     if (supername != _supername) {
+      if (_supername != NULL) {
+        _supername->decrement_refcount();
+      }
       _supername = supername;
       if (_supername != NULL) {
         _supername->increment_refcount();
