@@ -76,6 +76,8 @@ public final class NamedPKCS8Key extends PKCS8Key {
         DerValue val = new DerValue(DerValue.tag_OctetString, rawBytes);
         try {
             this.key = val.toByteArray();
+        } catch (IOException e) {
+            throw new AssertionError("Should not happen", e);
         } finally {
             val.clear();
         }
