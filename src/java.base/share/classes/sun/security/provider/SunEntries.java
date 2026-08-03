@@ -178,6 +178,8 @@ public final class SunEntries {
         add(p, "Signature", "SHA3-512withDSAinP1363Format",
                 "sun.security.provider.DSA$SHA3_512withDSAinP1363Format");
 
+        attrs.clear();
+        attrs.put("ImplementedIn", "Software");
         add(p, "Signature", "ML-DSA", "sun.security.provider.ML_DSA_Impls$SIG", attrs);
         addWithAlias(p, "Signature", "ML-DSA-44", "sun.security.provider.ML_DSA_Impls$SIG2", attrs);
         addWithAlias(p, "Signature", "ML-DSA-65", "sun.security.provider.ML_DSA_Impls$SIG3", attrs);
