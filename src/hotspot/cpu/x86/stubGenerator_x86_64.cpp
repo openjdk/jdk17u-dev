@@ -90,6 +90,9 @@ class StubGenerator: public StubCodeGenerator {
   inc_counter_np_(counter);
 #endif
 
+  void generate_sha3_stubs();
+  address generate_sha3_implCompress(bool multiBlock, const char *name);
+  
   // Call stubs are used to call Java from C
   //
   // Linux Arguments:
@@ -7701,6 +7704,8 @@ address generate_avx_ghash_processBlocks() {
     if (bs_nm != NULL) {
       StubRoutines::x86::_method_entry_barrier = generate_method_entry_barrier();
     }
+  generate_sha3_stubs();
+
 #ifdef COMPILER2
     if (UseMultiplyToLenIntrinsic) {
       StubRoutines::_multiplyToLen = generate_multiplyToLen();
@@ -7802,6 +7807,7 @@ address generate_avx_ghash_processBlocks() {
       generate_initial();
     }
   }
+
 }; // end class declaration
 
 #define UCM_TABLE_MAX_ENTRIES 16
@@ -7811,3 +7817,7 @@ void StubGenerator_generate(CodeBuffer* code, bool all) {
   }
   StubGenerator g(code, all);
 }
+
+#undef __
+#define STUBGENERATOR_X86_64_SHA3
+#include "stubGenerator_x86_64_sha3.cpp"

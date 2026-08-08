@@ -2266,6 +2266,7 @@ private:
   // Leaf level assembler routines for masked operations.
   void evpaddq(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
 // void evpaddq(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
+  void evpmulhw(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
 
   // Sub packed integers
   void psubb(XMMRegister dst, XMMRegister src);

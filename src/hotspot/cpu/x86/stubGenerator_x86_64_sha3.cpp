@@ -22,22 +22,10 @@
  *
  */
 
-#include "precompiled.hpp"
-#include "asm/assembler.hpp"
-#include "asm/assembler.inline.hpp"
-#include "runtime/stubRoutines.hpp"
-#include "macroAssembler_x86.hpp"
-#include "stubGenerator_x86_64.hpp"
+// this must be compiled in the context of stubGenerator_x86_64.cpp
+#ifdef STUBGENERATOR_X86_64_SHA3
 
 #define __ _masm->
-
-#ifdef PRODUCT
-#define BLOCK_COMMENT(str) /* nothing */
-#else
-#define BLOCK_COMMENT(str) __ block_comment(str)
-#endif // PRODUCT
-
-#define BIND(label) bind(label); BLOCK_COMMENT(#label ":")
 
 // Constants
 ATTRIBUTE_ALIGNED(64) static const uint64_t round_consts_arr[24] = {
@@ -324,3 +312,6 @@ address StubGenerator::generate_sha3_implCompress(bool multiBlock, const char *n
 
   return start;
 }
+
+
+#endif
