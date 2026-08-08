@@ -1523,6 +1523,7 @@ private:
   void evmovdqub(XMMRegister dst, KRegister mask, Address src, bool merge, int vector_len);
   void evmovdqub(Address dst, KRegister mask, XMMRegister src, bool merge, int vector_len);
 
+  void evmovdquw(XMMRegister dst, XMMRegister src, int vector_len);
   void evmovdquw(XMMRegister dst, Address src, int vector_len);
   void evmovdquw(Address dst, XMMRegister src, int vector_len);
   void evmovdquw(XMMRegister dst, KRegister mask, XMMRegister src, bool merge, int vector_len);
@@ -1707,6 +1708,9 @@ private:
   void vpermpd(XMMRegister dst, XMMRegister src, int imm8, int vector_len);
   void evpermi2q(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
   void evpermt2b(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
+  void evpermt2w(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
+  void evpermt2d(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
+  void evpermt2q(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
   void evpmultishiftqb(XMMRegister dst, XMMRegister ctl, XMMRegister src, int vector_len);
 
   void pause();
@@ -2286,6 +2290,7 @@ private:
   void vpmulld(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
   void vpmullq(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
   void vpmuludq(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
+  void vpmuldq(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
   void vpmullw(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
   void vpmulld(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
   void vpmullq(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
