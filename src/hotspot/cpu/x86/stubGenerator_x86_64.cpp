@@ -92,7 +92,7 @@ class StubGenerator: public StubCodeGenerator {
 
   void generate_sha3_stubs();
   address generate_sha3_implCompress(bool multiBlock, const char *name);
-  
+
   // Call stubs are used to call Java from C
   //
   // Linux Arguments:
