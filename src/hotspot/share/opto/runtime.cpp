@@ -1001,6 +1001,25 @@ const TypeFunc* OptoRuntime::digestBase_implCompressMB_Type(bool is_sha3) {
   return TypeFunc::make(domain, range);
 }
 
+// SHAKE128Parallel doubleKeccak function
+const TypeFunc* OptoRuntime::double_keccak_Type() {
+    int argcnt = 2;
+
+    const Type** fields = TypeTuple::fields(argcnt);
+    int argp = TypeFunc::Parms;
+    fields[argp++] = TypePtr::NOTNULL;      // status0
+    fields[argp++] = TypePtr::NOTNULL;      // status1
+
+    assert(argp == TypeFunc::Parms + argcnt, "correct decoding");
+    const TypeTuple* domain = TypeTuple::make(TypeFunc::Parms + argcnt, fields);
+
+    // result type needed
+    fields = TypeTuple::fields(1);
+    fields[TypeFunc::Parms + 0] = TypeInt::INT;
+    const TypeTuple* range = TypeTuple::make(TypeFunc::Parms + 1, fields);
+    return TypeFunc::make(domain, range);
+}
+
 const TypeFunc* OptoRuntime::multiplyToLen_Type() {
   // create input type (domain)
   int num_args      = 6;
@@ -1191,6 +1210,7 @@ const TypeFunc* OptoRuntime::base64_encodeBlock_Type() {
   const TypeTuple* range = TypeTuple::make(TypeFunc::Parms, fields);
   return TypeFunc::make(domain, range);
 }
+
 // Base64 decode function
 const TypeFunc* OptoRuntime::base64_decodeBlock_Type() {
   int argcnt = 7;

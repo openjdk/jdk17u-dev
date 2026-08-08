@@ -193,6 +193,7 @@ class aarch64 {
   }
 
 private:
+  static uint32_t _dilithiumConsts[];
   static juint    _crc_table[];
   static jubyte   _adler_table[];
   // begin trigonometric tables block. See comments in .cpp file

@@ -277,6 +277,7 @@ private:
   static const TypeFunc* counterMode_aescrypt_Type();
 
   static const TypeFunc* digestBase_implCompress_Type(bool is_sha3);
+  static const TypeFunc* double_keccak_Type();
   static const TypeFunc* digestBase_implCompressMB_Type(bool is_sha3);
 
   static const TypeFunc* multiplyToLen_Type();
