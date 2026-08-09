@@ -7819,5 +7819,5 @@ void StubGenerator_generate(CodeBuffer* code, bool all) {
 }
 
 #undef __
-#define STUBGENERATOR_X86_64_SHA3
+
 #include "stubGenerator_x86_64_sha3.cpp"

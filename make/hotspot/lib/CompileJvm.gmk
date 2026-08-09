@@ -125,6 +125,7 @@ endif
 ifeq ($(call isTargetCpu, x86), true)
   JVM_EXCLUDE_PATTERNS += x86_64
 else ifeq ($(call isTargetCpu, x86_64), true)
+  JVM_EXCLUDE_FILES += stubGenerator_x86_64_sha3.cpp
   JVM_EXCLUDE_PATTERNS += x86_32
 endif
 

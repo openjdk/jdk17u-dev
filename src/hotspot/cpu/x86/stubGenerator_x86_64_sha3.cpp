@@ -22,11 +22,6 @@
  *
  */
 
-// this must be compiled in the context of stubGenerator_x86_64.cpp
-#ifndef STUBGENERATOR_X86_64_SHA3
-#include "precompiled.hpp"
-#else
-
 #define __ _masm->
 
 // Constants
@@ -314,6 +309,3 @@ address StubGenerator::generate_sha3_implCompress(bool multiBlock, const char *n
 
   return start;
 }
-
-
-#endif
