@@ -4404,7 +4404,7 @@ class StubGenerator: public StubCodeGenerator {
     const Register dilithiumConsts = r10;
     const Register result = r11;
 
-    __ add(result, coeffs, 0UL);
+    __ add(result, coeffs, (uint64_t)0UL);
     __ lea(dilithiumConsts, ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
 
     // Each level represents one iteration of the outer for loop of the Java version
@@ -4647,7 +4647,7 @@ class StubGenerator: public StubCodeGenerator {
     const Register dilithiumConsts = r10;
     const Register result = r11;
 
-    __ add(result, coeffs, 0UL);
+    __ add(result, coeffs, (uint64_t)0UL);
     __ lea(dilithiumConsts, ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
 
     // Each level represents one iteration of the outer for loop of the Java version
@@ -4832,7 +4832,7 @@ class StubGenerator: public StubCodeGenerator {
     const Register result = r11;
     const Register len = r12;
 
-    __ add(result, coeffs, 0UL);
+    __ add(result, coeffs, (uint64_t)0UL);
     __ lea(dilithiumConsts, ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
 
     __ ldpq(v30, v31, Address(dilithiumConsts, 0));   // qInv, q
