@@ -1382,7 +1382,7 @@ public:
   void vpsraw(XMMRegister dst, XMMRegister nds, int shift, int vector_len);
 
   void evpsrad(XMMRegister dst, XMMRegister nds, XMMRegister shift, int vector_len);
-  void evpsrad(XMMRegister dst, XMMRegister nds, int shift, int vector_len);
+  void evpsrad(XMMRegister dst, XMMRegister nds, int         shift, int vector_len);
 
   void evpsraq(XMMRegister dst, XMMRegister nds, XMMRegister shift, int vector_len);
   void evpsraq(XMMRegister dst, XMMRegister nds, int shift, int vector_len);
