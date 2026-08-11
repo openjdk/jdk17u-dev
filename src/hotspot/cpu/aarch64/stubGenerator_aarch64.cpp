@@ -5950,20 +5950,21 @@ class StubGenerator: public StubCodeGenerator {
     VSeq<8> vs1(0), vs2(16), vs3(24);  // 3 sets of 8x4s inputs/outputs
     VSeq<4> vtmp = vs_front(vs3);         // n.b. tmp registers overlap vs3
     VSeq<2> vq(30);                    // n.b. constants overlap vs3
-    int offsets[4] = {0, 32, 64, 96};
-    int offsets1[8] = {16, 48, 80, 112, 144, 176, 208, 240 };
+    int offsets[4] = { 0, 32, 64, 96};
+    int offsets1[8] = { 16, 48, 80, 112, 144, 176, 208, 240 };
     int offsets2[8] = { 0, 32, 64, 96, 128, 160, 192, 224 };
     __ add(result, coeffs, (uint64_t)0UL);
-    __ lea(dilithiumConsts, ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
+    __ lea(dilithiumConsts,
+             ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
 
-    // Each level represents one iteration of the outer for loop of the Java version
+    // Each level represents one iteration of the outer for loop of the Java version.
 
     // level 0-4
     dilithiumNttLevel0_4(dilithiumConsts, coeffs, zetas);
 
     // level 5
 
-    // at level 5 the coefficients we need to combine with the zetas
+    // At level 5 the coefficients we need to combine with the zetas
     // are grouped in memory in blocks of size 4. So, for both sets of
     // coefficients we load 4 adjacent values at 8 different offsets
     // using an indexed ldr with register variant Q and multiply them
@@ -6159,16 +6160,16 @@ class StubGenerator: public StubCodeGenerator {
     int offsets2[8] = { 16, 48, 80, 112, 144, 176, 208, 240 };
 
     __ add(result, coeffs, (uint64_t)0UL);
-    __ lea(dilithiumConsts, ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
+    __ lea(dilithiumConsts,
+             ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
 
     // Each level represents one iteration of the outer for loop of the Java version
-    // level0
 
     // level 0
     // At level 0 we need to interleave adjacent quartets of
     // coefficients before we multiply and add/sub by the next 16
     // zetas just as we did for level 7 in the multiply code. So we
-    // load and store the values using an ld2/st2 with arrangement 4S
+    // load and store the values using an ld2/st2 with arrangement 4S.
     for (int i = 0; i < 1024; i += 128) {
       // load constants q, qinv
       // n.b. this can be moved out of the loop as they do not get
@@ -6330,13 +6331,14 @@ class StubGenerator: public StubCodeGenerator {
     const Register len = r12;
 
     VSeq<8> vs1(0), vs2(16), vs3(24);  // 3 sets of 8x4s inputs/outputs
-    VSeq<4> vtmp = vs_front(vs3);         // n.b. tmp registers overlap vs3
+    VSeq<4> vtmp = vs_front(vs3);      // n.b. tmp registers overlap vs3
     VSeq<2> vq(30);                    // n.b. constants overlap vs3
     VSeq<8> vconst(29, 0);             // for montmul by constant
 
     // results track inputs
     __ add(result, coeffs, (uint64_t)0UL);
-    __ lea(dilithiumConsts, ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
+    __ lea(dilithiumConsts,
+             ExternalAddress((address) StubRoutines::aarch64::_dilithiumConsts));
 
     // load constants q, qinv -- they do not get clobbered by first two loops
     vs_ldpq(vq, dilithiumConsts); // qInv, q

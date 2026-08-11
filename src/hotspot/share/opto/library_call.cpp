@@ -584,6 +584,20 @@ bool LibraryCallKit::try_to_inline(int predicate) {
 
   case vmIntrinsics::_ghash_processBlocks:
     return inline_ghash_processBlocks();
+  case vmIntrinsics::_kyberNtt:
+    return inline_kyberNtt();
+  case vmIntrinsics::_kyberInverseNtt:
+    return inline_kyberInverseNtt();
+  case vmIntrinsics::_kyberNttMult:
+    return inline_kyberNttMult();
+  case vmIntrinsics::_kyberAddPoly_2:
+    return inline_kyberAddPoly_2();
+  case vmIntrinsics::_kyberAddPoly_3:
+    return inline_kyberAddPoly_3();
+  case vmIntrinsics::_kyber12To16:
+    return inline_kyber12To16();
+  case vmIntrinsics::_kyberBarrettReduce:
+    return inline_kyberBarrettReduce();
   case vmIntrinsics::_dilithiumAlmostNtt:
     return inline_dilithiumAlmostNtt();
   case vmIntrinsics::_dilithiumAlmostInverseNtt:
