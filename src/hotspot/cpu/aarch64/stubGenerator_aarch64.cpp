@@ -4706,11 +4706,11 @@ class StubGenerator: public StubCodeGenerator {
     load64shorts(vs1, tmpAddr);
     load64shorts(vs2, zetas);
     kyber_montmul64(vs2, vs1, vs2, vtmp, vq);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     load64shorts(vs1, tmpAddr);
     vs_subv(vs3, __ T8H, vs1, vs2); // n.b. trashes vq
     vs_addv(vs1, __ T8H, vs1, vs2);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     vs_stpq_post(vs1, tmpAddr);
     __ add(tmpAddr, coeffs, 256);
     vs_stpq_post(vs3, tmpAddr);
@@ -4735,11 +4735,11 @@ class StubGenerator: public StubCodeGenerator {
     load64shorts(vs1, tmpAddr);
     load64shorts(vs2, zetas);
     kyber_montmul64(vs2, vs1, vs2, vtmp, vq);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     load64shorts(vs1, tmpAddr);
     vs_subv(vs3, __ T8H, vs1, vs2); // n.b. trashes vq
     vs_addv(vs1, __ T8H, vs1, vs2);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     store64shorts(vs1, tmpAddr);
     store64shorts(vs3, tmpAddr);
     vs_ldpq(vq, kyberConsts);
@@ -4765,7 +4765,7 @@ class StubGenerator: public StubCodeGenerator {
     // kyber_subv_addv64();
     vs_subv(vs3, __ T8H, vs1, vs2); // n.b. trashes vq
     vs_addv(vs1, __ T8H, vs1, vs2);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     vs_stpq_post(vs_front(vs1), tmpAddr);
     vs_stpq_post(vs_front(vs3), tmpAddr);
     vs_stpq_post(vs_back(vs1), tmpAddr);
@@ -5061,13 +5061,13 @@ class StubGenerator: public StubCodeGenerator {
 
     // level 5
 
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     load64shorts(vs1, tmpAddr);
     __ add(tmpAddr, coeffs, 128);
     load64shorts(vs2, tmpAddr);
     vs_addv(vs3, __ T8H, vs1, vs2); // n.b. trashes vq
     vs_subv(vs1, __ T8H, vs1, vs2);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     store64shorts(vs3, tmpAddr);
     load64shorts(vs2, zetas);
     vs_ldpq(vq, kyberConsts);
@@ -5103,13 +5103,13 @@ class StubGenerator: public StubCodeGenerator {
 
     // level 6
 
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     load64shorts(vs1, tmpAddr);
     __ add(tmpAddr, coeffs, 256);
     load64shorts(vs2, tmpAddr);
     vs_addv(vs3, __ T8H, vs1, vs2); // n.b. trashes vq
     vs_subv(vs1, __ T8H, vs1, vs2);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     store64shorts(vs3, tmpAddr);
     load64shorts(vs2, zetas);
     vs_ldpq(vq, kyberConsts);
@@ -5138,10 +5138,10 @@ class StubGenerator: public StubCodeGenerator {
     __ ldr(v29, __ Q, tmpAddr);
 
     vs_ldpq(vq, kyberConsts);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     load64shorts(vs1, tmpAddr);
     kyber_montmul64(vs2, vs1, vq3, vtmp, vq);
-    __ add(tmpAddr, coeffs, 0);
+    __ add(tmpAddr, coeffs, (uint64_t)0);
     store64shorts(vs2, tmpAddr);
 
     // now tmpAddr contains coeffs + 128 because store64shorts adjusted it so
@@ -5723,7 +5723,7 @@ class StubGenerator: public StubCodeGenerator {
     VSeq<2> vc2_2(31, 0);
     FloatRegister vc2_3 = v31; // for kyberBarrettMultiplier
 
-    __ add(result, coeffs, 0);
+    __ add(result, coeffs, (uint64_t)0);
     __ lea(kyberConsts,
              ExternalAddress((address) StubRoutines::aarch64::_kyberConsts));
 
