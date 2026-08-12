@@ -6365,6 +6365,7 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 
     return start;
+
   }
 
   // Dilithium decompose poly.
@@ -6522,6 +6523,7 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 
     return start;
+
   }
 
   /**
