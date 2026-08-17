@@ -265,7 +265,7 @@ public class ECDSAPrimitive {
         IntegerModuloP v = orderField.getElement(temp);
 
         // Check that v==r by subtracting and comparing result to 0
-        v.subtract(r).mutable().asByteArray(temp);
+        v.subtract(r).mutable().setReduced().asByteArray(temp);
         return ECOperations.allZero(temp);
     }
 
