@@ -11177,4 +11177,3 @@ void Assembler::evpermt2q(XMMRegister dst, XMMRegister nds, XMMRegister src, int
   int encode = vex_prefix_and_encode(dst->encoding(), nds->encoding(), src->encoding(), VEX_SIMD_66, VEX_OPCODE_0F_38, &attributes);
   emit_int16(0x7E, (0xC0 | encode));
 }
-
