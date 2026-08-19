@@ -91,7 +91,6 @@ class StubGenerator: public StubCodeGenerator {
 #endif
 
   void generate_sha3_stubs();
-  address generate_sha3_implCompress(bool multiBlock, const char *name);
   void generate_dilithium_stubs();
 
   // Call stubs are used to call Java from C
