@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,12 +23,30 @@
  * questions.
  */
 
-package sun.net.httpserver;
+package sun.security.util;
 
-class WriteFinishedEvent extends Event {
-    WriteFinishedEvent (ExchangeImpl t) {
-        super (t);
-        assert !t.writefinished;
-        t.writefinished = true;
+import java.security.spec.KeySpec;
+
+/**
+ * This is a KeySpec that is used to specify a key by its byte array implementation.
+ * It is intended to be used in testing algorithms where the algorithm specification
+ * describes the key in this form.
+ */
+public class RawKeySpec implements KeySpec {
+    private final byte[] keyArr;
+    /**
+     * The sole constructor.
+     * @param key contains the key as a byte array
+     */
+    public RawKeySpec(byte[] key) {
+        keyArr = key.clone();
+    }
+
+    /**
+     * Getter function.
+     * @return a copy of the key bits
+     */
+    public byte[] getKeyArr() {
+        return keyArr.clone();
     }
 }
