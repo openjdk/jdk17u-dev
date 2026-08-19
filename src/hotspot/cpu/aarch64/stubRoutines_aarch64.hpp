@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2025, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2014, Red Hat Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -36,7 +36,7 @@ static bool    returns_to_call_stub(address return_pc)   {
 
 enum platform_dependent_constants {
   code_size1 = 19000,          // simply increase if too small (assembler will crash if too small)
-  code_size2 = 45000           // simply increase if too small (assembler will crash if too small)
+  code_size2 = 70000           // simply increase if too small (assembler will crash if too small)
 };
 
 class aarch64 {
@@ -58,8 +58,6 @@ class aarch64 {
 
   static address _zero_blocks;
 
-  static address _has_negatives;
-  static address _has_negatives_long;
   static address _large_array_equals;
   static address _compare_long_string_LL;
   static address _compare_long_string_LU;
@@ -77,6 +75,9 @@ class aarch64 {
   static bool _completed;
 
  public:
+
+  static address _has_negatives;
+  static address _has_negatives_long;
 
   static address get_previous_sp_entry()
   {
@@ -192,6 +193,8 @@ class aarch64 {
   }
 
 private:
+  static uint16_t  _kyberConsts[];
+  static uint32_t _dilithiumConsts[];
   static juint    _crc_table[];
   static jubyte   _adler_table[];
   // begin trigonometric tables block. See comments in .cpp file

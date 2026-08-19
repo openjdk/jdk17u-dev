@@ -30,6 +30,7 @@ import java.security.*;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Collection;
 import javax.crypto.Mac;
@@ -58,7 +59,7 @@ final class PreSharedKeyExtension {
             new CHPreSharedKeyOnLoadAbsence();
     static final HandshakeConsumer chOnTradeConsumer =
             new CHPreSharedKeyUpdate();
-    static final HandshakeAbsence chOnTradAbsence =
+    static final HandshakeAbsence chOnTradeAbsence =
             new CHPreSharedKeyOnTradeAbsence();
     static final SSLStringizer chStringizer =
             new CHPreSharedKeyStringizer();
@@ -696,11 +697,13 @@ final class PreSharedKeyExtension {
             //The session cannot be used again. Remove it from the cache.
             SSLSessionContextImpl sessionCache = (SSLSessionContextImpl)
                 chc.sslContext.engineGetClientSessionContext();
-            sessionCache.remove(chc.resumingSession.getSessionId());
+            sessionCache.remove(chc.resumingSession.getSessionId(), true);
 
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
                     "Found resumable session. Preparing PSK message.");
+                SSLLogger.fine(
+                    "MultiNST PSK (Client): " + Utilities.toHexString(Arrays.copyOf(chc.pskIdentity, 16)));
             }
 
             List<PskIdentity> identities = new ArrayList<>();
