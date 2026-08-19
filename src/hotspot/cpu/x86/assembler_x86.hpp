@@ -2270,9 +2270,13 @@ private:
   void vpaddq(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
 
   // Leaf level assembler routines for masked operations.
+  void evpaddd(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
+  void evpaddd(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
   void evpaddq(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
 // void evpaddq(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
   void evpmulhw(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
+  void evpmulld(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
+  void evpmulld(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
   void evpxorq(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
   void evpxorq(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
 
@@ -2290,6 +2294,8 @@ private:
   void vpsubw(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
   void vpsubd(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
   void vpsubq(XMMRegister dst, XMMRegister nds, Address src, int vector_len);
+  void evpsubd(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
+  void evpsubd(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
 
   // Multiply packed integers (only shorts and ints)
   void pmullw(XMMRegister dst, XMMRegister src);
@@ -2373,6 +2379,8 @@ private:
   void vpsraw(XMMRegister dst, XMMRegister src, XMMRegister shift, int vector_len);
   void vpsrad(XMMRegister dst, XMMRegister src, XMMRegister shift, int vector_len);
   void evpsravw(XMMRegister dst, XMMRegister nds, XMMRegister src, int vector_len);
+  void evpsrad(XMMRegister dst, KRegister mask, XMMRegister src, int shift, bool merge, int vector_len);
+  void evpsrad(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
   void evpsraq(XMMRegister dst, XMMRegister src, int shift, int vector_len);
   void evpsraq(XMMRegister dst, XMMRegister src, XMMRegister shift, int vector_len);
 
@@ -2410,6 +2418,8 @@ private:
 
   void evpord(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
   void evpord(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
+  void evporq(XMMRegister dst, KRegister mask, XMMRegister nds, XMMRegister src, bool merge, int vector_len);
+  void evporq(XMMRegister dst, KRegister mask, XMMRegister nds, Address src, bool merge, int vector_len);
 
   // Xor packed integers
   void pxor(XMMRegister dst, XMMRegister src);

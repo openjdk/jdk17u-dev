@@ -3349,6 +3349,16 @@ void MacroAssembler::vpand(XMMRegister dst, XMMRegister nds, AddressLiteral src,
   }
 }
 
+void MacroAssembler::vpbroadcastd(XMMRegister dst, AddressLiteral src, int vector_len, Register rscratch) {
+  if (reachable(src)) {
+    Assembler::vpbroadcastd(dst, as_Address(src), vector_len);
+  } else {
+    assert(rscratch != noreg, "missing");
+    lea(rscratch, src);
+    Assembler::vpbroadcastd(dst, Address(rscratch, 0), vector_len);
+  }
+}
+
 void MacroAssembler::vpbroadcastw(XMMRegister dst, XMMRegister src, int vector_len) {
   assert(((dst->encoding() < 16 && src->encoding() < 16) || VM_Version::supports_avx512vlbw()),"XMM register should be 0-15");
   Assembler::vpbroadcastw(dst, src, vector_len);
