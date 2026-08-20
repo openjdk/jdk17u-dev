@@ -947,6 +947,20 @@ void VM_Version::get_processor_features() {
     FLAG_SET_DEFAULT(UseGHASHIntrinsics, false);
   }
 
+  // Dilithium Intrinsics
+  // Currently we only have them for AVX512
+#ifdef _LP64
+  if (supports_evex() && supports_avx512bw()) {
+      if (FLAG_IS_DEFAULT(UseDilithiumIntrinsics)) {
+          UseDilithiumIntrinsics = true;
+      }
+  } else
+#endif
+   if (UseDilithiumIntrinsics) {
+      warning("Intrinsics for ML-DSA are not available on this CPU.");
+      FLAG_SET_DEFAULT(UseDilithiumIntrinsics, false);
+  }
+
   // Base64 Intrinsics (Check the condition for which the intrinsic will be active)
   if ((UseAVX > 2) && supports_avx512vl() && supports_avx512bw()) {
     if (FLAG_IS_DEFAULT(UseBASE64Intrinsics)) {

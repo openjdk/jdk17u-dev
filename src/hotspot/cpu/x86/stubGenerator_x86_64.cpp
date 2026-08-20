@@ -91,7 +91,7 @@ class StubGenerator: public StubCodeGenerator {
 #endif
 
   void generate_sha3_stubs();
-  address generate_sha3_implCompress(bool multiBlock, const char *name);
+  void generate_dilithium_stubs();
 
   // Call stubs are used to call Java from C
   //
@@ -7704,6 +7704,8 @@ address generate_avx_ghash_processBlocks() {
     if (bs_nm != NULL) {
       StubRoutines::x86::_method_entry_barrier = generate_method_entry_barrier();
     }
+  generate_dilithium_stubs();
+
   generate_sha3_stubs();
 
 #ifdef COMPILER2
@@ -7820,4 +7822,5 @@ void StubGenerator_generate(CodeBuffer* code, bool all) {
 
 #undef __
 
+#include "stubGenerator_x86_64_dilithium.cpp"
 #include "stubGenerator_x86_64_sha3.cpp"

@@ -496,7 +496,7 @@ class methodHandle;
    do_name(kyberBarrettReduce_name,                        "implKyberBarrettReduce")                                    \
                                                                                                                         \
   /* support for sun.security.provider.ML_DSA */                                                                        \
- do_class(sun_security_provider_ML_DSA,      "sun/security/provider/ML_DSA")                                            \
+  do_class(sun_security_provider_ML_DSA,      "sun/security/provider/ML_DSA")                                           \
    do_signature(IaII_signature, "([II)I")                                                                               \
    do_signature(IaIaI_signature, "([I[I)I")                                                                             \
    do_signature(IaIaIaI_signature, "([I[I[I)I")                                                                         \
