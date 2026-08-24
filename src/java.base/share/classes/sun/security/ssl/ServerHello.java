@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -274,13 +274,6 @@ final class ServerHello {
                         "Not resumption, and no new session is allowed");
                 }
 
-                if (shc.localSupportedSignAlgs == null) {
-                    shc.localSupportedSignAlgs =
-                        SignatureScheme.getSupportedAlgorithms(
-                                shc.sslConfig,
-                                shc.algorithmConstraints, shc.activeProtocols);
-                }
-
                 SSLSessionImpl session =
                         new SSLSessionImpl(shc, CipherSuite.C_NULL);
                 session.setMaximumPacketSize(shc.sslConfig.maximumPacketSize);
@@ -513,13 +506,6 @@ final class ServerHello {
                 if (!shc.sslConfig.enableSessionCreation) {
                     throw new SSLException(
                         "Not resumption, and no new session is allowed");
-                }
-
-                if (shc.localSupportedSignAlgs == null) {
-                    shc.localSupportedSignAlgs =
-                        SignatureScheme.getSupportedAlgorithms(
-                                shc.sslConfig,
-                                shc.algorithmConstraints, shc.activeProtocols);
                 }
 
                 SSLSessionImpl session =
@@ -763,6 +749,15 @@ final class ServerHello {
         public byte[] produce(ConnectionContext context,
                 HandshakeMessage message) throws IOException {
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
+
+
+            if (shc.sentHRR) {
+                throw shc.conContext.fatal(
+                        Alert.HANDSHAKE_FAILURE,
+                        "TLS 1.3 server MUST NOT send a second HelloRetryRequest " +
+                        "in the same connection");
+            }
+
             ClientHelloMessage clientHello = (ClientHelloMessage) message;
 
             // negotiate the cipher suite.
@@ -798,6 +793,7 @@ final class ServerHello {
             // Output the handshake message.
             hhrm.write(shc.handshakeOutput);
             shc.handshakeOutput.flush();
+            shc.sentHRR = true;
 
             // In TLS1.3 middlebox compatibility mode the server sends a
             // dummy change_cipher_spec record immediately after its
@@ -943,6 +939,10 @@ final class ServerHello {
                     "Negotiated protocol version: " + serverVersion.name);
             }
 
+            // Protocol version is negotiated, update locally supported
+            // signature schemes according to the protocol being used.
+            SignatureScheme.updateHandshakeLocalSupportedAlgs(chc);
+
             // TLS 1.3 key share extension may have produced client
             // possessions for TLS 1.3 key exchanges.
             //
@@ -993,6 +993,10 @@ final class ServerHello {
                 SSLLogger.fine(
                     "Negotiated protocol version: " + serverVersion.name);
             }
+
+            // Protocol version is negotiated, update locally supported
+            // signature schemes according to the protocol being used.
+            SignatureScheme.updateHandshakeLocalSupportedAlgs(chc);
 
             if (serverHello.serverRandom.isVersionDowngrade(chc)) {
                 throw chc.conContext.fatal(Alert.ILLEGAL_PARAMETER,

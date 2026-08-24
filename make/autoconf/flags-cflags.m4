@@ -316,7 +316,7 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
     C_O_FLAG_DEBUG="-Od"
     C_O_FLAG_DEBUG_JVM=""
     C_O_FLAG_NONE="-Od"
-    C_O_FLAG_SIZE="-Os"
+    C_O_FLAG_SIZE="-O1"
   fi
 
   # Now copy to C++ flags
@@ -544,8 +544,8 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     TOOLCHAIN_CFLAGS_JVM="-qtbtable=full -qtune=balanced \
         -qalias=noansi -qstrict -qtls=default -qnortti -qnoeh -qignerrno -qstackprotect"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    TOOLCHAIN_CFLAGS_JVM="-nologo -MD -MP"
-    TOOLCHAIN_CFLAGS_JDK="-nologo -MD -Zc:wchar_t-"
+    TOOLCHAIN_CFLAGS_JVM="-nologo -MD -Zc:strictStrings -MP"
+    TOOLCHAIN_CFLAGS_JDK="-nologo -MD -Zc:strictStrings -Zc:wchar_t-"
   fi
 
   # CFLAGS C language level for JDK sources (hotspot only uses C++)

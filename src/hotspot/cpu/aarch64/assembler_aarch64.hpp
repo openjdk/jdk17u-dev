@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2025, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2014, 2021, Red Hat Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -247,12 +247,12 @@ public:
     int nbits = msb - lsb + 1;
     guarantee(val < (1ULL << nbits), "Field too big for insn");
     assert_cond(msb >= lsb);
-    unsigned mask = checked_cast<unsigned>(right_n_bits(nbits));
     val <<= lsb;
-    mask <<= lsb;
     insn |= val;
-    assert_cond((bits & mask) == 0);
 #ifdef ASSERT
+    unsigned mask = checked_cast<unsigned>(right_n_bits(nbits));
+    mask <<= lsb;
+    assert_cond((bits & mask) == 0);
     bits |= mask;
 #endif
   }
@@ -313,7 +313,7 @@ public:
   }
 };
 
-#define starti Instruction_aarch64 do_not_use(this); set_current(&do_not_use)
+#define starti Instruction_aarch64 current_insn(this);
 
 class PrePost {
   int _offset;
@@ -695,46 +695,14 @@ public:
 
   static address locate_next_instruction(address inst);
 
-  Instruction_aarch64* current;
-
-  void set_current(Instruction_aarch64* i) { current = i; }
-
-  void f(unsigned val, int msb, int lsb) {
-    current->f(val, msb, lsb);
-  }
-  void f(unsigned val, int msb) {
-    current->f(val, msb, msb);
-  }
-  void sf(int64_t val, int msb, int lsb) {
-    current->sf(val, msb, lsb);
-  }
-  void rf(Register reg, int lsb) {
-    current->rf(reg, lsb);
-  }
-  void srf(Register reg, int lsb) {
-    current->srf(reg, lsb);
-  }
-  void zrf(Register reg, int lsb) {
-    current->zrf(reg, lsb);
-  }
-  void rf(FloatRegister reg, int lsb) {
-    current->rf(reg, lsb);
-  }
-  void prf(PRegister reg, int lsb) {
-    current->prf(reg, lsb);
-  }
-  void pgrf(PRegister reg, int lsb) {
-    current->pgrf(reg, lsb);
-  }
-  void fixed(unsigned value, unsigned mask) {
-    current->fixed(value, mask);
-  }
-
-  void emit() {
-    emit_long(current->get_insn());
-    assert_cond(current->get_bits() == 0xffffffff);
-    current = NULL;
-  }
+#define f current_insn.f
+#define sf current_insn.sf
+#define rf current_insn.rf
+#define srf current_insn.srf
+#define zrf current_insn.zrf
+#define prf current_insn.prf
+#define pgrf current_insn.pgrf
+#define fixed current_insn.fixed
 
   typedef void (Assembler::* uncond_branch_insn)(address dest);
   typedef void (Assembler::* compare_and_branch_insn)(Register Rt, address dest);
@@ -765,8 +733,8 @@ public:
 
 #undef INSN
 
-  void add_sub_immediate(Register Rd, Register Rn, unsigned uimm, int op,
-                         int negated_op);
+  void add_sub_immediate(Instruction_aarch64 &current_insn, Register Rd, Register Rn,
+                         unsigned uimm, int op, int negated_op);
 
   // Add/subtract (immediate)
 #define INSN(NAME, decode, negated)                                     \
@@ -778,7 +746,7 @@ public:
                                                                         \
   void NAME(Register Rd, Register Rn, unsigned imm) {                   \
     starti;                                                             \
-    add_sub_immediate(Rd, Rn, imm, decode, negated);                    \
+    add_sub_immediate(current_insn, Rd, Rn, imm, decode, negated);      \
   }
 
   INSN(addsw, 0b001, 0b011);
@@ -791,7 +759,7 @@ public:
 #define INSN(NAME, decode, negated)                     \
   void NAME(Register Rd, Register Rn, unsigned imm) {   \
     starti;                                             \
-    add_sub_immediate(Rd, Rn, imm, decode, negated);    \
+    add_sub_immediate(current_insn, Rd, Rn, imm, decode, negated);     \
   }
 
   INSN(addw, 0b000, 0b010);
@@ -890,7 +858,7 @@ public:
   static const uint64_t branch_range = NOT_DEBUG(128 * M) DEBUG_ONLY(2 * M);
 
   static bool reachable_from_branch_at(address branch, address target) {
-    return uabs(target - branch) < branch_range;
+    return g_uabs(target - branch) < branch_range;
   }
 
   // Unconditional branch (immediate)
@@ -1093,7 +1061,7 @@ public:
   }
 
   void sys(int op1, int CRn, int CRm, int op2,
-           Register rt = (Register)0b11111) {
+           Register rt = as_Register(0b11111)) {
     system(0b01, op1, CRn, CRm, op2, rt);
   }
 
@@ -1362,7 +1330,7 @@ public:
     starti;                                                             \
     f(opc, 31, 30), f(0b011, 29, 27), f(V, 26), f(0b00, 25, 24),        \
       sf(offset, 23, 5);                                                \
-    rf((Register)Rt, 0);                                                \
+    rf(as_Register(Rt), 0);                                             \
   }
 
   INSN(ldrs, 0b00, 1);
@@ -1376,7 +1344,7 @@ public:
     starti;                                                             \
     f(size, 31, 30), f(0b111100, 29, 24), f(opc, 23, 22), f(0, 21);     \
     f(0, 20, 12), f(0b01, 11, 10);                                      \
-    rf(Rn, 5), rf((Register)Rt, 0);                                     \
+    rf(Rn, 5), rf(as_Register(Rt), 0);                                  \
   }
 
   INSN(ldrs, 0b10, 0b01);
@@ -1409,9 +1377,9 @@ public:
     f(opc, 31, 30), f(p1, 29, 27), f(V, 26), f(L, 22);
     zrf(Rt2, 10), zrf(Rt1, 0);
     if (no_allocate) {
-      adr.encode_nontemporal_pair(current);
+      adr.encode_nontemporal_pair(&current_insn);
     } else {
-      adr.encode_pair(current);
+      adr.encode_pair(&current_insn);
     }
   }
 
@@ -1437,7 +1405,8 @@ public:
 
 #define INSN(NAME, size, p1, V, L, no_allocate)                         \
   void NAME(FloatRegister Rt1, FloatRegister Rt2, Address adr) {        \
-    ld_st1(size, p1, V, L, (Register)Rt1, (Register)Rt2, adr, no_allocate); \
+    ld_st1(size, p1, V, L,                                              \
+           as_Register(Rt1), as_Register(Rt2), adr, no_allocate);       \
    }
 
   INSN(stps, 0b00, 0b101, 1, 0, false);
@@ -1472,7 +1441,7 @@ public:
 
     f(size, 31, 30);
     f(op, 23, 22); // str
-    adr.encode(current);
+    adr.encode(&current_insn);
   }
 
 #define INSN(NAME, size, op)                            \
@@ -1500,7 +1469,7 @@ public:
 
 #define INSN(NAME, size, op)                                    \
   void NAME(const Address &adr, prfop pfop = PLDL1KEEP) {       \
-    ld_st2((Register)pfop, adr, size, op);                      \
+    ld_st2(as_Register(pfop), adr, size, op);                   \
   }
 
   INSN(prfm, 0b11, 0b10); // FIXME: PRFM should not be used with
@@ -1511,7 +1480,7 @@ public:
 
 #define INSN(NAME, size, op)                            \
   void NAME(FloatRegister Rt, const Address &adr) {     \
-    ld_st2((Register)Rt, adr, size, op, 1);             \
+    ld_st2(as_Register(Rt), adr, size, op, 1);          \
   }
 
   INSN(strd, 0b11, 0b00);
@@ -1546,9 +1515,12 @@ public:
     B, H, S, D, Q, INVALID
   };
 
+  // Return the corresponding bits for different SIMD_RegVariant value.
+  static unsigned regVariant_to_elemBits(SIMD_RegVariant T);
+
   enum shift_kind { LSL, LSR, ASR, ROR };
 
-  void op_shifted_reg(unsigned decode,
+  void op_shifted_reg(Instruction_aarch64 &current_insn, unsigned decode,
                       enum shift_kind kind, unsigned shift,
                       unsigned size, unsigned op) {
     f(size, 31);
@@ -1559,14 +1531,14 @@ public:
   }
 
   // Logical (shifted register)
-#define INSN(NAME, size, op, N)                                 \
-  void NAME(Register Rd, Register Rn, Register Rm,              \
-            enum shift_kind kind = LSL, unsigned shift = 0) {   \
-    starti;                                                     \
-    guarantee(size == 1 || shift < 32, "incorrect shift");      \
-    f(N, 21);                                                   \
-    zrf(Rm, 16), zrf(Rn, 5), zrf(Rd, 0);                        \
-    op_shifted_reg(0b01010, kind, shift, size, op);             \
+#define INSN(NAME, size, op, N)                                         \
+  void NAME(Register Rd, Register Rn, Register Rm,                      \
+            enum shift_kind kind = LSL, unsigned shift = 0) {           \
+    starti;                                                             \
+    guarantee(size == 1 || shift < 32, "incorrect shift");              \
+    f(N, 21);                                                           \
+    zrf(Rm, 16), zrf(Rn, 5), zrf(Rd, 0);                                \
+    op_shifted_reg(current_insn, 0b01010, kind, shift, size, op);       \
   }
 
   INSN(andr, 1, 0b00, 0);
@@ -1586,7 +1558,7 @@ public:
     starti;                                                             \
     f(N, 21);                                                           \
     zrf(Rm, 16), zrf(Rn, 5), zrf(Rd, 0);                                \
-    op_shifted_reg(0b01010, kind, shift, size, op);                     \
+    op_shifted_reg(current_insn, 0b01010, kind, shift, size, op);       \
   }                                                                     \
                                                                         \
   /* These instructions have no immediate form. Provide an overload so  \
@@ -1633,7 +1605,7 @@ void mvnw(Register Rd, Register Rm,
     assert_cond(kind != ROR);                           \
     guarantee(size == 1 || shift < 32, "incorrect shift");\
     zrf(Rd, 0), zrf(Rn, 5), zrf(Rm, 16);                \
-    op_shifted_reg(0b01011, kind, shift, size, op);     \
+    op_shifted_reg(current_insn, 0b01011, kind, shift, size, op);      \
   }
 
   INSN(add, 1, 0b000);
@@ -1654,10 +1626,10 @@ void mvnw(Register Rd, Register Rm,
            ext::operation option, int amount = 0) {                     \
     starti;                                                             \
     zrf(Rm, 16), srf(Rn, 5), srf(Rd, 0);                                \
-    add_sub_extended_reg(op, 0b01011, Rd, Rn, Rm, 0b00, option, amount); \
+    add_sub_extended_reg(current_insn, op, 0b01011, Rd, Rn, Rm, 0b00, option, amount); \
   }
 
-  void add_sub_extended_reg(unsigned op, unsigned decode,
+  void add_sub_extended_reg(Instruction_aarch64 &current_insn, unsigned op, unsigned decode,
     Register Rd, Register Rn, Register Rm,
     unsigned opt, ext::operation option, unsigned imm) {
     guarantee(imm <= 4, "shift amount must be <= 4");
@@ -1677,7 +1649,7 @@ void mvnw(Register Rd, Register Rm,
            ext::operation option, int amount = 0) {                     \
     starti;                                                             \
     zrf(Rm, 16), srf(Rn, 5), zrf(Rd, 0);                                \
-    add_sub_extended_reg(op, 0b01011, Rd, Rn, Rm, 0b00, option, amount); \
+    add_sub_extended_reg(current_insn, op, 0b01011, Rd, Rn, Rm, 0b00, option, amount); \
   }
 
   INSN(addsw, 0b001);
@@ -1778,7 +1750,7 @@ void mvnw(Register Rd, Register Rm,
   }
 
 #define INSN(NAME, op, op2)                                             \
-  void NAME(Register Rd, Register Rn, Register Rm, Condition cond) { \
+  void NAME(Register Rd, Register Rn, Register Rm, Condition cond) {    \
     conditional_select(op, op2, Rd, Rn, Rm, cond);                      \
   }
 
@@ -1794,7 +1766,7 @@ void mvnw(Register Rd, Register Rm,
 #undef INSN
 
   // Data processing
-  void data_processing(unsigned op29, unsigned opcode,
+  void data_processing(Instruction_aarch64 &current_insn, unsigned op29, unsigned opcode,
                        Register Rd, Register Rn) {
     f(op29, 31, 29), f(0b11010110, 28, 21);
     f(opcode, 15, 10);
@@ -1802,11 +1774,11 @@ void mvnw(Register Rd, Register Rm,
   }
 
   // (1 source)
-#define INSN(NAME, op29, opcode2, opcode)       \
-  void NAME(Register Rd, Register Rn) {         \
-    starti;                                     \
-    f(opcode2, 20, 16);                         \
-    data_processing(op29, opcode, Rd, Rn);      \
+#define INSN(NAME, op29, opcode2, opcode)                       \
+  void NAME(Register Rd, Register Rn) {                         \
+    starti;                                                     \
+    f(opcode2, 20, 16);                                         \
+    data_processing(current_insn, op29, opcode, Rd, Rn);        \
   }
 
   INSN(rbitw,  0b010, 0b00000, 0b00000);
@@ -1825,11 +1797,11 @@ void mvnw(Register Rd, Register Rm,
 #undef INSN
 
   // (2 sources)
-#define INSN(NAME, op29, opcode)                        \
-  void NAME(Register Rd, Register Rn, Register Rm) {    \
-    starti;                                             \
-    rf(Rm, 16);                                         \
-    data_processing(op29, opcode, Rd, Rn);              \
+#define INSN(NAME, op29, opcode)                                \
+  void NAME(Register Rd, Register Rn, Register Rm) {            \
+    starti;                                                     \
+    rf(Rm, 16);                                                 \
+    data_processing(current_insn, op29, opcode, Rd, Rn);        \
   }
 
   INSN(udivw, 0b000, 0b000010);
@@ -1874,9 +1846,9 @@ void mvnw(Register Rd, Register Rm,
 
 #undef INSN
 
-#define INSN(NAME, op54, op31, o0)                      \
-  void NAME(Register Rd, Register Rn, Register Rm) {    \
-    data_processing(op54, op31, o0, Rd, Rn, Rm, (Register)31);  \
+#define INSN(NAME, op54, op31, o0)                                      \
+  void NAME(Register Rd, Register Rn, Register Rm) {                    \
+    data_processing(op54, op31, o0, Rd, Rn, Rm, as_Register(31));       \
   }
 
   INSN(smulh, 0b100, 0b010, 0);
@@ -2055,7 +2027,7 @@ public:
 
 #define INSN(NAME, op31, type, rmode, opcode)                           \
   void NAME(Register Rd, FloatRegister Vn) {                            \
-    float_int_convert(op31, type, rmode, opcode, Rd, (Register)Vn);     \
+    float_int_convert(op31, type, rmode, opcode, Rd, as_Register(Vn));  \
   }
 
   INSN(fcvtzsw, 0b000, 0b00, 0b11, 0b000);
@@ -2072,7 +2044,7 @@ public:
 
 #define INSN(NAME, op31, type, rmode, opcode)                           \
   void NAME(FloatRegister Vd, Register Rn) {                            \
-    float_int_convert(op31, type, rmode, opcode, (Register)Vd, Rn);     \
+    float_int_convert(op31, type, rmode, opcode, as_Register(Vd), Rn);  \
   }
 
   INSN(fmovs, 0b000, 0b00, 0b00, 0b111);
@@ -2127,7 +2099,7 @@ public:
   // Floating-point compare
   void float_compare(unsigned op31, unsigned type,
                      unsigned op, unsigned op2,
-                     FloatRegister Vn, FloatRegister Vm = (FloatRegister)0) {
+                     FloatRegister Vn, FloatRegister Vm = as_FloatRegister(0)) {
     starti;
     f(op31, 31, 29);
     f(0b11110, 28, 24);
@@ -2257,10 +2229,10 @@ private:
   static short SIMD_Size_in_bytes[];
 
 public:
-#define INSN(NAME, op)                                            \
-  void NAME(FloatRegister Rt, SIMD_RegVariant T, const Address &adr) {   \
-    ld_st2((Register)Rt, adr, (int)T & 3, op + ((T==Q) ? 0b10:0b00), 1); \
-  }                                                                      \
+#define INSN(NAME, op)                                                  \
+  void NAME(FloatRegister Rt, SIMD_RegVariant T, const Address &adr) {  \
+    ld_st2(as_Register(Rt), adr, (int)T & 3, op + ((T==Q) ? 0b10:0b00), 1); \
+  }
 
   INSN(ldr, 1);
   INSN(str, 0);
@@ -2311,6 +2283,41 @@ public:
     default:
       ShouldNotReachHere();
     }
+  }
+
+  // Single-structure load/store method (all addressing variants)
+  void ld_st(FloatRegister Vt, SIMD_RegVariant T, int index, Address a,
+             int op1, int op2, int regs) {
+    int expectedImmediate = (regVariant_to_elemBits(T) >> 3) * regs;
+    int sVal = (T < D) ? (index >> (2 - T)) & 0x01 : 0;
+    int opcode = (T < D) ? (T << 2) : ((T & 0x02) << 2);
+    int size = (T < D) ? (index & (0x3 << T)) : 1;  // only care about low 2b
+    Register Xn = a.base();
+    int Rm;
+
+    switch (a.getMode()) {
+    case Address::base_plus_offset:
+      guarantee(a.offset() == 0, "no offset allowed here");
+      Rm = 0;
+      break;
+    case Address::post:
+      guarantee(a.offset() == expectedImmediate, "bad offset");
+      op1 |= 0b100;
+      Rm = 0b11111;
+      break;
+    case Address::post_reg:
+      op1 |= 0b100;
+      Rm = a.index()->encoding();
+      break;
+    default:
+      ShouldNotReachHere();
+      Rm = 0;  // unreachable
+    }
+
+    starti;
+    f(0,31), f((index >> (3 - T)), 30);
+    f(op1, 29, 21), f(Rm, 20, 16), f(op2 | opcode | sVal, 15, 12);
+    f(size, 11, 10), srf(Xn, 5), rf(Vt, 0);
   }
 
  public:
@@ -2370,6 +2377,71 @@ public:
 #undef INSN3
 #undef INSN4
 
+// Handle common single-structure ld/st parameter sanity checks
+// for all variations (1 to 4) of SIMD reigster inputs.  This
+// method will call the routine that generates the opcode.
+template<typename R, typename... Rx>
+  void ldst_sstr(SIMD_RegVariant T, int index, const Address &a,
+            int op1, int op2, R firstReg, Rx... otherRegs) {
+    const FloatRegister vtSet[] = { firstReg, otherRegs... };
+    const int regCount = sizeof...(otherRegs) + 1;
+    assert(index >= 0 && (T <= D) && ((T == B && index <= 15) ||
+              (T == H && index <= 7) || (T == S && index <= 3) ||
+              (T == D && index <= 1)), "invalid index");
+    assert(regCount >= 1 && regCount <= 4, "illegal register count");
+
+    // Check to make sure when multiple SIMD registers are used
+    // that they are in successive order.
+    for (int i = 0; i < regCount - 1; i++) {
+      assert(vtSet[i]->successor() == vtSet[i + 1],
+             "Registers must be ordered");
+    }
+
+    ld_st(firstReg, T, index, a, op1, op2, regCount);
+  }
+
+// Define a set of INSN1/2/3/4 macros to handle single-structure
+// load/store instructions.
+#define INSN1(NAME, op1, op2)                                           \
+  void NAME(FloatRegister Vt, SIMD_RegVariant T, int index,             \
+            const Address &a) {                                         \
+    ldst_sstr(T, index, a, op1, op2, Vt);                               \
+ }
+
+#define INSN2(NAME, op1, op2)                                           \
+  void NAME(FloatRegister Vt, FloatRegister Vt2, SIMD_RegVariant T,     \
+            int index, const Address &a) {                              \
+    ldst_sstr(T, index, a, op1, op2, Vt, Vt2);                          \
+  }
+
+#define INSN3(NAME, op1, op2)                                           \
+  void NAME(FloatRegister Vt, FloatRegister Vt2, FloatRegister Vt3,     \
+            SIMD_RegVariant T, int index, const Address &a) {           \
+    ldst_sstr(T, index, a, op1, op2, Vt, Vt2, Vt3);                     \
+  }
+
+#define INSN4(NAME, op1, op2)                                           \
+  void NAME(FloatRegister Vt, FloatRegister Vt2, FloatRegister Vt3,     \
+            FloatRegister Vt4, SIMD_RegVariant T, int index,            \
+            const Address &a) {                                         \
+    ldst_sstr(T, index, a, op1, op2, Vt, Vt2, Vt3, Vt4);                \
+  }
+
+  INSN1(ld1, 0b001101010, 0b0000);
+  INSN2(ld2, 0b001101011, 0b0000);
+  INSN3(ld3, 0b001101010, 0b0010);
+  INSN4(ld4, 0b001101011, 0b0010);
+
+  INSN1(st1, 0b001101000, 0b0000);
+  INSN2(st2, 0b001101001, 0b0000);
+  INSN3(st3, 0b001101000, 0b0010);
+  INSN4(st4, 0b001101001, 0b0010);
+
+#undef INSN1
+#undef INSN2
+#undef INSN3
+#undef INSN4
+
 #define INSN(NAME, opc)                                                                 \
   void NAME(FloatRegister Vd, SIMD_Arrangement T, FloatRegister Vn, FloatRegister Vm) { \
     starti;                                                                             \
@@ -2393,6 +2465,7 @@ public:
   void NAME(FloatRegister Vd, SIMD_Arrangement T, FloatRegister Vn, FloatRegister Vm) { \
     guarantee(T != T1Q && T != T1D, "incorrect arrangement");                           \
     if (!acceptT2D) guarantee(T != T2D, "incorrect arrangement");                       \
+    if (opc2 ==  0b101101) guarantee(T != T8B && T != T16B, "incorrect arrangement");   \
     starti;                                                                             \
     f(0, 31), f((int)T & 1, 30), f(opc, 29), f(0b01110, 28, 24);                        \
     f((int)T >> 1, 23, 22), f(1, 21), rf(Vm, 16), f(opc2, 15, 10);                      \
@@ -2420,6 +2493,8 @@ public:
   INSN(cmge,   0, 0b001111, true);  // accepted arrangements: T8B, T16B, T4H, T8H, T2S, T4S, T2D
   INSN(cmhi,   1, 0b001101, true);  // accepted arrangements: T8B, T16B, T4H, T8H, T2S, T4S, T2D
   INSN(cmhs,   1, 0b001111, true);  // accepted arrangements: T8B, T16B, T4H, T8H, T2S, T4S, T2D
+  INSN(sqdmulh,0, 0b101101, false); // accepted arrangements: T4H, T8H, T2S, T4S
+  INSN(shsubv, 0, 0b001001, false); // accepted arrangements: T8B, T16B, T4H, T8H, T2S, T4S
 
 #undef INSN
 
@@ -3273,8 +3348,18 @@ inline Assembler::Membar_mask_bits operator|(Assembler::Membar_mask_bits a,
 }
 
 Instruction_aarch64::~Instruction_aarch64() {
-  assem->emit();
+  assem->emit_int32(insn);
+  assert_cond(get_bits() == 0xffffffff);
 }
+
+#undef f
+#undef sf
+#undef rf
+#undef srf
+#undef zrf
+#undef prf
+#undef pgrf
+#undef fixed
 
 #undef starti
 

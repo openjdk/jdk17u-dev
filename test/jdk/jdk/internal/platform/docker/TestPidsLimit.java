@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, 2024, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2021 SAP SE. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -27,7 +27,7 @@
  * @key cgroups
  * @summary Test JDK Metrics class when running inside a docker container with limited pids
  * @bug 8266490
- * @requires docker.support
+ * @requires container.support
  * @library /test/lib
  * @build TestPidsLimit
  * @run driver TestPidsLimit
@@ -59,9 +59,7 @@ public class TestPidsLimit {
             testPidsLimit("2000");
             testPidsLimit("Unlimited");
         } finally {
-            if (!DockerTestUtils.RETAIN_IMAGE_AFTER_TEST) {
-                DockerTestUtils.removeDockerImage(imageName);
-            }
+            DockerTestUtils.removeDockerImage(imageName);
         }
     }
 

@@ -425,6 +425,18 @@ JvmtiEnv::RetransformClasses(jint class_count, const jclass* classes) {
 
     InstanceKlass* ik = InstanceKlass::cast(klass);
     if (ik->get_cached_class_file_bytes() == NULL) {
+      // Link the class to avoid races with the rewriter. This will call the verifier also
+      // on the class. Linking is also done in VM_RedefineClasses below, but we need
+      // to keep that for other VM_RedefineClasses callers.
+      JavaThread* THREAD = current_thread;
+      ik->link_class(THREAD);
+      if (HAS_PENDING_EXCEPTION) {
+        // Retransform/JVMTI swallows error messages. Using this class will rerun the verifier in a context
+        // that propagates the VerifyError, if thrown.
+        CLEAR_PENDING_EXCEPTION;
+        return JVMTI_ERROR_INVALID_CLASS;
+      }
+
       // Not cached, we need to reconstitute the class file from the
       // VM representation. We don't attach the reconstituted class
       // bytes to the InstanceKlass here because they have not been
@@ -2747,7 +2759,9 @@ JvmtiEnv::GetFieldName(fieldDescriptor* fdesc_ptr, char** name_ptr, char** signa
 // declaring_class_ptr - pre-checked for NULL
 jvmtiError
 JvmtiEnv::GetFieldDeclaringClass(fieldDescriptor* fdesc_ptr, jclass* declaring_class_ptr) {
-
+  // As for the GetFieldDeclaringClass method, the XSL generated C++ code that calls it has
+  // a jclass of the relevant class or a subclass of it, which is fine in terms of ensuring
+  // the holder is kept alive.
   *declaring_class_ptr = get_jni_class_non_null(fdesc_ptr->field_holder());
   return JVMTI_ERROR_NONE;
 } /* end GetFieldDeclaringClass */
@@ -2825,7 +2839,9 @@ JvmtiEnv::GetMethodName(Method* method, char** name_ptr, char** signature_ptr, c
 jvmtiError
 JvmtiEnv::GetMethodDeclaringClass(Method* method, jclass* declaring_class_ptr) {
   NULL_CHECK(method, JVMTI_ERROR_INVALID_METHODID);
-  (*declaring_class_ptr) = get_jni_class_non_null(method->method_holder());
+  Klass* k = method->method_holder();
+  Handle holder(Thread::current(), k->klass_holder()); // keep the klass alive
+  (*declaring_class_ptr) = get_jni_class_non_null(k);
   return JVMTI_ERROR_NONE;
 } /* end GetMethodDeclaringClass */
 
@@ -3009,7 +3025,8 @@ jvmtiError
 JvmtiEnv::GetBytecodes(Method* method, jint* bytecode_count_ptr, unsigned char** bytecodes_ptr) {
   NULL_CHECK(method, JVMTI_ERROR_INVALID_METHODID);
 
-  methodHandle mh(Thread::current(), method);
+  JavaThread* current_thread = JavaThread::current();
+  methodHandle mh(current_thread, method);
   jint size = (jint)mh->code_size();
   jvmtiError err = allocate(size, bytecodes_ptr);
   if (err != JVMTI_ERROR_NONE) {
@@ -3018,6 +3035,13 @@ JvmtiEnv::GetBytecodes(Method* method, jint* bytecode_count_ptr, unsigned char**
 
   (*bytecode_count_ptr) = size;
   // get byte codes
+  // Make sure the class is verified and rewritten first.
+  JavaThread* THREAD = current_thread;
+  mh->method_holder()->link_class(THREAD);
+  if (HAS_PENDING_EXCEPTION) {
+    CLEAR_PENDING_EXCEPTION;
+    return JVMTI_ERROR_INVALID_CLASS;
+  }
   JvmtiClassFileReconstituter::copy_bytecodes(mh, *bytecodes_ptr);
 
   return JVMTI_ERROR_NONE;

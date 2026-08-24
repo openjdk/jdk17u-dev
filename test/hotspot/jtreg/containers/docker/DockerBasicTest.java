@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 /*
  * @test
  * @summary Basic (sanity) test for JDK-under-test inside a docker image.
- * @requires docker.support
+ * @requires container.support
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.management
@@ -55,9 +55,7 @@ public class DockerBasicTest {
             testHelloDocker();
             testJavaVersionWithCgMounts();
         } finally {
-            if (!DockerTestUtils.RETAIN_IMAGE_AFTER_TEST) {
-                DockerTestUtils.removeDockerImage(imageNameAndTag);
-            }
+            DockerTestUtils.removeDockerImage(imageNameAndTag);
         }
     }
 

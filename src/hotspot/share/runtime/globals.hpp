@@ -241,8 +241,10 @@ const intx ObjectAlignmentInBytes = 8;
                                                                             \
   product(size_t, LargePageSizeInBytes, 0,                                  \
           "Maximum large page size used (0 will use the default large "     \
-          "page size for the environment as the maximum)")                  \
+          "page size for the environment as the maximum) "                  \
+          "(must be a power of 2)")                                         \
           range(0, max_uintx)                                               \
+          constraint(LargePageSizeInBytesConstraintFunc, AtParse)           \
                                                                             \
   product(size_t, LargePageHeapSizeThreshold, 128*M,                        \
           "Use large pages if maximum heap is at least this big")           \
@@ -326,6 +328,11 @@ const intx ObjectAlignmentInBytes = 8;
                                                                             \
   product(bool, UseAESCTRIntrinsics, false, DIAGNOSTIC,                     \
           "Use intrinsics for the paralleled version of AES/CTR crypto")    \
+                                                                            \
+  product(bool, UseKyberIntrinsics, false, DIAGNOSTIC,                      \
+          "Use intrinsics for the vectorized version of Kyber")             \
+  product(bool, UseDilithiumIntrinsics, false, DIAGNOSTIC,                  \
+          "Use intrinsics for the vectorized version of Dilithium")         \
                                                                             \
   product(bool, UseMD5Intrinsics, false, DIAGNOSTIC,                        \
           "Use intrinsics for MD5 crypto hash function")                    \

@@ -266,6 +266,8 @@ class CgroupSubsystem: public CHeapObj<mtInternal> {
     virtual jlong memory_and_swap_limit_in_bytes() = 0;
     virtual jlong memory_soft_limit_in_bytes() = 0;
     virtual jlong memory_max_usage_in_bytes() = 0;
+    virtual jlong rss_usage_in_bytes() = 0;
+    virtual jlong cache_usage_in_bytes() = 0;
 
     virtual char * cpu_cpuset_cpus() = 0;
     virtual char * cpu_cpuset_memory_nodes() = 0;
@@ -333,7 +335,8 @@ class CgroupSubsystemFactory: AllStatic {
     // Determine the cgroup type (version 1 or version 2), given
     // relevant paths to files. Sets 'flags' accordingly.
     static bool determine_type(CgroupInfo* cg_infos,
-                               const char* proc_cgroups,
+                               bool cgroups_v2_enabled,
+                               const char* controllers_file,
                                const char* proc_self_cgroup,
                                const char* proc_self_mountinfo,
                                u1* flags);

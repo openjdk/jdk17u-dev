@@ -141,7 +141,7 @@ AC_DEFUN([BASIC_CHECK_MAKE_VERSION],
           if test "x$OPENJDK_BUILD_OS_ENV" = "xwindows.cygwin"; then
             MAKE_EXPECTED_ENV='cygwin'
           elif test "x$OPENJDK_BUILD_OS_ENV" = "xwindows.msys2"; then
-            MAKE_EXPECTED_ENV='msys'
+            MAKE_EXPECTED_ENV='cygwin|msys'
           elif test "x$OPENJDK_BUILD_OS_ENV" = "xwindows.wsl1" || test "x$OPENJDK_BUILD_OS_ENV" = "xwindows.wsl2"; then
             if test "x$OPENJDK_BUILD_CPU" = "xaarch64"; then
               MAKE_EXPECTED_ENV='aarch64-.*-linux-gnu'
@@ -152,7 +152,7 @@ AC_DEFUN([BASIC_CHECK_MAKE_VERSION],
             AC_MSG_ERROR([Unknown Windows environment])
           fi
           MAKE_BUILT_FOR=`$MAKE_CANDIDATE --version | $GREP -i 'built for'`
-          IS_MAKE_CORRECT_ENV=`$ECHO $MAKE_BUILT_FOR | $GREP $MAKE_EXPECTED_ENV`
+          IS_MAKE_CORRECT_ENV=`$ECHO $MAKE_BUILT_FOR | $GREP -E $MAKE_EXPECTED_ENV`
         else
           # Not relevant for non-Windows
           IS_MAKE_CORRECT_ENV=true
@@ -373,7 +373,7 @@ AC_DEFUN_ONCE([BASIC_SETUP_COMPLEX_TOOLS],
 
   # Check if it's a GNU date compatible version
   AC_MSG_CHECKING([if date is a GNU compatible version])
-  check_date=`$DATE --version 2>&1 | $GREP "GNU\|BusyBox"`
+  check_date=`$DATE --version 2>&1 | $GREP "GNU\|BusyBox\|uutils"`
   if test "x$check_date" != x; then
     AC_MSG_RESULT([yes])
     IS_GNU_DATE=yes

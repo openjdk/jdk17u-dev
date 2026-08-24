@@ -2387,6 +2387,8 @@ bool os::Linux::print_container_info(outputStream* st) {
   OSContainer::print_container_helper(st, OSContainer::memory_soft_limit_in_bytes(), "memory_soft_limit_in_bytes");
   OSContainer::print_container_helper(st, OSContainer::memory_usage_in_bytes(), "memory_usage_in_bytes");
   OSContainer::print_container_helper(st, OSContainer::memory_max_usage_in_bytes(), "memory_max_usage_in_bytes");
+  OSContainer::print_container_helper(st, OSContainer::rss_usage_in_bytes(), "rss_usage_in_bytes");
+  OSContainer::print_container_helper(st, OSContainer::cache_usage_in_bytes(), "cache_usage_in_bytes");
 
   OSContainer::print_version_specific_info(st);
 
@@ -5322,7 +5324,7 @@ int os::get_core_path(char* buffer, size_t bufferSize) {
 
     if (core_pattern[0] == '|') {
       written = jio_snprintf(buffer, bufferSize,
-                             "\"%s\" (or dumping to %s/core.%d)",
+                             "\"%s\" (alternatively, falling back to %s/core.%d)",
                              &core_pattern[1], p, current_process_id());
     } else if (pid_pos != NULL) {
       *pid_pos = '\0';

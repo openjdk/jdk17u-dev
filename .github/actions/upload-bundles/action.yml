@@ -69,9 +69,9 @@ runs:
       shell: bash
 
     - name: 'Upload bundles artifact'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: bundles-${{ inputs.platform }}${{ inputs.debug-suffix }}
         path: bundles
-        retention-days: 1
+        retention-days: 5
       if: steps.bundles.outputs.bundles-found == 'true'

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2011, 2026, Oracle and/or its affiliates. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -205,8 +205,12 @@ ifeq ($(call isTargetOs, windows macosx), false)
         common/awt/systemscale \
         common/font \
         common/java2d/opengl \
-        common/java2d/x11 \
-        $(LIBPIPEWIRE_HEADER_DIRS)
+        common/java2d/x11
+
+    # exclude pipewire from the AIX build, no Wayland support
+    ifeq ($(call isTargetOs, aix), false)
+      LIBAWT_XAWT_EXTRA_HEADER_DIRS += $(LIBPIPEWIRE_HEADER_DIRS)
+    endif
 
     LIBAWT_XAWT_CFLAGS += -DXAWT -DXAWT_HACK \
         $(FONTCONFIG_CFLAGS) \
@@ -774,7 +778,7 @@ ifeq ($(ENABLE_HEADLESS_ONLY), false)
           unused-function, \
       DISABLED_WARNINGS_clang := incompatible-pointer-types sign-compare \
           deprecated-declarations null-pointer-subtraction deprecated-non-prototype unused-function $(LIBZ_DISABLED_WARNINGS_CLANG), \
-      DISABLED_WARNINGS_microsoft := 4018 4244 4267, \
+      DISABLED_WARNINGS_microsoft := 4018 4146 4244 4267, \
       LDFLAGS := $(LDFLAGS_JDKLIB) \
           $(call SET_SHARED_LIBRARY_ORIGIN), \
       LDFLAGS_macosx := -L$(INSTALL_LIBRARIES_HERE), \
@@ -866,19 +870,6 @@ endif
 
 ################################################################################
 
-# MACOSX_METAL_VERSION_MIN specifies the lowest version of Macosx
-# that should be used to compile Metal shaders. We support Metal
-# pipeline only on Macosx >=10.14. For Macosx versions <10.14 even if
-# we enable Metal pipeline using -Dsun.java2d.metal=true, at
-# runtime we force it to use OpenGL pipeline. And MACOSX_VERSION_MIN
-# for aarch64 has always been >10.14 so we use continue to use
-# MACOSX_VERSION_MIN for aarch64.
-ifeq ($(OPENJDK_TARGET_CPU_ARCH), xaarch64)
-    MACOSX_METAL_VERSION_MIN=$(MACOSX_VERSION_MIN)
-else
-    MACOSX_METAL_VERSION_MIN=10.14.0
-endif
-
 ifeq ($(call isTargetOs, macosx), true)
   SHADERS_SRC := $(TOPDIR)/src/java.desktop/macosx/native/libawt_lwawt/java2d/metal/shaders.metal
   SHADERS_SUPPORT_DIR := $(SUPPORT_OUTPUTDIR)/native/java.desktop/libosxui
@@ -891,7 +882,7 @@ ifeq ($(call isTargetOs, macosx), true)
       OUTPUT_FILE := $(SHADERS_AIR), \
       SUPPORT_DIR := $(SHADERS_SUPPORT_DIR), \
       COMMAND := $(METAL) -c -std=osx-metal2.0 \
-          -mmacosx-version-min=$(MACOSX_METAL_VERSION_MIN) \
+          -mmacosx-version-min=$(MACOSX_VERSION_MIN) \
           -o $(SHADERS_AIR) $(SHADERS_SRC), \
   ))
 

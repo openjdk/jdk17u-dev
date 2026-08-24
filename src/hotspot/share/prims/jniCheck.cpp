@@ -46,9 +46,6 @@
 #include "utilities/formatBuffer.hpp"
 #include "utilities/utf8.hpp"
 
-// Complain every extra number of unplanned local refs
-#define CHECK_JNI_LOCAL_REF_CAP_WARN_THRESHOLD 32
-
 // Heap objects are allowed to be directly referenced only in VM code,
 // not in native code.
 
@@ -202,17 +199,6 @@ check_pending_exception(JavaThread* thr) {
   }
 }
 
-/**
- * Add to the planned number of handles. I.e. plus current live & warning threshold
- */
-static inline void
-add_planned_handle_capacity(JNIHandleBlock* handles, size_t capacity) {
-  handles->set_planned_capacity(capacity +
-                                handles->get_number_of_live_handles() +
-                                CHECK_JNI_LOCAL_REF_CAP_WARN_THRESHOLD);
-}
-
-
 static inline void
 functionEnterCritical(JavaThread* thr)
 {
@@ -244,18 +230,7 @@ functionEnterExceptionAllowed(JavaThread* thr)
 static inline void
 functionExit(JavaThread* thr)
 {
-  JNIHandleBlock* handles = thr->active_handles();
-  size_t planned_capacity = handles->get_planned_capacity();
-  size_t live_handles = handles->get_number_of_live_handles();
-  if (live_handles > planned_capacity) {
-    IN_VM(
-      tty->print_cr("WARNING: JNI local refs: " SIZE_FORMAT ", exceeds capacity: " SIZE_FORMAT,
-                    live_handles, planned_capacity);
-      thr->print_stack();
-    )
-    // Complain just the once, reset to current + warn threshold
-    add_planned_handle_capacity(handles, 0);
-  }
+  // No checks at this time
 }
 
 static inline void
@@ -376,24 +351,33 @@ check_is_obj_array(JavaThread* thr, jarray jArray) {
   }
 }
 
+// Arbitrary (but well-known) tag for GetStringChars
+const void* STRING_TAG = (void*)0x47114711;
+
+// Arbitrary (but well-known) tag for GetStringUTFChars
+const void* STRING_UTF_TAG = (void*) 0x48124812;
+
+// Arbitrary (but well-known) tag for GetPrimitiveArrayCritical
+const void* CRITICAL_TAG = (void*)0x49134913;
+
 /*
  * Copy and wrap array elements for bounds checking.
  * Remember the original elements (GuardedMemory::get_tag())
  */
 static void* check_jni_wrap_copy_array(JavaThread* thr, jarray array,
-    void* orig_elements) {
+                                       void* orig_elements, jboolean is_critical = JNI_FALSE) {
   void* result;
   IN_VM(
     oop a = JNIHandles::resolve_non_null(array);
     size_t len = arrayOop(a)->length() <<
         TypeArrayKlass::cast(a->klass())->log2_element_size();
-    result = GuardedMemory::wrap_copy(orig_elements, len, orig_elements);
+    result = GuardedMemory::wrap_copy(orig_elements, len, orig_elements, is_critical ? CRITICAL_TAG : nullptr);
   )
   return result;
 }
 
 static void* check_wrapped_array(JavaThread* thr, const char* fn_name,
-    void* obj, void* carray, size_t* rsz) {
+                                 void* obj, void* carray, size_t* rsz, jboolean is_critical) {
   if (carray == NULL) {
     tty->print_cr("%s: elements vector NULL" PTR_FORMAT, fn_name, p2i(obj));
     NativeReportJNIFatalError(thr, "Elements vector NULL");
@@ -412,6 +396,29 @@ static void* check_wrapped_array(JavaThread* thr, const char* fn_name,
     DEBUG_ONLY(guarded.print_on(tty);) // This may crash.
     NativeReportJNIFatalError(thr, err_msg("%s: unrecognized elements", fn_name));
   }
+  if (orig_result == STRING_TAG || orig_result == STRING_UTF_TAG) {
+    bool was_utf = orig_result == STRING_UTF_TAG;
+    tty->print_cr("%s: called on something allocated by %s",
+                  fn_name, was_utf ? "GetStringUTFChars" : "GetStringChars");
+    DEBUG_ONLY(guarded.print_on(tty);) // This may crash.
+    NativeReportJNIFatalError(thr, err_msg("%s called on something allocated by %s",
+                                           fn_name, was_utf ? "GetStringUTFChars" : "GetStringChars"));
+  }
+
+  if (is_critical && (guarded.get_tag2() != CRITICAL_TAG)) {
+    tty->print_cr("%s: called on something not allocated by GetPrimitiveArrayCritical", fn_name);
+    DEBUG_ONLY(guarded.print_on(tty);) // This may crash.
+    NativeReportJNIFatalError(thr, err_msg("%s called on something not allocated by GetPrimitiveArrayCritical",
+                                           fn_name));
+  }
+
+  if (!is_critical && (guarded.get_tag2() == CRITICAL_TAG)) {
+    tty->print_cr("%s: called on something allocated by GetPrimitiveArrayCritical", fn_name);
+    DEBUG_ONLY(guarded.print_on(tty);) // This may crash.
+    NativeReportJNIFatalError(thr, err_msg("%s called on something allocated by GetPrimitiveArrayCritical",
+                                           fn_name));
+  }
+
   if (rsz != NULL) {
     *rsz = guarded.get_user_size();
   }
@@ -421,7 +428,7 @@ static void* check_wrapped_array(JavaThread* thr, const char* fn_name,
 static void* check_wrapped_array_release(JavaThread* thr, const char* fn_name,
                                          void* obj, void* carray, jint mode, jboolean is_critical) {
   size_t sz;
-  void* orig_result = check_wrapped_array(thr, fn_name, obj, carray, &sz);
+  void* orig_result = check_wrapped_array(thr, fn_name, obj, carray, &sz, is_critical);
   switch (mode) {
   case 0:
     memcpy(orig_result, carray, sz);
@@ -746,9 +753,6 @@ JNI_ENTRY_CHECKED(jint,
     if (capacity < 0)
       NativeReportJNIFatalError(thr, "negative capacity");
     jint result = UNCHECKED()->PushLocalFrame(env, capacity);
-    if (result == JNI_OK) {
-      add_planned_handle_capacity(thr->active_handles(), capacity);
-    }
     functionExit(thr);
     return result;
 JNI_END
@@ -850,12 +854,6 @@ JNI_ENTRY_CHECKED(jint,
       NativeReportJNIFatalError(thr, "negative capacity");
     }
     jint result = UNCHECKED()->EnsureLocalCapacity(env, capacity);
-    if (result == JNI_OK) {
-      // increase local ref capacity if needed
-      if ((size_t)capacity > thr->active_handles()->get_planned_capacity()) {
-        add_planned_handle_capacity(thr->active_handles(), capacity);
-      }
-    }
     functionExit(thr);
     return result;
 JNI_END
@@ -1465,9 +1463,6 @@ JNI_ENTRY_CHECKED(jsize,
     return result;
 JNI_END
 
-// Arbitrary (but well-known) tag
-const void* STRING_TAG = (void*)0x47114711;
-
 JNI_ENTRY_CHECKED(const jchar *,
   checked_jni_GetStringChars(JNIEnv *env,
                              jstring str,
@@ -1548,9 +1543,6 @@ JNI_ENTRY_CHECKED(jsize,
     functionExit(thr);
     return result;
 JNI_END
-
-// Arbitrary (but well-known) tag - different than GetStringChars
-const void* STRING_UTF_TAG = (void*) 0x48124812;
 
 JNI_ENTRY_CHECKED(const char *,
   checked_jni_GetStringUTFChars(JNIEnv *env,
@@ -1873,7 +1865,7 @@ JNI_ENTRY_CHECKED(void *,
     )
     void *result = UNCHECKED()->GetPrimitiveArrayCritical(env, array, isCopy);
     if (result != NULL) {
-      result = check_jni_wrap_copy_array(thr, array, result);
+      result = check_jni_wrap_copy_array(thr, array, result, JNI_TRUE);
     }
     functionExit(thr);
     return result;

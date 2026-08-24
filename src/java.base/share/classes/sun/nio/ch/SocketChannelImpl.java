@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -743,7 +743,7 @@ class SocketChannelImpl
     /**
      * Marks the beginning of a connect operation that might block.
      * @param blocking true if configured blocking
-     * @param isa the remote address
+     * @param sa the remote socket address
      * @throws ClosedChannelException if the channel is closed
      * @throws AlreadyConnectedException if already connected
      * @throws ConnectionPendingException is a connection is pending
@@ -970,8 +970,8 @@ class SocketChannelImpl
     }
 
     /**
-     * Closes the socket if there are no I/O operations in progress and the
-     * channel is not registered with a Selector.
+     * Closes the socket if there are no I/O operations in progress (or no I/O
+     * operations tracked), and the channel is not registered with a Selector.
      */
     private boolean tryClose() throws IOException {
         assert Thread.holdsLock(stateLock) && state == ST_CLOSING;
@@ -996,11 +996,16 @@ class SocketChannelImpl
     }
 
     /**
-     * Closes this channel when configured in blocking mode.
+     * Closes this channel when configured in blocking mode. If there are no I/O
+     * operations in progress (or tracked), then the channel's socket is closed. If
+     * there are I/O operations in progress then the behavior is platform specific.
      *
-     * If there is an I/O operation in progress then the socket is pre-closed
-     * and the I/O threads signalled, in which case the final close is deferred
-     * until all I/O operations complete.
+     * On Unix systems, the channel's socket is pre-closed. The socket is dup'ed
+     * and the threads signalled. The final close is deferred until all I/O
+     * operations complete.
+     *
+     * On Windows, the channel's socket is pre-closed. The channel's
+     * socket is closed.
      *
      * Note that a channel configured blocking may be registered with a Selector
      * This arises when a key is canceled and the channel configured to blocking
@@ -1009,17 +1014,21 @@ class SocketChannelImpl
     private void implCloseBlockingMode() throws IOException {
         synchronized (stateLock) {
             assert state < ST_CLOSING;
+            boolean connected = (state == ST_CONNECTED);
             state = ST_CLOSING;
+
+            if (connected && Net.shouldShutdownWriteBeforeClose()) {
+                // shutdown output when linger interval not set to 0
+                try {
+                    var SO_LINGER = StandardSocketOptions.SO_LINGER;
+                    if ((int) Net.getSocketOption(fd, SO_LINGER) != 0) {
+                        Net.shutdown(fd, Net.SHUT_WR);
+                    }
+                } catch (IOException ignore) { }
+            }
+
             if (!tryClose()) {
-                long reader = readerThread;
-                long writer = writerThread;
-                if (reader != 0 || writer != 0) {
-                    nd.preClose(fd);
-                    if (reader != 0)
-                        NativeThread.signal(reader);
-                    if (writer != 0)
-                        NativeThread.signal(writer);
-                }
+                nd.preClose(fd, readerThread, writerThread);
             }
         }
     }
