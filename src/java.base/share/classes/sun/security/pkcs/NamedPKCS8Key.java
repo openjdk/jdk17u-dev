@@ -77,44 +77,64 @@ public final class NamedPKCS8Key extends PKCS8Key {
 
     private final String fname;
     private final transient NamedParameterSpec paramSpec;
-    private final byte[] rawBytes;
+    private final transient byte[] expanded;
 
     private transient boolean destroyed = false;
 
-    /// Ctor from family name, parameter set name, raw key bytes.
-    /// Key bytes won't be cloned, caller must relinquish ownership
-    public NamedPKCS8Key(String fname, String pname, byte[] rawBytes) {
+    /// Creates a `NamedPKCS8Key` from raw components.
+    ///
+    /// @param fname family name
+    /// @param pname parameter set name
+    /// @param encoded raw key bytes, not null
+    /// @param expanded expanded key format, can be `null`.
+    private NamedPKCS8Key(String fname, String pname, byte[] encoded, byte[] expanded) {
         this.fname = fname;
         this.paramSpec = new NamedParameterSpec(pname);
+        this.expanded = expanded;
+        this.key = Objects.requireNonNull(encoded);
         try {
             this.algid = AlgorithmId.get(pname);
         } catch (NoSuchAlgorithmException e) {
             throw new ProviderException(e);
         }
-        this.rawBytes = rawBytes;
-
-        DerValue val = new DerValue(DerValue.tag_OctetString, rawBytes);
-        try {
-            this.key = val.toByteArray();
-        } catch (IOException e) {
-            throw new AssertionError("Should not happen", e);
-        } finally {
-            val.clear();
-        }
     }
 
-    /// Ctor from family name, and PKCS #8 bytes
-    public NamedPKCS8Key(String fname, byte[] encoded) throws InvalidKeyException {
+    /// Creates a `NamedPKCS8Key` from raw components.
+    ///
+    /// `encoded` and `expanded` won't be cloned, caller must relinquish
+    /// ownership. This caller must ensure `encoded` and `expanded` match
+    /// each other and `encoded` is valid and internally-consistent.
+    ///
+    /// @param fname family name
+    /// @param pname parameter set name
+    /// @param encoded raw key bytes, not null
+    /// @param expanded expanded key format, can be `null`.
+    public static NamedPKCS8Key internalCreate(String fname, String pname,
+            byte[] encoded, byte[] expanded) {
+        return new NamedPKCS8Key(fname, pname, encoded, expanded);
+    }
+
+    /// Creates a `NamedPKCS8Key` from family name and PKCS #8 encoding.
+    ///
+    /// @param fname family name
+    /// @param encoded PKCS #8 encoding. It is copied so caller can modify
+    ///     it after the method call.
+    /// @param expander a function that is able to calculate the expanded
+    ///     format from the encoding format inside `encoded`. If it recognizes
+    ///     the input already in expanded format, it must return `null`.
+    ///     This argument must be `null` if the algorithm's expanded format
+    ///     is always the same as its encoding format. Whatever the case, the
+    ///     ownership of the result is fully granted to this object.
+    public NamedPKCS8Key(String fname, byte[] encoded, Expander expander)
+            throws InvalidKeyException {
         super(encoded);
         this.fname = fname;
-        try {
-            paramSpec = new NamedParameterSpec(algid.getName());
-            if (algid.getEncodedParams() != null) {
-                throw new InvalidKeyException("algorithm identifier has params");
-            }
-            rawBytes = new DerInputStream(key).getOctetString();
-        } catch (IOException e) {
-            throw new InvalidKeyException("Cannot parse input", e);
+        this.expanded = expander == null
+                ? null
+                : expander.expand(algid.getName(), this.key);
+        paramSpec = new NamedParameterSpec(algid.getName());
+        if (algid.getEncodedParams() != null) {
+            throw new InvalidKeyException("algorithm identifier has params");
         }
     }
 
