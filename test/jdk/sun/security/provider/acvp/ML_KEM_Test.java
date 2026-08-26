@@ -27,6 +27,7 @@ import jdk.test.lib.security.FixedSecureRandom;
 import sun.security.util.DerOutputStream;
 
 import javax.crypto.KEM;
+import java.io.IOException;
 import java.security.*;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.NamedParameterSpec;
@@ -123,6 +124,12 @@ public class ML_KEM_Test {
     }
 
     static byte[] oct(byte[] in) {
-        return new DerOutputStream().putOctetString(in).toByteArray();
+        DerOutputStream dos = new DerOutputStream();
+        try {
+            dos.putOctetString(in);
+        } catch (IOException e) {
+            // ignore
+        }
+        return dos.toByteArray();
     }
 }

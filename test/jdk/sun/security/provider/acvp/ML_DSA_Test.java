@@ -26,6 +26,7 @@ import jdk.test.lib.security.FixedSecureRandom;
 import sun.security.provider.ML_DSA_Impls;
 import sun.security.util.DerOutputStream;
 
+import java.io.IOException;
 import java.security.*;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.NamedParameterSpec;
@@ -123,7 +124,13 @@ public class ML_DSA_Test {
     }
 
     static byte[] oct(byte[] in) {
-        return new DerOutputStream().putOctetString(in).toByteArray();
+        DerOutputStream dos = new DerOutputStream();
+        try {
+            dos.putOctetString(in);
+        } catch (IOException e) {
+            // ignore
+        }
+        return dos.toByteArray();
     }
 
     static void sigVerTest(JSONValue kat, Provider p) throws Exception {

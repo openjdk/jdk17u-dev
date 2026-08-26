@@ -171,9 +171,15 @@ public class NamedEdDSA {
             // set the high-order bit of the encoded point
             byte msb = (byte) (point.isXOdd() ? 0x80 : 0);
             encodedPoint[encodedPoint.length - 1] |= msb;
+            DerOutputStream dos = new DerOutputStream();
+            try {
+                dos.putOctetString(sk);
+            } catch (IOException e) {
+                // ignore
+            }
             return new byte[][] {
                     encodedPoint,
-                    new DerOutputStream().putOctetString(sk).toByteArray(),
+                    dos.toByteArray(),
                     sk};
         }
 
