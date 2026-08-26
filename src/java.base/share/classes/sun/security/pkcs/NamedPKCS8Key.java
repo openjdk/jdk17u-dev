@@ -25,11 +25,8 @@
 
 package sun.security.pkcs;
 
-import sun.security.util.DerInputStream;
-import sun.security.util.DerValue;
 import sun.security.x509.AlgorithmId;
 
-import javax.security.auth.DestroyFailedException;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -39,6 +36,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.ProviderException;
 import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
+import java.util.Objects;
 
 /// Represents a private key from an algorithm family that is specialized
 /// with a named parameter set.
@@ -49,6 +47,28 @@ import java.util.Arrays;
 /// the parameter set name as a [NamedParameterSpec] object. The algorithm
 /// identifier in the PKCS #8 encoding of the key is always a single OID derived
 /// from the parameter set name.
+///
+/// Besides the existing [PKCS8Key#key] field, this class optionally
+/// supports an expanded format stored in [#expanded]. While `key`
+/// always represents the format used for encoding, `expanded` is always used
+/// in computations. The expanded format must be self-sufficient for
+/// cryptographic computations without requiring the encoding format.
+///
+/// 1. If only `key` is present, it's also the expanded format.
+/// 2. If both `key` and `expanded` are available, `key`
+///    is the encoding format, and `expanded` is the expanded format.
+///
+/// If the two formats are the same, only `key` is included, and
+/// `expanded` must be `null`. Some implementations might be tempted to put the
+/// same value into `key` and `expanded`. However, problems can
+/// arise if they happen to be the same object. To avoid ambiguity, always set
+/// `expanded` to `null`.
+///
+/// If the `expanded` field is required by the algorithm, it is either
+/// [calculated from the PKCS #8 encoding][#NamedPKCS8Key(String, byte\[\], Expander)],
+/// or [provided directly][#internalCreate(String, String, byte\[\], byte\[\])].
+/// In the latter case, the caller must ensure the consistency of the `encoded`
+/// and `expanded` arguments. For example, seed and expanded key must match.
 ///
 /// @see sun.security.provider.NamedKeyPairGenerator
 public final class NamedPKCS8Key extends PKCS8Key {
@@ -106,9 +126,15 @@ public final class NamedPKCS8Key extends PKCS8Key {
     }
 
     /// Returns the reference to the internal key. Caller must not modify
-    /// the content or keep a reference.
+    /// the content or pass the reference to untrusted application code.
     public byte[] getRawBytes() {
-        return rawBytes;
+        return key;
+    }
+
+    /// Returns the reference to the key in expanded format. Caller must not
+    /// modify the content or pass the reference to untrusted application code.
+    public byte[] getExpanded() {
+        return expanded == null ? key : expanded;
     }
 
     public NamedParameterSpec getParams() {
@@ -128,9 +154,11 @@ public final class NamedPKCS8Key extends PKCS8Key {
     }
 
     @Override
-    public void destroy() throws DestroyFailedException {
-        Arrays.fill(rawBytes, (byte)0);
+    public void destroy() {
         Arrays.fill(key, (byte)0);
+        if (expanded != null) {
+            Arrays.fill(expanded, (byte)0);
+        }
         if (encodedKey != null) {
             Arrays.fill(encodedKey, (byte)0);
         }
@@ -140,5 +168,18 @@ public final class NamedPKCS8Key extends PKCS8Key {
     @Override
     public boolean isDestroyed() {
         return destroyed;
+    }
+
+    /// Expands from encoding format to expanded format.
+    @FunctionalInterface
+    public interface Expander {
+        /// The expand method
+        ///
+        /// @param pname parameter set name
+        /// @param input input encoding
+        /// @return the expanded key, `null` if `input` is already in expanded
+        /// @throws InvalidKeyException if `input` is invalid, for example,
+        ///         wrong encoding, or internal inconsistency
+        byte[] expand(String pname, byte[] input) throws InvalidKeyException;
     }
 }

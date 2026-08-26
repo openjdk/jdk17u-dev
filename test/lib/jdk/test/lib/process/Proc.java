@@ -321,6 +321,15 @@ public class Proc {
                 }
             }
         }
+        String patchPath = System.getProperty("test.patch.path");
+        if (patchPath != null) {
+            try (var subs = Files.newDirectoryStream(Path.of(patchPath))) {
+                for (var sub : subs) {
+                    var name = sub.getFileName();
+                    cmd.add("--patch-module=" + name + "=" + sub);
+                }
+            }
+        }
 
         var lcp = fullcp();
         if (lcp != null) {
