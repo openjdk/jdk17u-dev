@@ -90,7 +90,6 @@ public abstract class NamedKeyFactory extends KeyFactorySpi {
     @Override
     protected PublicKey engineGeneratePublic(KeySpec keySpec)
             throws InvalidKeySpecException {
-
         if (keySpec instanceof X509EncodedKeySpec xspec) {
                 try {
                     return fromX509(xspec.getEncoded());
