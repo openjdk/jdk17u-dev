@@ -456,7 +456,12 @@ public class CertificateBuilder {
      * documented in RFC 5280 section 4.2.1.3.
      */
     public CertificateBuilder addKeyUsageExt(boolean[] bitSettings) {
-        return addExtension(new KeyUsageExtension(bitSettings));
+        try {
+            return addExtension(new KeyUsageExtension(bitSettings));
+        } catch (IOException e) {
+            // ignore
+            return null;
+        }
     }
 
     /**
@@ -471,8 +476,13 @@ public class CertificateBuilder {
      */
     public CertificateBuilder addBasicConstraintsExt(boolean crit, boolean isCA,
             int maxPathLen) {
-        return addExtension(new BasicConstraintsExtension(crit, isCA,
-                maxPathLen));
+        try {
+            return addExtension(new BasicConstraintsExtension(crit, isCA,
+                                                              maxPathLen));
+        } catch (IOException e) {
+            // ignore
+            return null;
+        }
     }
 
     /**
