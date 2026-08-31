@@ -106,7 +106,7 @@ public final class FipsModeTLS12 extends SecmodTest {
             System.out.println("Test PASS - OK");
         } else {
             throw new SkippedException("Test skipped: TLS 1.2 mechanisms" +
-                    " not supported by current SunPKCS11 back-end");
+                                       " not supported by current SunPKCS11 back-end");
         }
     }
 
