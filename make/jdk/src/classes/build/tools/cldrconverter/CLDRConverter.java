@@ -127,7 +127,7 @@ public class CLDRConverter {
     // Map of explicit dst offsets for metazones
     // key: time zone ID
     // value: explicit dstOffset for the corresponding metazone name
-    static final Map<String, String> explicitDstOffsets = HashMap.newHashMap(32);
+    static final Map<String, String> explicitDstOffsets = new HashMap<>(32);
 
     static enum DraftType {
         UNCONFIRMED,
