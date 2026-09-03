@@ -230,7 +230,7 @@ void C2_MacroAssembler::string_indexof_char(Register str1, Register cnt1,
   // real index.
   // Note: ch was broadcast across all 8 bytes for the SWAR loop above, but the
   // short helper compares a single element, so restore ch to a single char.
-  isL ? zext_b(ch, ch) : zero_extend(ch, ch, 16);
+  isL ? zero_extend(ch, ch, 8) : zero_extend(ch, ch, 16);
   sub(start_index, orig_cnt, cnt1);
 
   bind(SHORT);
