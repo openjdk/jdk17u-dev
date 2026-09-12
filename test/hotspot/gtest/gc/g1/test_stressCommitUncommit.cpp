@@ -60,7 +60,7 @@ public:
       _claim_id(0) { }
 
   void work(uint worker_id) {
-    uint index = Atomic::fetch_and_add(&_claim_id, 1u);
+    uint index = Atomic::fetch_then_add(&_claim_id, 1u);
 
     for (int i = 0; i < 100000; i++) {
       // Stress commit and uncommit of a single region. The same
