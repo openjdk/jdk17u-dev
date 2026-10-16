@@ -28,7 +28,10 @@
  *          looked up first in the process
  * @library /test/lib
  * @run main TimeZoneNameOrderTest
+ * @run main/othervm -Djava.locale.providers=CLDR TimeZoneNameOrderTest
  */
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -43,6 +46,8 @@ public class TimeZoneNameOrderTest {
     private static final String[][] CASES = {
         {"Africa/Casablanca",  "fr-FR", "und", "false", "SHORT"},
         {"Atlantic/St_Helena", "en-IN", "en",  "true",  "LONG"},
+        // en-GB exposes the issue with 11u's older CLDR data.
+        {"Atlantic/St_Helena", "en-GB", "en",  "true",  "LONG"},
     };
 
     public static void main(String[] args) throws Exception {
@@ -69,9 +74,16 @@ public class TimeZoneNameOrderTest {
 
     private static String run(String[] c, boolean parentFirst)
             throws Exception {
-        ProcessBuilder pb = ProcessTools.createTestJavaProcessBuilder(
-                "TimeZoneNameOrderTest",
-                c[0], c[1], parentFirst ? c[2] : "-", c[3], c[4]);
+        // With the default providers, COMPAT fills in the names that the
+        // CLDR provider derives, so pass on -Djava.locale.providers=CLDR.
+        List<String> cmd = new ArrayList<>();
+        String providers = System.getProperty("java.locale.providers");
+        if (providers != null) {
+            cmd.add("-Djava.locale.providers=" + providers);
+        }
+        cmd.addAll(List.of("TimeZoneNameOrderTest",
+                c[0], c[1], parentFirst ? c[2] : "-", c[3], c[4]));
+        ProcessBuilder pb = ProcessTools.createTestJavaProcessBuilder(cmd);
         OutputAnalyzer output = ProcessTools.executeProcess(pb);
         output.shouldHaveExitValue(0);
         return output.getStdout().trim();
