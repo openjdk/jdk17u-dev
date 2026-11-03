@@ -90,7 +90,7 @@ public class PBMAC1Test {
         DerUtils.checkAlg(der, "200110", KnownOIDs.HmacSHA512);
         DerUtils.checkInt(der, "2001011", 10000);
         DerUtils.checkInt(der, "2001012", 64);
- 
+
         // Bad alg names
         System.setProperty("keystore.pkcs12.macAlgorithm", "PBEWithHmacSHA456");
         var reason = Asserts.assertThrows(NoSuchAlgorithmException.class,
