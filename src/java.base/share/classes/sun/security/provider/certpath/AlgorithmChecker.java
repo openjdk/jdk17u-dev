@@ -224,14 +224,13 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
                 CertPathConstraintsParameters cp =
                     new CertPathConstraintsParameters(trustedPubKey, variant,
                         anchor, date);
-                dac.permits(trustedPubKey.getAlgorithm(), cp);
+                dac.permits(trustedPubKey.getAlgorithm(), cp, true);
             }
             // Check the signature algorithm and parameters against constraints
             CertPathConstraintsParameters cp =
                 new CertPathConstraintsParameters(x509Cert, variant,
                     anchor, date);
-
-            dac.permits(currSigAlg, currSigAlgParams, cp);
+            dac.permits(currSigAlg, currSigAlgParams, cp, true);
         } else {
             if (prevPubKey != null) {
                 if (!constraints.permits(SIGNATURE_PRIMITIVE_SET,
@@ -288,7 +287,6 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
                         null, null, -1, PKIXReason.INVALID_KEY_USAGE);
                 }
             }
-
             if (!constraints.permits(primitives, currPubKey)) {
                 throw new CertPathValidatorException(
                     "Algorithm constraints check failed on " +
@@ -376,7 +374,7 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
 
         DisabledAlgorithmConstraints.certPathConstraints().permits(
             algorithmId.getName(), algorithmId.getParameters(),
-            new CertPathConstraintsParameters(key, variant, anchor, null));
+            new CertPathConstraintsParameters(key, variant, anchor, null), true);
     }
 }
 
