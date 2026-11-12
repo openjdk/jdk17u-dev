@@ -2330,7 +2330,12 @@ JRT_ENTRY(void, Deoptimization::uncommon_trap_inner(JavaThread* current, jint tr
 
     // Recompile
     if (make_not_entrant) {
-      if (!nm->make_not_entrant()) {
+      // A tenured trap only removes the code aging counter; the code itself
+      // was fine. Do not count it toward PerMethodRecompilationCutoff.
+      bool changed = (reason == Reason_tenured)
+          ? nm->as_nmethod()->make_not_entrant_no_decompile_count()
+          : nm->make_not_entrant();
+      if (!changed) {
         return; // the call did not change nmethod's state
       }
 

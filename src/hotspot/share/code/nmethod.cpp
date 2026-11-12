@@ -1372,7 +1372,7 @@ void nmethod::unlink_from_method() {
 /**
  * Common functionality for both make_not_entrant and make_zombie
  */
-bool nmethod::make_not_entrant_or_zombie(int state) {
+bool nmethod::make_not_entrant_or_zombie(int state, bool count_decompile) {
   assert(state == zombie || state == not_entrant, "must be zombie or not_entrant");
 
   if (Atomic::load(&_state) >= state) {
@@ -1420,7 +1420,7 @@ bool nmethod::make_not_entrant_or_zombie(int state) {
                   SharedRuntime::get_handle_wrong_method_stub());
     }
 
-    if (is_in_use() && update_recompile_counts()) {
+    if (is_in_use() && update_recompile_counts() && count_decompile) {
       // It's a true state change, so mark the method as decompiled.
       // Do it only for transition from alive.
       inc_decompile_count();
