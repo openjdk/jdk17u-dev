@@ -276,22 +276,19 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
     }
 
     private static List<String> getNamedParametersFromKey(Key key) {
-        return switch (key) {
-            case ECKey ecKey -> {
+        if (key instanceof ECKey ecKey) {
                 NamedCurve nc = CurveDB.lookup(ecKey.getParams());
                 if (nc == null) {
-                    yield List.of();
+                    return List.of();
                 }
-                yield List.of(nc.getNameAndAliases());
-            }
-            default -> {
+                return List.of(nc.getNameAndAliases());
+        } else {
                 String n = KeyUtil.getAlgorithm(key);
                 if (n.equalsIgnoreCase(key.getAlgorithm())) {
-                    yield List.of(n);
+                    return List.of(n);
                 }
-                yield List.of(key.getAlgorithm(), n);
-            }
-        };
+                return List.of(key.getAlgorithm(), n);
+        }
     }
 
     // Check algorithm constraints with key and algorithm
