@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2012 SAP SE. All rights reserved.
+ * Copyright (c) 2008, 2026, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2026 SAP SE. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,22 +24,20 @@
  * questions.
  */
 
+#include <dlfcn.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <sys/resource.h>
+#include <sys/types.h>
+#include <sys/pollset.h>
+
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
+#include "nio.h"
 #include "jlong.h"
 
-#include "sun_nio_ch_AixPollPort.h"
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <poll.h>
-#include <sys/pollset.h>
-#include <fcntl.h>
-#include <stddef.h>
-#include <dlfcn.h>
-#include <errno.h>
+#include "sun_nio_ch_Pollset.h"
 
 /* Initially copied from src/solaris/native/sun/nio/ch/nio_util.h */
 #define RESTARTABLE(_cmd, _result) do { \
@@ -47,6 +45,8 @@
     _result = _cmd; \
   } while((_result == -1) && (errno == EINTR)); \
 } while(0)
+
+static short POLLCTL_SIZE = (short)(sizeof(struct poll_ctl));
 
 typedef pollset_t pollset_create_func(int maxfd);
 typedef int pollset_destroy_func(pollset_t ps);
@@ -57,8 +57,10 @@ static pollset_destroy_func* _pollset_destroy = NULL;
 static pollset_ctl_func* _pollset_ctl = NULL;
 static pollset_poll_func* _pollset_poll = NULL;
 
+// ISO C99 and later do not support implicit function declarations.
+// Therefore dlsym subroutine is used to achieve the goal.
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_AixPollPort_init(JNIEnv* env, jclass this) {
+Java_sun_nio_ch_Pollset_init(JNIEnv* env, jclass this) {
     _pollset_create = (pollset_create_func*) dlsym(RTLD_DEFAULT, "pollset_create");
     _pollset_destroy = (pollset_destroy_func*) dlsym(RTLD_DEFAULT, "pollset_destroy");
     _pollset_ctl = (pollset_ctl_func*) dlsym(RTLD_DEFAULT, "pollset_ctl");
@@ -70,27 +72,47 @@ Java_sun_nio_ch_AixPollPort_init(JNIEnv* env, jclass this) {
 }
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_eventSize(JNIEnv* env, jclass this) {
+Java_sun_nio_ch_Pollset_pollCtlSize(JNIEnv* env, jclass this) {
+    return sizeof(struct poll_ctl);
+}
+
+JNIEXPORT jint JNICALL
+Java_sun_nio_ch_Pollset_pollCtlCmdOffset(JNIEnv* env, jclass this) {
+    return offsetof(struct poll_ctl, cmd);
+}
+
+JNIEXPORT jint JNICALL
+Java_sun_nio_ch_Pollset_pollCtlEventsOffset(JNIEnv* env, jclass this) {
+    return offsetof(struct poll_ctl, events);
+}
+
+JNIEXPORT jint JNICALL
+Java_sun_nio_ch_Pollset_pollCtlFdOffset(JNIEnv* env, jclass this) {
+    return offsetof(struct poll_ctl, fd);
+}
+
+JNIEXPORT jint JNICALL
+Java_sun_nio_ch_Pollset_eventSize(JNIEnv* env, jclass this) {
     return sizeof(struct pollfd);
 }
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_eventsOffset(JNIEnv* env, jclass this) {
+Java_sun_nio_ch_Pollset_eventsOffset(JNIEnv* env, jclass this) {
     return offsetof(struct pollfd, events);
 }
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_reventsOffset(JNIEnv* env, jclass this) {
+Java_sun_nio_ch_Pollset_reventsOffset(JNIEnv* env, jclass this) {
     return offsetof(struct pollfd, revents);
 }
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_fdOffset(JNIEnv* env, jclass this) {
+Java_sun_nio_ch_Pollset_fdOffset(JNIEnv* env, jclass this) {
     return offsetof(struct pollfd, fd);
 }
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_pollsetCreate(JNIEnv *env, jclass c) {
+Java_sun_nio_ch_Pollset_pollsetCreate(JNIEnv *env, jclass c) {
     /* pollset_create can take the maximum number of fds, but we
      * cannot predict this number so we leave it at OPEN_MAX. */
     pollset_t ps = _pollset_create(-1);
@@ -101,7 +123,7 @@ Java_sun_nio_ch_AixPollPort_pollsetCreate(JNIEnv *env, jclass c) {
 }
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_pollsetCtl(JNIEnv *env, jclass c, jint ps,
+Java_sun_nio_ch_Pollset_pollsetCtl(JNIEnv *env, jclass c, jint ps,
                                        jint opcode, jint fd, jint events) {
     struct poll_ctl event;
     int res;
@@ -115,27 +137,71 @@ Java_sun_nio_ch_AixPollPort_pollsetCtl(JNIEnv *env, jclass c, jint ps,
     return (res == 0) ? 0 : errno;
 }
 
-JNIEXPORT jint JNICALL
-Java_sun_nio_ch_AixPollPort_pollsetPoll(JNIEnv *env, jclass c,
-                                        jint ps, jlong address, jint numfds) {
-    struct pollfd *events = jlong_to_ptr(address);
-    int res;
+JNIEXPORT void JNICALL
+Java_sun_nio_ch_Pollset_pollsetBulkCtl(JNIEnv *env, jclass this,
+                                jint pollsetFD, jlong address, jint count) {
 
-    RESTARTABLE(_pollset_poll(ps, events, numfds, -1), res);
+    /*
+     * Upon success, pollset_ctl returns 0. Upon failure, pollset_ctl returns the
+     * 0-based problem element number of the pollctl_array (for example, 2 is returned
+     * for element 3). If the first element is the problem element, or some other error
+     * occurs prior to processing the array of elements, -1 is returned and errno is
+     * set to the appropriate code. The calling application must acknowledge that elements
+     * in the array prior to the problem element were successfully processed and should
+     * attempt to call pollset_ctl again with the elements of pollctl_array beyond the
+     * problematic element.
+     */
+
+    int res = 0;
+    int failedErrno = 0;
+    bool failed = false;
+    while (count > 0) {
+        res = _pollset_ctl((pollset_t)pollsetFD, (struct poll_ctl *)(intptr_t) address, count);
+        if (res == 0) {
+            break;
+        } else if (res == -1) {
+            // element 0 is the problem; skip it and continue with the remainder
+            failedErrno = errno;
+            failed = true;
+            address += POLLCTL_SIZE;
+            count--;
+        } else {
+            failedErrno = errno;
+            failed = true;
+            address += (res + 1) * POLLCTL_SIZE;
+            count -= (res + 1);
+        }
+    }
+    if (failed && failedErrno != EINVAL && failedErrno != EINTR) {
+        errno = failedErrno;
+        JNU_ThrowIOExceptionWithLastError(env, "pollset_ctl failed");
+    }
+}
+
+JNIEXPORT jint JNICALL
+Java_sun_nio_ch_Pollset_pollsetPoll(JNIEnv *env, jclass c,
+                                        jint ps, jlong address, jint numfds, jint timeout) {
+    struct pollfd *events = jlong_to_ptr(address);
+    int res = _pollset_poll(ps, events, numfds, timeout);
     if (res < 0) {
-        JNU_ThrowIOExceptionWithLastError(env, "pollset_poll failed");
+        if (errno == EINTR) {
+            return IOS_INTERRUPTED;
+        } else {
+            JNU_ThrowIOExceptionWithLastError(env, "pollset failed");
+            return IOS_THROWN;
+        }
     }
     return res;
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_AixPollPort_pollsetDestroy(JNIEnv *env, jclass c, jint ps) {
+Java_sun_nio_ch_Pollset_pollsetDestroy(JNIEnv *env, jclass c, jint ps) {
     int res;
     RESTARTABLE(_pollset_destroy((pollset_t)ps), res);
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_AixPollPort_socketpair(JNIEnv* env, jclass clazz, jintArray sv) {
+Java_sun_nio_ch_Pollset_socketpair(JNIEnv* env, jclass clazz, jintArray sv) {
     int sp[2];
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, sp) == -1) {
         JNU_ThrowIOExceptionWithLastError(env, "socketpair failed");
@@ -148,7 +214,7 @@ Java_sun_nio_ch_AixPollPort_socketpair(JNIEnv* env, jclass clazz, jintArray sv) 
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_AixPollPort_interrupt(JNIEnv *env, jclass c, jint fd) {
+Java_sun_nio_ch_Pollset_interrupt(JNIEnv *env, jclass c, jint fd) {
     int res;
     int buf[1];
     buf[0] = 1;
@@ -159,7 +225,7 @@ Java_sun_nio_ch_AixPollPort_interrupt(JNIEnv *env, jclass c, jint fd) {
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_AixPollPort_drain1(JNIEnv *env, jclass cl, jint fd) {
+Java_sun_nio_ch_Pollset_drain1(JNIEnv *env, jclass cl, jint fd) {
     int res;
     char buf[1];
     RESTARTABLE(read(fd, buf, 1), res);
@@ -169,7 +235,16 @@ Java_sun_nio_ch_AixPollPort_drain1(JNIEnv *env, jclass cl, jint fd) {
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_AixPollPort_close0(JNIEnv *env, jclass c, jint fd) {
+Java_sun_nio_ch_Pollset_close0(JNIEnv *env, jclass c, jint fd) {
     int res;
+    // Validate file descriptor before attempting close
+    if (fd < 0) {
+        return;  // Already closed or invalid
+    }
     RESTARTABLE(close(fd), res);
+    // Don't throw exception on EBADF - FD might already be closed
+    // This is expected during cleanup in concurrent scenarios
+    if (res < 0 && errno != EBADF) {
+        JNU_ThrowIOExceptionWithLastError(env, "close failed");
+    }
 }
