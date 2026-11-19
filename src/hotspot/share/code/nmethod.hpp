@@ -335,7 +335,7 @@ class nmethod : public CompiledMethod {
 
   // Returns true if this thread changed the state of the nmethod or
   // false if another thread performed the transition.
-  bool make_not_entrant_or_zombie(int state);
+  bool make_not_entrant_or_zombie(int state, bool count_decompile = true);
   bool make_entrant() { Unimplemented(); return false; }
   void inc_decompile_count();
 
@@ -488,6 +488,13 @@ class nmethod : public CompiledMethod {
   bool  make_not_entrant() {
     assert(!method()->is_method_handle_intrinsic(), "Cannot make MH intrinsic not entrant");
     return make_not_entrant_or_zombie(not_entrant);
+  }
+  // Same as make_not_entrant(), but not counted toward
+  // PerMethodRecompilationCutoff. Used when the code itself was fine but the
+  // method was flushed from the code cache, e.g., because of a tenured trap.
+  bool  make_not_entrant_no_decompile_count() {
+    assert(!method()->is_method_handle_intrinsic(), "Cannot make MH intrinsic not entrant");
+    return make_not_entrant_or_zombie(not_entrant, false /* count_decompile */);
   }
   bool  make_not_used()    { return make_not_entrant(); }
   bool  make_zombie()      { return make_not_entrant_or_zombie(zombie); }

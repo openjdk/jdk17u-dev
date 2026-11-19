@@ -608,7 +608,17 @@ void NMethodSweeper::possibly_flush(nmethod* nm) {
       }
 
       if (make_not_entrant) {
-        nm->make_not_entrant();
+        // A flush only means the stack scan did not see the method; the code
+        // itself was fine. Count it toward PerMethodRecompilationCutoff only
+        // when the code cache is running out of space. When the cache is
+        // almost full it may be beneficial to let these flushes increment the
+        // decompile count, because there C2 could recompile the method every
+        // few sweeps.
+        if (threshold >= 0.0) {
+          nm->make_not_entrant();
+        } else {
+          nm->make_not_entrant_no_decompile_count();
+        }
 
         // Code cache state change is tracked in make_not_entrant()
         if (PrintMethodFlushing && Verbose) {
