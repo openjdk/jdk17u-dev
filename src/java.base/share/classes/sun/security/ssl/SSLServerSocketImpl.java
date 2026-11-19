@@ -266,7 +266,13 @@ final class SSLServerSocketImpl extends SSLServerSocket {
 
     @Override
     public Socket accept() throws IOException {
-        SSLSocketImpl s = new SSLSocketImpl(sslContext, sslConfig);
+        serverSocketLock.lock();
+        SSLSocketImpl s;
+        try {
+            s = new SSLSocketImpl(sslContext, sslConfig);
+        } finally {
+            serverSocketLock.unlock();
+        }
 
         implAccept(s);
         s.doneConnect();
