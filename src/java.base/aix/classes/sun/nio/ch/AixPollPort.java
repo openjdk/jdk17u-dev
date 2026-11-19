@@ -71,7 +71,7 @@ final class AixPollPort
 
     // maximum number of events to poll at a time
     private static final int MAX_POLL_EVENTS = 512;
-    
+
     // encapsulates an event for a channel
     static class Event {
         final PollableChannel channel;
