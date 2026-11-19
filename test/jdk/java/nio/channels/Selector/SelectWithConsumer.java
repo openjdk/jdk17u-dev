@@ -32,6 +32,11 @@
  * @run testng/othervm -Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.WindowsSelectorProvider SelectWithConsumer
  */
 
+/* @test
+ * @requires (os.family != "windows")
+ * @run testng/othervm -Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.PollSelectorProvider SelectWithConsumer
+ */
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;

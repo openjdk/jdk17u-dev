@@ -1,0 +1,155 @@
+/*
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, IBM Corp. All rights reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
+ */
+
+package sun.nio.ch;
+
+import java.io.IOException;
+import jdk.internal.misc.Unsafe;
+
+public class Pollset {
+
+    private static final Unsafe unsafe = Unsafe.getUnsafe();
+
+   /**
+     * struct pollfd {
+     *     int fd;
+     *     short events;
+     *     short revents;
+     * }
+     */
+    public static final int SIZEOF_POLLFD    = eventSize();
+    public static final int OFFSETOF_EVENTS  = eventsOffset();
+    public static final int OFFSETOF_REVENTS = reventsOffset();
+    public static final int OFFSETOF_FD      = fdOffset();
+
+    /**
+     * struct poll_ctl {
+     *     short cmd;
+     *     short events;
+     *     int   fd;
+     * }
+     */
+
+    public static final int SIZEOF_POLLCTL           = pollCtlSize();
+    public static final int OFFSETOF_POLLCTL_CMD     = pollCtlCmdOffset();
+    public static final int OFFSETOF_POLLCTL_EVENTS  = pollCtlEventsOffset();
+    public static final int OFFSETOF_POLLCTL_FD      = pollCtlFdOffset();
+
+    /**
+     * Writes a poll_ctl entry at the given base address + index.
+     */
+    public static void putPollCtlEntry(long base, int index, int cmd, int fd, int events) {
+        long addr = base + (long) index * SIZEOF_POLLCTL;
+        unsafe.putShort(addr + OFFSETOF_POLLCTL_CMD,    (short) cmd);
+        unsafe.putShort(addr + OFFSETOF_POLLCTL_EVENTS, (short) events);
+        unsafe.putInt  (addr + OFFSETOF_POLLCTL_FD,     fd);
+    }
+
+    // opcodes
+    public static final int PS_ADD     = 0x0;
+    public static final int PS_MOD     = 0x1;
+    public static final int PS_DELETE  = 0x2;
+
+    // event
+    public static final int PS_POLLPRI = 0x4;
+
+    public static final int PS_NO_TIMEOUT = -1;
+
+    /**
+     * Allocates a poll_ctl array to hold up to {@code count} entries.
+     */
+    public static long allocatePollCtlArray(int count) {
+        return unsafe.allocateMemory((long) count * SIZEOF_POLLCTL);
+    }
+
+    /**
+     * Allocates a poll array to handle up to {@code count} events.
+     */
+    public static long allocatePollArray(int count) {
+        return unsafe.allocateMemory(count * SIZEOF_POLLFD);
+    }
+
+    /**
+     * Free a poll array
+     */
+    public static void freePollArray(long address) {
+        unsafe.freeMemory(address);
+    }
+
+    /**
+     * Returns event[i];
+     */
+    public static long getEvent(long address, int i) {
+        return address + (SIZEOF_POLLFD * i);
+    }
+
+    /**
+     * Returns event->fd
+     */
+    public static int getDescriptor(long eventAddress) {
+        return unsafe.getInt(eventAddress + OFFSETOF_FD);
+    }
+
+    /**
+     * Returns event->events
+     */
+    public static int getEvents(long eventAddress) {
+        return unsafe.getChar(eventAddress + OFFSETOF_EVENTS);
+    }
+
+    /**
+     * Returns event->revents
+     */
+    public static int getRevents(long eventAddress) {
+        return unsafe.getChar(eventAddress + OFFSETOF_REVENTS);
+    }
+
+    static {
+        IOUtil.load();
+        init();
+    }
+    // -- Native methods --
+    public static native int pollsetCreate() throws IOException;
+    public static native int pollsetCtl(int pollset, int opcode, int fd, int events);
+    public static native int pollsetPoll(int pollset, long pollAddress, int numfds, int timeout)
+        throws IOException;
+    public static native void pollsetDestroy(int pollset);
+    public static native void pollsetBulkCtl(int pollsetFd, long pollCtlArrayAddress, int count)
+        throws IOException;
+    public static native void init();
+    public static native int eventSize();
+    public static native int eventsOffset();
+    public static native int reventsOffset();
+    public static native int fdOffset();
+    public static native int pollCtlSize();
+    public static native int pollCtlCmdOffset();
+    public static native int pollCtlEventsOffset();
+    public static native int pollCtlFdOffset();
+    public static native void socketpair(int[] sv) throws IOException;
+    public static native void interrupt(int fd) throws IOException;
+    public static native void drain1(int fd) throws IOException;
+    public static native void close0(int fd) throws IOException;
+}
