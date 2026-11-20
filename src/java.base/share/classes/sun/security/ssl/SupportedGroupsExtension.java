@@ -204,6 +204,9 @@ final class SupportedGroupsExtension {
             } else {        // default groups
                 NamedGroup[] groups = new NamedGroup[] {
 
+                        // Hybrid key agreement
+                        NamedGroup.X25519MLKEM768,
+
                         // Primary XDH (RFC 7748) curves
                         NamedGroup.X25519,
 
