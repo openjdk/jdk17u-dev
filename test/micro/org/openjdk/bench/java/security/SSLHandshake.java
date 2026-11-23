@@ -196,11 +196,11 @@ public class SSLHandshake {
 
         // Set the key exchange named group in client and server engines
         SSLParameters clientParams = clientEngine.getSSLParameters();
-        clientParams.setNamedGroups(new String[]{namedGroup});
+        // not in 17 clientParams.setNamedGroups(new String[]{namedGroup});
         clientEngine.setSSLParameters(clientParams);
 
         SSLParameters serverParams = serverEngine.getSSLParameters();
-        serverParams.setNamedGroups(new String[]{namedGroup});
+        // not in 17 serverParams.setNamedGroups(new String[]{namedGroup});
         serverEngine.setSSLParameters(serverParams);
     }
 }

@@ -163,7 +163,8 @@ public class KAKeyDerivation implements SSLKeyDerivation {
                 return hkdf.extract(saltSecret, sharedSecret, label);
             }
         } catch (GeneralSecurityException gse) {
-            throw new SSLHandshakeException("Could not generate secret", gse);
+            throw (SSLHandshakeException) new SSLHandshakeException(
+                    "Could not generate secret").initCause(gse);
         }
     }
     /**
@@ -200,7 +201,8 @@ public class KAKeyDerivation implements SSLKeyDerivation {
 
             return new KEM.Encapsulated(derived, enc.encapsulation(), null);
         } catch (GeneralSecurityException gse) {
-            throw new SSLHandshakeException("Could not generate secret", gse);
+            throw (SSLHandshakeException) new SSLHandshakeException(
+                    "Could not generate secret").initCause(gse);
         }
     }
 
