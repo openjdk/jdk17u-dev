@@ -362,7 +362,7 @@ SHA512withECDSA
 T}@T{
 T}
 T{
-RSASSA\-PSS
+RSASSA\-PSS[1]
 T}@T{
 <= 3072
 T}@T{
@@ -385,29 +385,42 @@ RSASSA\-PSS (with SHA\-512)
 T}@T{
 T}
 T{
-EdDSA
+EdDSA[2]
 T}@T{
 255
 T}@T{
-Ed25519
+EdDSA
 T}@T{
 \&.EC
 T}
 T{
+ML-DSA[2]
 T}@T{
-448
 T}@T{
-Ed448
+ML-DSA
 T}@T{
+\&.DSA
 T}
 .TE
-.IP \[bu] 2
+.PP
+1.
 If an RSASSA\-PSS key is encoded with parameters, then jarsigner will
 use the same parameters in the signature.
 Otherwise, jarsigner will use parameters that are determined by the size
 of the key as specified in the table above.
 For example, an 3072\-bit RSASSA\-PSS key will use RSASSA\-PSS as the
 signature algorithm and SHA\-256 as the hash and MGF1 algorithms.
+.PP
+2.
+Modern digital signature algorithms such as EdDSA and ML-DSA use the same
+name for both the key and signature algorithms.
+Only the signature algorithm with the same name can be used with a given
+key algorithm.
+The specific signature parameter set (for example, Ed25519 or Ed448 for
+EdDSA) is the same as that of the key.
+.PP
+If a key algorithm is not listed in this table, the \f[V].DSA\f[R] block
+file extension is always used.
 .PP
 These default signature algorithms can be overridden by using the
 \f[CB]\-sigalg\f[R] option.
