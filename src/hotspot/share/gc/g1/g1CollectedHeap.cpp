@@ -1293,7 +1293,7 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
   }
 
   double expand_heap_start_time_sec = os::elapsedTime();
-  uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
+  uint regions_to_expand = checked_cast<uint>(aligned_expand_bytes / HeapRegion::GrainBytes);
   assert(regions_to_expand > 0, "Must expand by at least one region");
 
   uint expanded_by = _hrm.expand_by(regions_to_expand, pretouch_workers);
