@@ -699,7 +699,7 @@ enum NamedGroup {
             return XDHKeyExchange.xdheKAGenerator.createKeyDerivation(hc);
         }
     }
- 
+
     private static class KEMScheme implements NamedGroupScheme {
         private static final KEMScheme instance = new KEMScheme();
 
